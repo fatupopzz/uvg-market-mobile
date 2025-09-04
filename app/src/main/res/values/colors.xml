@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- === COLORES UVG OFICIALES === -->
+    <!-- Basados en la paleta institucional de UVG -->
+    <color name="uvg_green_primary">#355E34</color>
+    <color name="uvg_green_dark">#264425</color>
+    <color name="uvg_green_medium">#99B697</color>
+    <color name="uvg_green_light">#EAF0E8</color>
+
+    <!-- === COLORES DE SUPERFICIE === -->
+    <color name="background_white">#FEFEFE</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="surface_dark">#1C1C1C</color>
+    <color name="surface_overlay">#80000000</color>
+
+    <!-- === COLORES DE TEXTO === -->
+    <color name="text_primary">#355E34</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_dark">#1C1C1C</color>
+    <color name="text_placeholder">#999999</color>
+
+    <!-- === COLORES DE BOTONES === -->
+    <color name="button_primary">#355E34</color>
+    <color name="button_secondary">#FFFFFF</color>
+    <color name="button_disabled">#CCCCCC</color>
+
+    <!-- === COLORES DE ESTADO === -->
+    <color name="success">#4CAF50</color>
+    <color name="error">#FF5252</color>
+    <color name="warning">#FFC107</color>
+    <color name="info">#2196F3</color>
+
+    <!-- === COLORES LEGACY (mantener por compatibilidad) === -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
