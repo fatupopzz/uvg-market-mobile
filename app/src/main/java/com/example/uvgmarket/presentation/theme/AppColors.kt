@@ -9,10 +9,10 @@ import androidx.compose.ui.graphics.Color
 object AppColors {
 
     // Colores principales UVG del Figma
-    val UvgGreen = Color(0xFF355E34)
-    val UvgGreenDark = Color(0xB7152814)
-    val UvgGreenMedium = Color(0xFF264425) // Verde medio oscuro
-    val UvgGreenLight = Color(0xFF99B697) // Verde claro
+    val UvgGreen = Color(0xFF355E34) // Verde principal UVG
+    val UvgGreenDark = Color(0xFF355E34) // Cambiado para coincidir con el verde principal
+    val UvgGreenMedium = Color(0xFF355E34) // Verde medio oscuro
+    val UvgGreenLight = Color(0xFF355E34) // Verde claro
 
     // Colores de fondo y superficie
     val BackgroundWhite = Color(0xFFFEFEFE) // Blanco para fondo

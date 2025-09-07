@@ -53,21 +53,21 @@ fun CustomSearchBar(
             .fillMaxWidth()
             .background(
                 color = AppColors.BackgroundWhite,
-                shape = RoundedCornerShape(25.dp)
+                shape = RoundedCornerShape(20.dp) // Reducido de 25dp a 20dp para que sea menos gordo
             )
-            .padding(horizontal = 4.dp, vertical = 4.dp),
+            .padding(horizontal = 3.dp, vertical = 2.dp), // Reducido padding vertical
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Ícono de menú (hamburger menu)
         IconButton(
             onClick = onMenuClick,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(32.dp) // Reducido de 40dp a 32dp
         ) {
             Icon(
                 imageVector = Icons.Default.Menu,
                 contentDescription = "Abrir menú",
                 tint = AppColors.IconGray,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp) // Reducido de 20dp a 18dp
             )
         }
 
@@ -75,14 +75,14 @@ fun CustomSearchBar(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 6.dp, vertical = 2.dp) // Reducido padding
         ) {
             BasicTextField(
                 value = searchText,
                 onValueChange = onSearchTextChange,
                 textStyle = TextStyle(
                     color = AppColors.TextDark,
-                    fontSize = 14.sp
+                    fontSize = 11.sp // Reducido de 12sp a 11sp
                 ),
                 cursorBrush = SolidColor(AppColors.UvgGreen),
                 singleLine = true,
@@ -94,7 +94,7 @@ fun CustomSearchBar(
                 Text(
                     text = placeholder,
                     color = AppColors.TextHint,
-                    fontSize = 14.sp
+                    fontSize = 11.sp // Reducido de 12sp a 11sp
                 )
             }
         }
@@ -102,13 +102,13 @@ fun CustomSearchBar(
         // Ícono de búsqueda
         IconButton(
             onClick = onSearchClick,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(24.dp) // Reducido de 28dp a 24dp
         ) {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Buscar",
                 tint = AppColors.IconGray,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(12.dp) // Reducido de 14dp a 12dp
             )
         }
     }

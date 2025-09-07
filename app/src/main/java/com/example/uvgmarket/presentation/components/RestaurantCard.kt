@@ -1,6 +1,5 @@
 package com.example.uvgmarket.presentation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,20 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,16 +35,12 @@ data class Restaurant(
     val name: String,
     val description: String,
     val rating: Int,
-    val profileImageRes: Int, // Resource ID de la imagen de perfil
-    val foodImages: List<Int> // Lista de resource IDs de imágenes de comida
+    val profileImageRes: Int,
+    val foodImages: List<Int>
 )
 
 /**
  * Card component para mostrar información de un restaurante
- * Incluye imagen de perfil, rating, nombre, descripción e imágenes de comida
- *
- * @param restaurant Datos del restaurante a mostrar
- * @param onClick Callback cuando se presiona la card
  */
 @Composable
 fun RestaurantCard(
@@ -83,13 +76,15 @@ fun RestaurantCard(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
-                        .background(AppColors.SurfaceGray)
+                        .background(AppColors.UvgGreen)
                 ) {
-                    Image(
-                        painter = painterResource(id = restaurant.profileImageRes),
+                    Icon(
+                        imageVector = Icons.Default.Person,
                         contentDescription = "Avatar de ${restaurant.name}",
-                        modifier = Modifier.size(50.dp),
-                        contentScale = ContentScale.Crop
+                        tint = AppColors.TextWhite,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .align(Alignment.Center)
                     )
                 }
 
@@ -121,28 +116,19 @@ fun RestaurantCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Imágenes de comida
-            if (restaurant.foodImages.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    restaurant.foodImages.take(2).forEach { imageRes ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(AppColors.SurfaceGray)
-                        ) {
-                            Image(
-                                painter = painterResource(id = imageRes),
-                                contentDescription = "Comida de ${restaurant.name}",
-                                modifier = Modifier.fillMaxWidth(),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    }
+            // Imágenes de comida placeholder
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                repeat(2) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(80.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(AppColors.SurfaceGray)
+                    )
                 }
             }
         }
@@ -150,21 +136,17 @@ fun RestaurantCard(
 }
 
 /**
- * Preview del componente RestaurantCard con datos de ejemplo
+ * Preview del componente RestaurantCard
  */
 @Preview(showBackground = true)
 @Composable
 fun RestaurantCardPreview() {
-    // Datos de ejemplo para el preview
     val sampleRestaurant = Restaurant(
         name = "Hamburguesas kawaii",
         description = "Tu lugar fav para comer",
         rating = 3,
-        profileImageRes = android.R.drawable.ic_menu_camera, // Placeholder
-        foodImages = listOf(
-            android.R.drawable.ic_menu_gallery,
-            android.R.drawable.ic_menu_camera
-        )
+        profileImageRes = 0,
+        foodImages = listOf()
     )
 
     RestaurantCard(restaurant = sampleRestaurant)
