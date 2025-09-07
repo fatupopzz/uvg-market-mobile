@@ -34,7 +34,7 @@ fun CustomTextField(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color = AppColors.UvgGreenMedium,
+                color = AppColors.UvgGreenDark,
                 shape = RoundedCornerShape(8.dp)
             ),
         colors = TextFieldDefaults.colors(

@@ -57,7 +57,7 @@ fun RegistroScreen(
                     text = stringResource(R.string.registro_title),
                     color = Color.White,
                     fontSize = 40.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                     letterSpacing = 2.sp
                 )
