@@ -1,3 +1,5 @@
+package com.example.uvgmarket.profile
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,7 @@ import com.example.uvgmarket.profile.models.Usuario
 import com.example.uvgmarket.profile.models.Producto
 import com.example.uvgmarket.profile.repository.DummyRepository
 import com.example.uvgmarket.profile.components.CustomCoverImage
+import com.example.uvgmarket.profile.components.CustomDivider
 import com.example.uvgmarket.profile.components.CustomFloatingActionButton
 import com.example.uvgmarket.profile.components.CustomProductCard
 import com.example.uvgmarket.profile.components.CustomTopBar

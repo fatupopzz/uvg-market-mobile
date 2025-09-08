@@ -1,3 +1,5 @@
+package com.example.uvgmarket.profile.components
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Divider
