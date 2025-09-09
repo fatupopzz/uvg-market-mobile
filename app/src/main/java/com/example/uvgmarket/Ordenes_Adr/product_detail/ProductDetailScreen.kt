@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.product_detail
+package com.example.uvgmarket.Ordenes_Adr.product_detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.R
-import com.example.uvgmarket.presentation.components.*
+import com.example.uvgmarket.Ordenes_Adr.componentes.*
 
 /**
  * Pantalla de detalles de producto que muestra la información completa
