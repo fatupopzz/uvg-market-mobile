@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -99,7 +100,7 @@ fun ProductDetailScreen(
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Left
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -138,15 +139,15 @@ fun ProductDetailScreen(
 
                         Spacer(modifier = Modifier.height(36.dp))
 
-                        CustomButton(
-                            text = "CONTACTAR AL VENDEDOR",
-                            onClick = onContactSellerClick,
-                            modifier = Modifier.fillMaxWidth(),
-                            backgroundColor = Color(0xFF7FB069)
                         )
                     }
                 }
 
+                CustomButton(
+                    text = "CONTACTAR AL VENDEDOR",
+                    onClick = onContactSellerClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = Color(0xFF7FB069)
 
             }
         }
