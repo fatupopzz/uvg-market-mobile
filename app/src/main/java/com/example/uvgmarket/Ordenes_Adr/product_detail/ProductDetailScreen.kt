@@ -150,7 +150,7 @@ fun ProductDetailScreen(
                     text = "CONTACTAR AL VENDEDOR",
                     onClick = onContactSellerClick,
                     modifier = Modifier.fillMaxWidth(),
-                    backgroundColor = Color(0xFF7FB069) // Verde como en la imagen
+                    backgroundColor = Color(0xFF7FB069) // Verde
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
