@@ -1,3 +1,37 @@
 <resources>
-    <string name="app_name">UvgMarket</string>
+    <string name="app_name">UVG Market</string>
+
+    <!-- Welcome Back Screen -->
+    <string name="welcome_back_title">BIENVENIDO DE VUELTA</string>
+    <string name="welcome_usuario_hint">Tu nombre de usuario</string>
+    <string name="welcome_contrasena_hint">Tu contraseña</string>
+    <string name="boton_iniciar_sesion">INICIAR SESIÓN</string>
+    <string name="no_tienes_cuenta">¿No tienes cuenta?</string>
+    <string name="crear_cuenta_link">Crear cuenta</string>
+
+    <!-- Registro Screen -->
+    <string name="registro_title">CREAR CUENTA</string>
+    <string name="registro_nombre_hint">Nombre completo</string>
+    <string name="registro_usuario_hint">Nombre de usuario</string>
+    <string name="registro_correo_hint">Correo institucional</string>
+    <string name="registro_contrasena_hint">Mínimo 8 caracteres</string>
+    <string name="registro_confirmar_hint">Confirmar contraseña</string>
+    <string name="boton_registrarse">REGISTRARSE</string>
+    <string name="ya_tienes_cuenta">¿Ya tienes cuenta?</string>
+    <string name="iniciar_sesion_link">Iniciar sesión</string>
+
+    <!-- Labels -->
+    <string name="usuario_label">Usuario</string>
+    <string name="contrasena_label">Contraseña</string>
+    <string name="nombre_label">Nombre</string>
+    <string name="correo_label">Correo</string>
+    <string name="confirmar_contrasena_label">Confirmar Contraseña</string>
+
+    <!-- Validaciones -->
+    <string name="error_campo_vacio">Este campo es requerido</string>
+    <string name="error_contrasena_corta">La contraseña debe tener mínimo 8 caracteres</string>
+    <string name="error_correo_invalido">Ingresa un correo válido</string>
+    <string name="error_contrasenas_no_coinciden">Las contraseñas no coinciden</string>
+    <string name="login_exitoso">Inicio de sesión exitoso</string>
+    <string name="registro_exitoso">Registro completado exitosamente</string>
 </resources>
