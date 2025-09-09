@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.components
+package com.example.uvgmarket.pantallainicio.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.uvgmarket.presentation.theme.AppColors
+import com.example.uvgmarket.pantallainicio.theme.AppColors
 
 /**
  * Componente reutilizable para mostrar rating con estrellas

@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.marketplace
+package com.example.uvgmarket.pantallainicio.marketplace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,11 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.uvgmarket.presentation.components.CustomSearchBar
-import com.example.uvgmarket.presentation.components.ProfileAvatar
-import com.example.uvgmarket.presentation.components.Entrepreneur
-import com.example.uvgmarket.presentation.components.EntrepreneurCard
-import com.example.uvgmarket.presentation.theme.AppColors
+import com.example.uvgmarket.pantallainicio.components.CustomSearchBar
+import com.example.uvgmarket.pantallainicio.components.ProfileAvatar
+import com.example.uvgmarket.pantallainicio.components.Entrepreneur
+import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
+import com.example.uvgmarket.pantallainicio.theme.AppColors
 
 /**
  * Pantalla principal del Marketplace

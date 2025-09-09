@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.components
+package com.example.uvgmarket.pantallainicio.components
 
 /**
  * Data class que representa la información de un emprendedor/vendedor
