@@ -17,18 +17,18 @@ fun CustomButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     backgroundColor: Color = Color.White,
-    contentColor: Color = Color.Black
+    contentColor: Color = Color.White
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(56.dp),
+        modifier = modifier.height(70.dp),
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
             contentColor = contentColor,
             disabledContainerColor = backgroundColor.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(8.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
         Text(

@@ -50,8 +50,8 @@ fun ProductDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "ordenar", // Placeholder como se ve en la imagen
-                        color = Color.Black,
+                        text = " ",
+                        color = Color.White,
                         fontSize = 16.sp
                     )
                 },
@@ -60,12 +60,12 @@ fun ProductDetailScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Regresar",
-                            tint = Color.Black
+                            tint = Color.White
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF7FB069) // Color verde como en la imagen
+                    containerColor = Color(0xFF7FB069) // Color verde
                 )
             )
 
@@ -73,29 +73,24 @@ fun ProductDetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .background(Color(0xFFF5F5F5))
             ) {
                 // Imagen del producto
                 ProductImage(
                     modifier = Modifier
-                        .size(200.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .size(400.dp)
                 )
-
-                Spacer(modifier = Modifier.height(24.dp))
 
                 // Información del producto en tarjeta
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxHeight(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFF5F5F5)
+                        containerColor = Color(0xFFE0E0E0)
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(0.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier.padding(50.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Título del producto
@@ -140,20 +135,19 @@ fun ProductDetailScreen(
                             color = Color.Black,
                             textAlign = TextAlign.Center
                         )
+
+                        Spacer(modifier = Modifier.height(36.dp))
+
+                        CustomButton(
+                            text = "CONTACTAR AL VENDEDOR",
+                            onClick = onContactSellerClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundColor = Color(0xFF7FB069)
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
 
-                // Botón de contactar vendedor
-                CustomButton(
-                    text = "CONTACTAR AL VENDEDOR",
-                    onClick = onContactSellerClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    backgroundColor = Color(0xFF7FB069) // Verde
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -161,7 +155,7 @@ fun ProductDetailScreen(
 
 /**
  * Composable que muestra la imagen del producto
- * Utiliza un placeholder similar al ProfileImage del RegistroScreen
+ * Utiliza un placeholder
  *
  * @param modifier Modificadores de Compose para personalizar la apariencia
  */
@@ -170,21 +164,21 @@ private fun ProductImage(
     modifier: Modifier = Modifier
 ) {
     // Placeholder para la imagen del producto
-    // En una implementación real, aquí cargarías la imagen desde una URL o recurso
+    // aquí se carga la imagen desde una URL o recurso
     Box(
         modifier = modifier.background(
-            color = Color(0xFFE0E0E0),
+            color = Color.White,
             shape = RoundedCornerShape(12.dp)
         ),
         contentAlignment = Alignment.Center
     ) {
-        // Icono placeholder o imagen real
+        // Icono placeholder
         Text(
             text = "🍔",
             fontSize = 60.sp,
             textAlign = TextAlign.Center
         )
-        /* Alternativa usando Image si tienes el recurso:
+        /* Image:
         Image(
             painter = painterResource(id = R.drawable.product_placeholder),
             contentDescription = "Imagen del producto",
