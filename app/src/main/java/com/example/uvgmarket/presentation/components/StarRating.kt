@@ -16,12 +16,6 @@ import com.example.uvgmarket.presentation.theme.AppColors
 
 /**
  * Componente reutilizable para mostrar rating con estrellas
- *
- * @param rating Número de estrellas activas (0-5)
- * @param maxStars Número máximo de estrellas a mostrar (default: 5)
- * @param starSize Tamaño de cada estrella en dp (default: 16dp)
- * @param activeColor Color de las estrellas activas
- * @param inactiveColor Color de las estrellas inactivas
  */
 @Composable
 fun StarRating(
@@ -37,7 +31,6 @@ fun StarRating(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Iteramos sobre el número máximo de estrellas
         repeat(maxStars) { index ->
             val isActive = index < rating
 

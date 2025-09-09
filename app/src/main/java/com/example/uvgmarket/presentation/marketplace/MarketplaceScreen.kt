@@ -28,27 +28,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uvgmarket.presentation.components.CustomSearchBar
 import com.example.uvgmarket.presentation.components.ProfileAvatar
-import com.example.uvgmarket.presentation.components.Restaurant
-import com.example.uvgmarket.presentation.components.RestaurantCard
+import com.example.uvgmarket.presentation.components.Entrepreneur
+import com.example.uvgmarket.presentation.components.EntrepreneurCard
 import com.example.uvgmarket.presentation.theme.AppColors
 
 /**
  * Pantalla principal del Marketplace
- * Muestra una lista de restaurantes con barra de búsqueda y FAB
+ * Muestra una lista de emprendedores con barra de búsqueda y FAB
  */
 @Composable
 fun MarketplaceScreen(
     modifier: Modifier = Modifier,
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onRestaurantClick: (Restaurant) -> Unit = {},
+    onEntrepreneurClick: (Entrepreneur) -> Unit = {},
     onFabClick: () -> Unit = {}
 ) {
     // Estado para el texto de búsqueda
     var searchText by remember { mutableStateOf("") }
 
-    // Lista de restaurantes hardcodeada para testing
-    val restaurantsList = getHardcodedRestaurants()
+    // Lista de emprendedores hardcodeada para testing
+    val entrepreneursList = getHardcodedEntrepreneurs()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -62,7 +62,7 @@ fun MarketplaceScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar restaurante"
+                    contentDescription = "Agregar emprendedor"
                 )
             }
         }
@@ -72,12 +72,12 @@ fun MarketplaceScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header con fondo verde y barra de búsqueda - REDUCIDO VERTICALMENTE
+            // Header con fondo verde y barra de búsqueda
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(AppColors.UvgGreen)
-                    .padding(horizontal = 12.dp, vertical = 6.dp) // Reducido padding vertical de 12dp a 6dp
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -89,30 +89,32 @@ fun MarketplaceScreen(
                         onSearchTextChange = { searchText = it },
                         onMenuClick = onMenuClick,
                         onSearchClick = onSearchClick,
+                        placeholder = "Buscar emprendedores...",
                         modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(modifier = Modifier.width(6.dp)) // Reducido de 8dp a 6dp
+                    Spacer(modifier = Modifier.width(6.dp))
 
-                    // Avatar de perfil
+                    // Avatar de perfil del usuario principal
                     ProfileAvatar(
-                        size = 30, // Reducido de 40 a 30
+                        size = 30,
+                        profileImage = "fotodeperfilindu",
                         onClick = { /* TODO: Agregar acción del perfil */ }
                     )
                 }
             }
 
-            // Lista de restaurantes
+            // Lista de emprendedores
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 itemsIndexed(
-                    items = restaurantsList
-                ) { index, restaurant ->
-                    RestaurantCard(
-                        restaurant = restaurant,
-                        onClick = { onRestaurantClick(restaurant) }
+                    items = entrepreneursList
+                ) { index, entrepreneur ->
+                    EntrepreneurCard(
+                        entrepreneur = entrepreneur,
+                        onClick = { onEntrepreneurClick(entrepreneur) }
                     )
                 }
             }
@@ -120,39 +122,37 @@ fun MarketplaceScreen(
     }
 }
 
-/**
- * Función que retorna una lista hardcodeada de restaurantes para testing
- */
-private fun getHardcodedRestaurants(): List<Restaurant> {
+
+private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
     return listOf(
-        Restaurant(
+        Entrepreneur(
             name = "Hamburguesas kawaii",
             description = "Tu lugar fav para comer",
             rating = 3,
-            profileImageRes = android.R.drawable.ic_menu_camera,
-            foodImages = listOf(
-                android.R.drawable.ic_menu_gallery,
-                android.R.drawable.ic_menu_camera
+            profileImage = "fotodeperfilhamburger",
+            productImages = listOf(
+                "hamburger1",
+                "hamburger2"
             )
         ),
-        Restaurant(
-            name = "Tacos El Sazón",
-            description = "Auténticos tacos mexicanos",
-            rating = 4,
-            profileImageRes = android.R.drawable.ic_menu_camera,
-            foodImages = listOf(
-                android.R.drawable.ic_menu_gallery,
-                android.R.drawable.ic_menu_camera
+        Entrepreneur(
+            name = "Accesorios Luna",
+            description = "Joyería artesanal hecha a mano",
+            rating = 5,
+            profileImage = "fotodeperfiljoyeria",
+            productImages = listOf(
+                "joyeria1",
+                "joyeria2"
             )
         ),
-        Restaurant(
-            name = "Pizza Express",
-            description = "Las mejores pizzas de la ciudad",
+        Entrepreneur(
+            name = "TechRepair GT",
+            description = "Reparación de celulares y laptops",
             rating = 4,
-            profileImageRes = android.R.drawable.ic_menu_camera,
-            foodImages = listOf(
-                android.R.drawable.ic_menu_gallery,
-                android.R.drawable.ic_menu_camera
+            profileImage = "imagendeperfilcomputadora",
+            productImages = listOf(
+                "limpinado1",
+                "limpiando2"
             )
         )
     )
