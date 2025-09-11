@@ -2,6 +2,7 @@ package com.example.uvgmarket.pantallainicio.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,7 +40,8 @@ import com.example.uvgmarket.pantallainicio.theme.AppColors
 fun EntrepreneurCard(
     entrepreneur: Entrepreneur,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onProductImageClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -130,7 +132,6 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Imágenes de productos reales
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -148,6 +149,9 @@ fun EntrepreneurCard(
                             .weight(1f)
                             .height(80.dp)
                             .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                onProductImageClick(imageName)
+                            }
                     ) {
                         if (productImageResId != 0) {
                             Image(

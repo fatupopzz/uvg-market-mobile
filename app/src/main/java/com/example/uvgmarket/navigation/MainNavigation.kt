@@ -32,7 +32,7 @@ fun MainNavigation() {
         startDestination = MainRoutes.Auth.route // Empezar en pantalla de selección
     ) {
 
-        // 🎭 PANTALLA DE SELECCIÓN AUTH
+        // PANTALLA DE SELECCIÓN AUTH
         composable(MainRoutes.Auth.route) {
             AuthScreen(
                 onLogin = {
@@ -44,7 +44,7 @@ fun MainNavigation() {
             )
         }
 
-        // 🔐 PANTALLA LOGIN
+        // PANTALLA LOGIN
         composable(MainRoutes.Login.route) {
             WelcomeBackScreen(
                 onLoginClick = { usuario, contrasena ->
@@ -90,6 +90,14 @@ fun MainNavigation() {
                 },
                 onFabClick = {
                     // TODO: Crear nuevo producto/emprendimiento
+                },
+                onProductImageClick = { productName ->
+                    // Navegar a la pantalla de detalle del producto
+                    navController.navigate(MainRoutes.ProductDetail.route)
+                },
+                onProfileAvatarClick = {
+                    // Navegar a la pantalla de perfil del usuario actual
+                    navController.navigate(MainRoutes.Profile.route)
                 }
             )
         }

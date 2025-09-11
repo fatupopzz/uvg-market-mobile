@@ -42,7 +42,9 @@ fun MarketplaceScreen(
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onEntrepreneurClick: (Entrepreneur) -> Unit = {},
-    onFabClick: () -> Unit = {}
+    onFabClick: () -> Unit = {},
+    onProductImageClick: (String) -> Unit = {},
+    onProfileAvatarClick: () -> Unit = {}
 ) {
     // Estado para el texto de búsqueda
     var searchText by remember { mutableStateOf("") }
@@ -95,11 +97,10 @@ fun MarketplaceScreen(
 
                     Spacer(modifier = Modifier.width(6.dp))
 
-                    // Avatar de perfil del usuario principal
                     ProfileAvatar(
                         size = 30,
                         profileImage = "fotodeperfilindu",
-                        onClick = { /* TODO: Agregar acción del perfil */ }
+                        onClick = onProfileAvatarClick
                     )
                 }
             }
@@ -114,7 +115,8 @@ fun MarketplaceScreen(
                 ) { index, entrepreneur ->
                     EntrepreneurCard(
                         entrepreneur = entrepreneur,
-                        onClick = { onEntrepreneurClick(entrepreneur) }
+                        onClick = { onEntrepreneurClick(entrepreneur) },
+                        onProductImageClick = onProductImageClick
                     )
                 }
             }

@@ -2,6 +2,7 @@ package com.example.uvgmarket.pantallainicio.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -35,7 +36,8 @@ fun ProfileAvatar(
         modifier = modifier
             .size(size.dp)
             .clip(CircleShape)
-            .background(AppColors.TextWhite),
+            .background(AppColors.TextWhite)
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         if (profileImage != null) {
