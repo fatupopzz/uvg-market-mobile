@@ -8,14 +8,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,175 +21,125 @@ import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.R
 import com.example.uvgmarket.Ordenes_Adr.componentes.*
 
-/**
- * Pantalla de detalles de producto que muestra la información completa
- * de un producto seleccionado, incluyendo imagen, descripción y precio.
- *
- * @param onBackClick Callback ejecutado cuando se presiona el botón de regreso
- * @param onContactSellerClick Callback ejecutado cuando se presiona el botón de contactar vendedor
- */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
     onBackClick: () -> Unit = {},
     onContactSellerClick: () -> Unit = {}
 ) {
-    // Estados para datos del producto (usando placeholders)
-    val productTitle by remember { mutableStateOf("Pandita Hamburguesa") }
-    val productSubtitle by remember { mutableStateOf("Gruesa y caliente") }
-    val productDescription by remember { mutableStateOf("Rica hamburguesa libre de gluten sin ningún tipo de preservantes.") }
-    val productPrice by remember { mutableStateOf("39.00Q") }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        // Header verde con flecha
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .background(Color(0xFF4A7E39))
         ) {
-            // Header con botón de regreso
-            TopAppBar(
-                title = {
-                    Text(
-                        text = " ",
-                        color = Color.White,
-                        fontSize = 16.sp
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Regresar",
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF7FB069) // Color verde
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Regresar",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
                 )
+            }
+        }
+
+        // Imagen de la hamburguesa (ocupa toda la parte superior)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.hamburger1),
+                contentDescription = "Pandita Hamburguesa",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        // Sección de información (fondo gris claro)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFE8E8E8))
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            // Título
+            Text(
+                text = "Pandita Hamburguesa",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4A5A4A),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            // Contenido principal
-            Column(
+            // Subtítulo
+            Text(
+                text = "Gruesa y caliente",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color(0xFF6A6A6A),
+                textAlign = TextAlign.Left,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFF5F5F5))
-            ) {
-                // Imagen del producto
-                ProductImage(
-                    modifier = Modifier
-                        .size(400.dp)
-                )
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
 
-                // Información del producto en tarjeta
-                Card(
-                    modifier = Modifier.fillMaxHeight(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE0E0E0)
-                    ),
-                    shape = RoundedCornerShape(0.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(50.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Título del producto
-                        Text(
-                            text = productTitle,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            textAlign = TextAlign.Left
-                        )
+            // Descripción
+            Text(
+                text = "Rica hamburguesa libre de gluten sin ningún tipo de preservantes.",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color(0xFF4A4A4A),
+                textAlign = TextAlign.Left,
+                lineHeight = 22.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp)
+            )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+            // Precio
+            Text(
+                text = "39.00Q",
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4A5A4A),
+                textAlign = TextAlign.Left,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp)
+            )
 
-                        // Subtítulo
-                        Text(
-                            text = productSubtitle,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Descripción del producto
-                        Text(
-                            text = productDescription,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 20.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Precio
-                        Text(
-                            text = productPrice,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(modifier = Modifier.height(36.dp))
-
-                        )
-                    }
-                }
-
-                CustomButton(
-                    text = "CONTACTAR AL VENDEDOR",
-                    onClick = onContactSellerClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    backgroundColor = Color(0xFF7FB069)
-
-            }
+            // Botón
+            CustomButton(
+                text = "CONTACTAR AL VENDEDOR",
+                onClick = onContactSellerClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 40.dp),
+                backgroundColor = Color(0xFF4A7E39),
+                contentColor = Color.White
+            )
         }
     }
 }
 
-/**
- * Composable que muestra la imagen del producto
- * Utiliza un placeholder
- *
- * @param modifier Modificadores de Compose para personalizar la apariencia
- */
-@Composable
-private fun ProductImage(
-    modifier: Modifier = Modifier
-) {
-    // Placeholder para la imagen del producto
-    // aquí se carga la imagen desde una URL o recurso
-    Box(
-        modifier = modifier.background(
-            color = Color.White,
-            shape = RoundedCornerShape(12.dp)
-        ),
-        contentAlignment = Alignment.Center
-    ) {
-        // Icono placeholder
-        Text(
-            text = "🍔",
-            fontSize = 60.sp,
-            textAlign = TextAlign.Center
-        )
-        /* Image:
-        Image(
-            painter = painterResource(id = R.drawable.product_placeholder),
-            contentDescription = "Imagen del producto",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        */
-    }
-}
-
-/**
- * Preview de la pantalla de detalles del producto
- */
 @Preview(showBackground = true)
 @Composable
 fun ProductDetailScreenPreview() {

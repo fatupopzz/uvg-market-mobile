@@ -1,4 +1,4 @@
-package com.example.uvgmarket.ui.auth.style
+package com.example.uvgmarket.auth.style
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.example.uvgmarket.ui.auth
+package com.example.uvgmarket.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -10,8 +10,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uvgmarket.R
-import com.example.uvgmarket.ui.auth.components.AuthButtons
-import com.example.uvgmarket.ui.auth.components.AuthLogo
+import com.example.uvgmarket.auth.components.AuthButtons
+import com.example.uvgmarket.auth.components.AuthLogo
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable

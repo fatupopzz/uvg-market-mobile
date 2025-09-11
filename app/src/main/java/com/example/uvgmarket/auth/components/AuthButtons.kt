@@ -1,4 +1,4 @@
-package com.example.uvgmarket.ui.auth.components
+package com.example.uvgmarket.auth.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.uvgmarket.ui.auth.style.ButtonWhite
-import com.example.uvgmarket.ui.auth.style.TextDark
+import com.example.uvgmarket.auth.style.ButtonWhite
+import com.example.uvgmarket.auth.style.TextDark
 
 @Composable
 fun AuthButtons(

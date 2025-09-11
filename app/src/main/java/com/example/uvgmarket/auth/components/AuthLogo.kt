@@ -1,4 +1,4 @@
-package com.example.uvgmarket.ui.auth.components
+package com.example.uvgmarket.auth.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
