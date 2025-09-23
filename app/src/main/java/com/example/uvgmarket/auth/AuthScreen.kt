@@ -33,7 +33,7 @@ fun AuthScreen(
             modifier = Modifier.fillMaxWidth().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AuthLogo(modifier = Modifier.size(160.dp))
+            AuthLogo(modifier = Modifier.size(300.dp))
             Spacer(Modifier.height(48.dp))
             AuthButtons(
                 onLoginClick = onLogin,

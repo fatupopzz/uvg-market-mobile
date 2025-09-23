@@ -10,7 +10,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.uvgmarket.R
 import com.example.uvgmarket.auth.style.ButtonWhite
 import com.example.uvgmarket.auth.style.TextDark
 
@@ -33,7 +37,11 @@ fun AuthButtons(
             shape = RoundedCornerShape(50),
             modifier = Modifier.fillMaxWidth().height(50.dp)
         ) {
-            Text("Iniciar Sesión")
+            Text(
+                text = stringResource(R.string.iniciar_sesion),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+                )
         }
         Button(
             onClick = onRegisterClick,
@@ -44,7 +52,11 @@ fun AuthButtons(
             shape = RoundedCornerShape(50),
             modifier = Modifier.fillMaxWidth().height(50.dp)
         ) {
-            Text("Registrarse")
+            Text(
+                text = stringResource(R.string.registrarse),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

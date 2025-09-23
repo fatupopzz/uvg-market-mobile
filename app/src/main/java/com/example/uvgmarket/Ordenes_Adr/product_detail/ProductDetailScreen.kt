@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -116,7 +117,7 @@ fun ProductDetailScreen(
 
             // Precio
             Text(
-                text = "39.00Q",
+                text = "Q39.00",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF4A5A4A),
@@ -128,7 +129,7 @@ fun ProductDetailScreen(
 
             // Botón
             CustomButton(
-                text = "CONTACTAR AL VENDEDOR",
+                text = stringResource(R.string.boton_contactar_vendedor),
                 onClick = onContactSellerClick,
                 modifier = Modifier
                     .fillMaxWidth()

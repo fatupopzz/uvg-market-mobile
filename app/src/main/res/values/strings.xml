@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">UVG Market</string>
 
+    <!-- First Screen -->
+    <string name="iniciar_sesion">Iniciar Sesión</string>
+    <string name="registrarse">Registrarse</string>
+
     <!-- Welcome Back Screen -->
     <string name="welcome_back_title">BIENVENIDO DE VUELTA</string>
     <string name="welcome_usuario_hint">Tu nombre de usuario</string>
@@ -19,6 +23,13 @@
     <string name="boton_registrarse">REGISTRARSE</string>
     <string name="ya_tienes_cuenta">¿Ya tienes cuenta?</string>
     <string name="iniciar_sesion_link">Iniciar sesión</string>
+
+    <!-- Home Screen -->
+    <string name="barra_busqueda_menu">Buscar...</string>"
+
+    <!-- Product Detail Screen -->
+    <string name="boton_contactar_vendedor">CONTACTAR AL VENDEDOR</string>
+
 
     <!-- Labels -->
     <string name="usuario_label">Usuario</string>
