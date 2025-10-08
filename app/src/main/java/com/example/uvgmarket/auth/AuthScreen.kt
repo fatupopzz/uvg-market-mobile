@@ -7,11 +7,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uvgmarket.R
-import com.example.uvgmarket.auth.components.AuthButtons
 import com.example.uvgmarket.auth.components.AuthLogo
+import com.example.uvgmarket.auth.style.ButtonWhite
+import com.example.uvgmarket.auth.style.TextDark
+import com.example.uvgmarket.core.constants.UiConstants
+import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
@@ -29,16 +33,32 @@ fun AuthScreen(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+
         Column(
-            modifier = Modifier.fillMaxWidth().padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(UiConstants.PADDING_LARGE.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(UiConstants.PADDING_MEDIUM.dp)
         ) {
             AuthLogo(modifier = Modifier.size(300.dp))
-            Spacer(Modifier.height(48.dp))
-            AuthButtons(
-                onLoginClick = onLogin,
-                onRegisterClick = onRegister,
-                modifier = Modifier.fillMaxWidth()
+
+            Spacer(Modifier.height(UiConstants.PADDING_EXTRA_LARGE.dp))
+
+            PrimaryButton(
+                text = stringResource(R.string.iniciar_sesion),
+                onClick = onLogin,
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = ButtonWhite,
+                contentColor = TextDark
+            )
+
+            PrimaryButton(
+                text = stringResource(R.string.registrarse),
+                onClick = onRegister,
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = ButtonWhite,
+                contentColor = TextDark
             )
         }
     }

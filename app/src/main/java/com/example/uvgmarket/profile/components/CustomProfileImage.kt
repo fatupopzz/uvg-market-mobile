@@ -1,15 +1,10 @@
 package com.example.uvgmarket.profile.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.uvgmarket.core.ui.components.images.CircularImage
 
 @Composable
 fun CustomProfileImage(
@@ -18,13 +13,10 @@ fun CustomProfileImage(
     size: Dp = 140.dp,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = painterResource(id = imageRes),
+    CircularImage(
+        imageRes = imageRes,
         contentDescription = contentDescription,
+        size = size,
         modifier = modifier
-            .size(size)
-            .clip(CircleShape),
-            //.border(4.dp, Color.White, CircleShape),
-        contentScale = ContentScale.Crop
     )
 }

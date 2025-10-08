@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.components
+package com.example.uvgmarket.core.ui.components.buttons
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,24 +9,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.uvgmarket.core.constants.UiConstants
 
 @Composable
-fun CustomButton(
+fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    containerColor: Color,
+    contentColor: Color = Color.White
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(56.dp),
+        modifier = modifier.height(UiConstants.BUTTON_HEIGHT_LARGE.dp),
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            disabledContainerColor = Color.White.copy(alpha = 0.7f)
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(UiConstants.BORDER_RADIUS_SMALL.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
         Text(

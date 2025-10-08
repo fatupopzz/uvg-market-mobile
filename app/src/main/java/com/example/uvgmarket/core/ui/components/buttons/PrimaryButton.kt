@@ -1,4 +1,4 @@
-package com.example.uvgmarket.Ordenes_Adr.componentes
+package com.example.uvgmarket.core.ui.components.buttons
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,27 +9,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.uvgmarket.core.constants.UiConstants
 
 @Composable
-fun CustomButton(
+fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    backgroundColor: Color = Color.White,
-    contentColor: Color = Color.White
+    containerColor: Color = Color.White,
+    contentColor: Color = Color.Black
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(70.dp),
+        modifier = modifier.height(UiConstants.BUTTON_HEIGHT.dp),
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = backgroundColor,
+            containerColor = containerColor,
             contentColor = contentColor,
-            disabledContainerColor = backgroundColor.copy(alpha = 0.7f)
+            disabledContainerColor = containerColor.copy(alpha = 0.7f),
+            disabledContentColor = contentColor.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(8.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        shape = RoundedCornerShape(UiConstants.BORDER_RADIUS_FULL.dp),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 2.dp,
+            disabledElevation = 0.dp
+        )
     ) {
         Text(
             text = text,

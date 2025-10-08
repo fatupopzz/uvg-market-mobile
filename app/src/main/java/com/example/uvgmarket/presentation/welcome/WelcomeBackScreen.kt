@@ -18,7 +18,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.R
-import com.example.uvgmarket.presentation.components.*
+import com.example.uvgmarket.core.constants.UiConstants
+import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
+import com.example.uvgmarket.core.ui.components.images.CircularImage
+import com.example.uvgmarket.core.ui.components.textfields.AppTextField
+import com.example.uvgmarket.presentation.theme.AppColors
 
 @Composable
 fun WelcomeBackScreen(
@@ -28,10 +32,8 @@ fun WelcomeBackScreen(
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
     var showErrors by remember { mutableStateOf(false) }
-    var showSuccess by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Fondo
         Image(
             painter = painterResource(id = R.drawable.background_ingresar_datos),
             contentDescription = "Background",
@@ -42,14 +44,13 @@ fun WelcomeBackScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(UiConstants.PADDING_LARGE.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             item {
                 Spacer(modifier = Modifier.height(60.dp))
 
-                // Título
                 Text(
                     text = stringResource(R.string.welcome_back_title),
                     color = Color.White,
@@ -63,132 +64,70 @@ fun WelcomeBackScreen(
             item {
                 Spacer(modifier = Modifier.height(60.dp))
 
-                // Avatar
-                ProfileImage(modifier = Modifier.size(170.dp))
+                CircularImage(
+                    imageRes = R.drawable.avatar_ingresar_datos,
+                    contentDescription = "Profile Avatar",
+                    size = UiConstants.AVATAR_SIZE_EXTRA_LARGE.dp
+                )
 
                 Spacer(modifier = Modifier.height(50.dp))
             }
 
-            // Campo Usuario
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.usuario_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = usuario,
-                        onValueChange = {
-                            usuario = it
-                            showErrors = false
-                            showSuccess = false
-                        },
-                        placeholder = stringResource(R.string.welcome_usuario_hint),
-                        isError = showErrors && usuario.isBlank()
-                    )
-                }
+                LoginFormField(
+                    label = stringResource(R.string.usuario_label),
+                    value = usuario,
+                    onValueChange = {
+                        usuario = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.welcome_usuario_hint),
+                    isError = showErrors && usuario.isBlank()
+                )
             }
 
-            // Campo Contraseña
             item {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
 
-                Column {
-                    Text(
-                        text = stringResource(R.string.contrasena_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = contrasena,
-                        onValueChange = {
-                            contrasena = it
-                            showErrors = false
-                            showSuccess = false
-                        },
-                        placeholder = stringResource(R.string.welcome_contrasena_hint),
-                        isPassword = true,
-                        isError = showErrors && contrasena.isBlank()
-                    )
-                }
+                LoginFormField(
+                    label = stringResource(R.string.contrasena_label),
+                    value = contrasena,
+                    onValueChange = {
+                        contrasena = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.welcome_contrasena_hint),
+                    isPassword = true,
+                    isError = showErrors && contrasena.isBlank()
+                )
             }
 
-            // Botón Iniciar Sesión
             item {
                 Spacer(modifier = Modifier.height(40.dp))
 
-                CustomButton(
+                PrimaryButton(
                     text = stringResource(R.string.boton_iniciar_sesion),
                     onClick = {
                         if (usuario.isNotBlank() && contrasena.isNotBlank()) {
                             onLoginClick(usuario, contrasena)
-                            showSuccess = true
-                            showErrors = false
                         } else {
                             showErrors = true
-                            showSuccess = false
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            // Link a Registro
             item {
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_EXTRA_LARGE.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.no_tienes_cuenta),
-                        color = Color.White,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.crear_cuenta_link),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onNavigateToRegister() }
-                    )
-                }
+                LoginFooter(onNavigateToRegister = onNavigateToRegister)
             }
 
-            // Mensaje de éxito
-            if (showSuccess) {
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.login_exitoso),
-                        color = Color.Green,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-            // Mensaje de error
             if (showErrors) {
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Por favor completa todos los campos",
-                        color = Color.Red,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM.dp))
+                    ErrorMessage(text = "Por favor completa todos los campos")
                 }
             }
 
@@ -197,6 +136,69 @@ fun WelcomeBackScreen(
             }
         }
     }
+}
+
+@Composable
+private fun LoginFormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    isPassword: Boolean = false,
+    isError: Boolean = false
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
+
+        AppTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = placeholder,
+            isPassword = isPassword,
+            isError = isError,
+            backgroundColor = AppColors.UvgGreenDark,
+            textColor = AppColors.TextWhite
+        )
+    }
+}
+
+@Composable
+private fun LoginFooter(onNavigateToRegister: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.no_tienes_cuenta),
+            color = Color.White,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL.dp))
+        Text(
+            text = stringResource(R.string.crear_cuenta_link),
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.clickable { onNavigateToRegister() }
+        )
+    }
+}
+
+@Composable
+private fun ErrorMessage(text: String) {
+    Text(
+        text = text,
+        color = Color.Red,
+        fontSize = 14.sp,
+        textAlign = TextAlign.Center
+    )
 }
 
 @Preview

@@ -1,12 +1,11 @@
 package com.example.uvgmarket.profile.components
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.uvgmarket.core.ui.components.dividers.AppDivider
 
 @Composable
 fun CustomDivider(
@@ -14,8 +13,8 @@ fun CustomDivider(
     color: Color = Color(0xFF4CAF50).copy(alpha = 0.3f),
     modifier: Modifier = Modifier
 ) {
-    Divider(
-        modifier = modifier.fillMaxWidth(),
+    AppDivider(
+        modifier = modifier,
         thickness = thickness,
         color = color
     )

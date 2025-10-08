@@ -18,7 +18,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.R
-import com.example.uvgmarket.presentation.components.*
+import com.example.uvgmarket.core.constants.UiConstants
+import com.example.uvgmarket.core.constants.ValidationConstants
+import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
+import com.example.uvgmarket.core.ui.components.images.CircularImage
+import com.example.uvgmarket.core.ui.components.textfields.AppTextField
+import com.example.uvgmarket.presentation.theme.AppColors
 
 @Composable
 fun RegistroScreen(
@@ -31,10 +36,18 @@ fun RegistroScreen(
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
     var showErrors by remember { mutableStateOf(false) }
-    var showSuccess by remember { mutableStateOf(false) }
+
+    val validationErrors = remember(
+        nombre, usuario, correo, contrasena, confirmarContrasena, showErrors
+    ) {
+        if (showErrors) {
+            getValidationErrors(nombre, usuario, correo, contrasena, confirmarContrasena)
+        } else {
+            emptyList()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Fondo
         Image(
             painter = painterResource(id = R.drawable.background_ingresar_datos),
             contentDescription = "Background",
@@ -45,14 +58,13 @@ fun RegistroScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(UiConstants.PADDING_LARGE.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(UiConstants.PADDING_MEDIUM.dp)
         ) {
             item {
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Título
                 Text(
                     text = stringResource(R.string.registro_title),
                     color = Color.White,
@@ -64,146 +76,92 @@ fun RegistroScreen(
             }
 
             item {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
 
-                // Avatar
-                ProfileImage(modifier = Modifier.size(150.dp))
+                CircularImage(
+                    imageRes = R.drawable.avatar_ingresar_datos,
+                    contentDescription = "Profile Avatar",
+                    size = 150.dp
+                )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
             }
 
-            // Campo Nombre
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.nombre_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = nombre,
-                        onValueChange = {
-                            nombre = it
-                            showErrors = false
-                        },
-                        placeholder = stringResource(R.string.registro_nombre_hint),
-                        isError = showErrors && nombre.isBlank()
-                    )
-                }
+                RegistroFormField(
+                    label = stringResource(R.string.nombre_label),
+                    value = nombre,
+                    onValueChange = {
+                        nombre = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.registro_nombre_hint),
+                    isError = showErrors && nombre.isBlank()
+                )
             }
 
-            // Campo Usuario
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.usuario_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = usuario,
-                        onValueChange = {
-                            usuario = it
-                            showErrors = false
-                        },
-                        placeholder = stringResource(R.string.registro_usuario_hint),
-                        isError = showErrors && usuario.isBlank()
-                    )
-                }
+                RegistroFormField(
+                    label = stringResource(R.string.usuario_label),
+                    value = usuario,
+                    onValueChange = {
+                        usuario = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.registro_usuario_hint),
+                    isError = showErrors && usuario.isBlank()
+                )
             }
 
-            // Campo Correo
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.correo_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = correo,
-                        onValueChange = {
-                            correo = it
-                            showErrors = false
-                        },
-                        placeholder = stringResource(R.string.registro_correo_hint),
-                        isError = showErrors && (!correo.contains("@") || correo.isBlank())
-                    )
-                }
+                RegistroFormField(
+                    label = stringResource(R.string.correo_label),
+                    value = correo,
+                    onValueChange = {
+                        correo = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.registro_correo_hint),
+                    isError = showErrors && (!correo.contains("@") || correo.isBlank())
+                )
             }
 
-            // Campo Contraseña
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.contrasena_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = contrasena,
-                        onValueChange = {
-                            contrasena = it
-                            showErrors = false
-                        },
-                        placeholder = stringResource(R.string.registro_contrasena_hint),
-                        isPassword = true,
-                        isError = showErrors && contrasena.length < 8
-                    )
-                }
+                RegistroFormField(
+                    label = stringResource(R.string.contrasena_label),
+                    value = contrasena,
+                    onValueChange = {
+                        contrasena = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.registro_contrasena_hint),
+                    isPassword = true,
+                    isError = showErrors && contrasena.length < ValidationConstants.MIN_PASSWORD_LENGTH
+                )
             }
 
-            // Campo Confirmar Contraseña
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.confirmar_contrasena_label),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField(
-                        value = confirmarContrasena,
-                        onValueChange = {
-                            confirmarContrasena = it
-                            showErrors = false
-                        },
-                        placeholder = stringResource(R.string.registro_confirmar_hint),
-                        isPassword = true,
-                        isError = showErrors && confirmarContrasena != contrasena
-                    )
-                }
+                RegistroFormField(
+                    label = stringResource(R.string.confirmar_contrasena_label),
+                    value = confirmarContrasena,
+                    onValueChange = {
+                        confirmarContrasena = it
+                        showErrors = false
+                    },
+                    placeholder = stringResource(R.string.registro_confirmar_hint),
+                    isPassword = true,
+                    isError = showErrors && confirmarContrasena != contrasena
+                )
             }
 
-            // Botón Registrarse
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
-                CustomButton(
+                PrimaryButton(
                     text = stringResource(R.string.boton_registrarse),
                     onClick = {
-                        if (validarRegistro(nombre, usuario, correo, contrasena, confirmarContrasena)) {
+                        if (isValidRegistration(nombre, usuario, correo, contrasena, confirmarContrasena)) {
                             onRegistroClick(nombre, usuario, correo, contrasena)
-                            showSuccess = true
                         } else {
                             showErrors = true
                         }
@@ -212,78 +170,13 @@ fun RegistroScreen(
                 )
             }
 
-            // Link a Login
             item {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.ya_tienes_cuenta),
-                        color = Color.White,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.iniciar_sesion_link),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onNavigateToLogin() }
-                    )
-                }
+                RegistroFooter(onNavigateToLogin = onNavigateToLogin)
             }
 
-            // Mensajes de éxito y error
-            if (showSuccess) {
+            if (validationErrors.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.registro_exitoso),
-                        color = Color.Green,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-            if (showErrors) {
-                item {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (nombre.isBlank() || usuario.isBlank() || correo.isBlank()) {
-                            Text(
-                                text = "• Completa todos los campos requeridos",
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        if (contrasena.length < 8) {
-                            Text(
-                                text = "• ${stringResource(R.string.error_contrasena_corta)}",
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        if (!correo.contains("@")) {
-                            Text(
-                                text = "• ${stringResource(R.string.error_correo_invalido)}",
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        if (contrasena != confirmarContrasena) {
-                            Text(
-                                text = "• ${stringResource(R.string.error_contrasenas_no_coinciden)}",
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
+                    ValidationErrorsList(errors = validationErrors)
                 }
             }
 
@@ -294,7 +187,77 @@ fun RegistroScreen(
     }
 }
 
-private fun validarRegistro(
+@Composable
+private fun RegistroFormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    isPassword: Boolean = false,
+    isError: Boolean = false
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
+
+        AppTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = placeholder,
+            isPassword = isPassword,
+            isError = isError,
+            backgroundColor = AppColors.UvgGreenDark,
+            textColor = AppColors.TextWhite
+        )
+    }
+}
+
+@Composable
+private fun RegistroFooter(onNavigateToLogin: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.ya_tienes_cuenta),
+            color = Color.White,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL.dp))
+        Text(
+            text = stringResource(R.string.iniciar_sesion_link),
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.clickable { onNavigateToLogin() }
+        )
+    }
+}
+
+@Composable
+private fun ValidationErrorsList(errors: List<String>) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(top = UiConstants.PADDING_MEDIUM.dp)
+    ) {
+        errors.forEach { error ->
+            Text(
+                text = "• $error",
+                color = Color.Red,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+private fun isValidRegistration(
     nombre: String,
     usuario: String,
     correo: String,
@@ -305,8 +268,33 @@ private fun validarRegistro(
             usuario.isNotBlank() &&
             correo.isNotBlank() &&
             correo.contains("@") &&
-            contrasena.length >= 8 &&
+            contrasena.length >= ValidationConstants.MIN_PASSWORD_LENGTH &&
             contrasena == confirmarContrasena
+}
+
+private fun getValidationErrors(
+    nombre: String,
+    usuario: String,
+    correo: String,
+    contrasena: String,
+    confirmarContrasena: String
+): List<String> {
+    val errors = mutableListOf<String>()
+
+    if (nombre.isBlank() || usuario.isBlank() || correo.isBlank()) {
+        errors.add("Completa todos los campos requeridos")
+    }
+    if (contrasena.length < ValidationConstants.MIN_PASSWORD_LENGTH) {
+        errors.add("La contraseña debe tener al menos ${ValidationConstants.MIN_PASSWORD_LENGTH} caracteres")
+    }
+    if (!correo.contains("@")) {
+        errors.add("El correo electrónico no es válido")
+    }
+    if (contrasena != confirmarContrasena) {
+        errors.add("Las contraseñas no coinciden")
+    }
+
+    return errors
 }
 
 @Preview
