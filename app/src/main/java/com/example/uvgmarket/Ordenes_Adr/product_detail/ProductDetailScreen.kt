@@ -21,105 +21,157 @@ import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.SecondaryButton
 import com.example.uvgmarket.core.ui.components.topbar.AppTopBar
 
+/**
+ * Pantalla de detalle de producto.
+ * Muestra información completa del producto seleccionado.
+ */
 @Composable
 fun ProductDetailScreen(
     onBackClick: () -> Unit = {},
     onContactSellerClick: () -> Unit = {}
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .background(Color.White)
     ) {
-        // Top bar
-        AppTopBar(
-            onBackClick = onBackClick,
-            backgroundColor = Color(0xFF4A7E39)
-        )
-
-        // Product image
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.hamburger1),
-                contentDescription = "Pandita Hamburguesa",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-        // Product information
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFE8E8E8))
-                .padding(
-                    horizontal = UiConstants.PADDING_LARGE.dp,
-                    vertical = UiConstants.PADDING_EXTRA_LARGE.dp
-                ),
-            horizontalAlignment = Alignment.Start
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = "Pandita Hamburguesa",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A5A4A),
-                textAlign = TextAlign.Left,
-                modifier = Modifier.fillMaxWidth()
+            // Top bar con botón de regreso
+            AppTopBar(
+                onBackClick = onBackClick,
+                backgroundColor = Color(0xFF4A7E39)
             )
 
-            Text(
-                text = "Gruesa y caliente",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFF6A6A6A),
-                textAlign = TextAlign.Left,
+            // Imagen del producto
+            ProductImage(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = UiConstants.PADDING_SMALL.dp)
+                    .weight(1f)
             )
 
-            Text(
-                text = "Rica hamburguesa libre de gluten sin ningún tipo de preservantes.",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFF4A4A4A),
-                textAlign = TextAlign.Left,
-                lineHeight = 22.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = UiConstants.PADDING_LARGE.dp)
-            )
-
-            Text(
-                text = "Q39.00",
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A5A4A),
-                textAlign = TextAlign.Left,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = UiConstants.PADDING_EXTRA_LARGE.dp)
-            )
-
-            SecondaryButton(
-                text = stringResource(R.string.boton_contactar_vendedor),
-                onClick = onContactSellerClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 40.dp),
-                containerColor = Color(0xFF4A7E39),
-                contentColor = Color.White
+            // Información del producto
+            ProductInformation(
+                onContactSellerClick = onContactSellerClick
             )
         }
     }
+}
+
+@Composable
+private fun ProductImage(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.hamburger1),
+            contentDescription = "Pandita Hamburguesa",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
+@Composable
+private fun ProductInformation(
+    onContactSellerClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFE8E8E8))
+            .padding(
+                horizontal = UiConstants.PADDING_LARGE.dp,
+                vertical = UiConstants.PADDING_EXTRA_LARGE.dp
+            )
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.Start
+    ) {
+        // Título del producto
+        ProductTitle(text = "Pandita Hamburguesa")
+
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
+
+        // Subtítulo
+        ProductSubtitle(text = "Gruesa y caliente")
+
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
+
+        // Descripción
+        ProductDescription(
+            text = "Rica hamburguesa libre de gluten sin ningún tipo de preservantes."
+        )
+
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_EXTRA_LARGE.dp))
+
+        // Precio
+        ProductPrice(price = "Q39.00")
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        // Botón de contactar vendedor
+        SecondaryButton(
+            text = stringResource(R.string.boton_contactar_vendedor),
+            onClick = onContactSellerClick,
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = Color(0xFF4A7E39),
+            contentColor = Color.White
+        )
+    }
+}
+
+@Composable
+private fun ProductTitle(text: String) {
+    Text(
+        text = text,
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color(0xFF4A5A4A),
+        textAlign = TextAlign.Left,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun ProductSubtitle(text: String) {
+    Text(
+        text = text,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Normal,
+        color = Color(0xFF6A6A6A),
+        textAlign = TextAlign.Left,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun ProductDescription(text: String) {
+    Text(
+        text = text,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Normal,
+        color = Color(0xFF4A4A4A),
+        textAlign = TextAlign.Left,
+        lineHeight = 22.sp,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun ProductPrice(price: String) {
+    Text(
+        text = price,
+        fontSize = 36.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color(0xFF4A5A4A),
+        textAlign = TextAlign.Left,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Preview(showBackground = true)

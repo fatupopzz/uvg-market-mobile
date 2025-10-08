@@ -1,26 +1,12 @@
 package com.example.uvgmarket.pantallainicio.marketplace
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,15 +14,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uvgmarket.R
+import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.pantallainicio.components.CustomSearchBar
 import com.example.uvgmarket.pantallainicio.components.ProfileAvatar
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
 import com.example.uvgmarket.pantallainicio.theme.AppColors
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 
 /**
- * Pantalla principal del Marketplace
- * Muestra una lista de emprendedores con barra de búsqueda y FAB
+ * Pantalla principal del Marketplace.
+ * Muestra una lista de emprendedores con barra de búsqueda y FAB.
  */
 @Composable
 fun MarketplaceScreen(
@@ -48,86 +37,120 @@ fun MarketplaceScreen(
     onProductImageClick: (String) -> Unit = {},
     onProfileAvatarClick: () -> Unit = {}
 ) {
-    // Estado para el texto de búsqueda
     var searchText by remember { mutableStateOf("") }
+    val entrepreneursList = remember { getHardcodedEntrepreneurs() }
 
-    // Lista de emprendedores hardcodeada para testing
-    val entrepreneursList = getHardcodedEntrepreneurs()
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = AppColors.BackgroundWhite,
-        floatingActionButton = {
-            // Floating Action Button verde con ícono de agregar
-            FloatingActionButton(
-                onClick = onFabClick,
-                containerColor = AppColors.UvgGreen,
-                contentColor = AppColors.TextWhite
-            ) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    painter = painterResource(id = R.drawable.chat),
-                    contentDescription = "Ver chat"
-                )
-            }
-        }
-    ) { paddingValues ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
             // Header con fondo verde y barra de búsqueda
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(AppColors.UvgGreen)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Barra de búsqueda
-                    CustomSearchBar(
-                        searchText = searchText,
-                        onSearchTextChange = { searchText = it },
-                        onMenuClick = onMenuClick,
-                        onSearchClick = onSearchClick,
-                        placeholder = stringResource(R.string.barra_busqueda_menu),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    ProfileAvatar(
-                        size = 30,
-                        profileImage = "fotodeperfilindu",
-                        onClick = onProfileAvatarClick
-                    )
-                }
-            }
+            MarketplaceHeader(
+                searchText = searchText,
+                onSearchTextChange = { searchText = it },
+                onMenuClick = onMenuClick,
+                onSearchClick = onSearchClick,
+                onProfileAvatarClick = onProfileAvatarClick
+            )
 
             // Lista de emprendedores
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                itemsIndexed(
-                    items = entrepreneursList
-                ) { index, entrepreneur ->
-                    EntrepreneurCard(
-                        entrepreneur = entrepreneur,
-                        onClick = { onEntrepreneurClick(entrepreneur) },
-                        onProductImageClick = onProductImageClick
-                    )
-                }
-            }
+            EntrepreneursList(
+                entrepreneurs = entrepreneursList,
+                onEntrepreneurClick = onEntrepreneurClick,
+                onProductImageClick = onProductImageClick
+            )
+        }
+
+        // Floating Action Button
+        FloatingActionButton(
+            onClick = onFabClick,
+            containerColor = AppColors.UvgGreen,
+            contentColor = AppColors.TextWhite,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(UiConstants.PADDING_MEDIUM.dp)
+                .navigationBarsPadding() // ← Y ESTO PARA EL FAB
+        ) {
+            Icon(
+                modifier = Modifier.size(UiConstants.ICON_SIZE_MEDIUM.dp),
+                painter = painterResource(id = R.drawable.chat),
+                contentDescription = "Ver chat"
+            )
         }
     }
 }
 
+@Composable
+private fun MarketplaceHeader(
+    searchText: String,
+    onSearchTextChange: (String) -> Unit,
+    onMenuClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onProfileAvatarClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AppColors.UvgGreen)
+            .padding(
+                horizontal = UiConstants.PADDING_MEDIUM.dp,
+                vertical = UiConstants.PADDING_MEDIUM.dp // ← Cambiar de SMALL a MEDIUM (8dp → 16dp)
+            )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CustomSearchBar(
+                searchText = searchText,
+                onSearchTextChange = onSearchTextChange,
+                onMenuClick = onMenuClick,
+                onSearchClick = onSearchClick,
+                placeholder = stringResource(R.string.barra_busqueda_menu),
+                modifier = Modifier.weight(1f)
+            )
 
+            Spacer(modifier = Modifier.width(UiConstants.PADDING_MEDIUM.dp)) // ← Cambiar de SMALL a MEDIUM
+
+            ProfileAvatar(
+                size = 35,
+                profileImage = "fotodeperfilindu",
+                onClick = onProfileAvatarClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun EntrepreneursList(
+    entrepreneurs: List<Entrepreneur>,
+    onEntrepreneurClick: (Entrepreneur) -> Unit,
+    onProductImageClick: (String) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
+    ) {
+        itemsIndexed(
+            items = entrepreneurs
+        ) { _, entrepreneur ->
+            EntrepreneurCard(
+                entrepreneur = entrepreneur,
+                onClick = { onEntrepreneurClick(entrepreneur) },
+                onProductImageClick = onProductImageClick
+            )
+        }
+    }
+}
+
+/**
+ * Retorna una lista hardcodeada de emprendedores para testing.
+ * En producción, esto vendría de un repositorio/API.
+ */
 private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
     return listOf(
         Entrepreneur(
@@ -163,13 +186,9 @@ private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
     )
 }
 
-/**
- * Preview de la pantalla MarketplaceScreen
- */
 @Preview(
     showBackground = true,
-    showSystemUi = false,
-    device = "spec:width=360dp,height=640dp"
+    showSystemUi = true,
 )
 @Composable
 fun MarketplaceScreenPreview() {
