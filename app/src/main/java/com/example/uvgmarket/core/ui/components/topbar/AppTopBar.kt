@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,8 +17,8 @@ import com.example.uvgmarket.core.constants.UiConstants
 fun AppTopBar(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color,
-    contentColor: Color = Color.White
+    backgroundColor: Color = MaterialTheme.colorScheme.tertiary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
     Box(
         modifier = modifier

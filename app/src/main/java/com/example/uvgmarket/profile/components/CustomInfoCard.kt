@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,10 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.profile.models.Usuario
-import com.example.uvgmarket.profile.theme.AppColors
+import com.example.uvgmarket.profile.repository.DummyRepository
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun CustomInfoCard(
@@ -29,20 +32,18 @@ fun CustomInfoCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RectangleShape
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Fila superior: Espacio para foto de perfil y estrellas
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                // Estrellas en la parte superior derecha
                 CustomStarRating(
                     rating = usuario.calificacion,
                     modifier = Modifier.padding(start = 160.dp)
@@ -51,11 +52,9 @@ fun CustomInfoCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Contenido debajo de la foto: nombre, descripción
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Nombre del usuario y botón de chat en la misma fila
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -65,7 +64,7 @@ fun CustomInfoCard(
                         text = usuario.nombre,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = AppColors.TextDark,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
 
@@ -74,14 +73,26 @@ fun CustomInfoCard(
                     )
                 }
 
-                // Descripción del usuario
                 Text(
                     text = usuario.descripcion,
                     fontSize = 16.sp,
-                    color = Color(0xFF365236),
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun CustomInfoCardPreview() {
+    UvgMarketTheme {
+        val repository = DummyRepository()
+        val usuario = repository.getUsuario()
+        CustomInfoCard(
+            usuario = usuario,
+            onChatClick = { /* Preview action */ }
+        )
     }
 }

@@ -12,8 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uvgmarket.R
 import com.example.uvgmarket.auth.components.AuthLogo
-import com.example.uvgmarket.auth.style.ButtonWhite
-import com.example.uvgmarket.auth.style.TextDark
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
@@ -49,16 +47,12 @@ fun AuthScreen(
                 text = stringResource(R.string.iniciar_sesion),
                 onClick = onLogin,
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = ButtonWhite,
-                contentColor = TextDark
             )
 
             PrimaryButton(
                 text = stringResource(R.string.registrarse),
                 onClick = onRegister,
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = ButtonWhite,
-                contentColor = TextDark
             )
         }
     }

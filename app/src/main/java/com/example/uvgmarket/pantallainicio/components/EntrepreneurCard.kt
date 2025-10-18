@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uvgmarket.pantallainicio.theme.AppColors
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Card component para mostrar información de un emprendedor/vendedor
@@ -51,7 +52,7 @@ fun EntrepreneurCard(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = AppColors.CardBackground
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
@@ -73,7 +74,7 @@ fun EntrepreneurCard(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
-                        .background(AppColors.UvgGreen)
+                        .background(MaterialTheme.colorScheme.primary)
                 ) {
                     // Obtener el resource ID dinámicamente
                     val profileImageResId = context.resources.getIdentifier(
@@ -96,7 +97,7 @@ fun EntrepreneurCard(
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = "Avatar de ${entrepreneur.name}",
-                            tint = AppColors.TextWhite,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier
                                 .size(30.dp)
                                 .align(Alignment.Center)
@@ -118,7 +119,7 @@ fun EntrepreneurCard(
                 text = entrepreneur.name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = AppColors.TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -127,7 +128,7 @@ fun EntrepreneurCard(
             Text(
                 text = entrepreneur.description,
                 fontSize = 14.sp,
-                color = AppColors.TextGray
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -169,7 +170,7 @@ fun EntrepreneurCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(80.dp)
-                                    .background(AppColors.SurfaceGray)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
                             )
                         }
                     }
@@ -181,7 +182,7 @@ fun EntrepreneurCard(
                             .weight(1f)
                             .height(80.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(AppColors.SurfaceGray)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
             }
@@ -195,13 +196,15 @@ fun EntrepreneurCard(
 @Preview(showBackground = true)
 @Composable
 fun EntrepreneurCardPreview() {
-    val sampleEntrepreneur = Entrepreneur(
-        name = "Hamburguesas kawaii",
-        description = "Tu lugar fav para comer",
-        rating = 3,
-        profileImage = "fotoperfilcomida",
-        productImages = listOf("producto1comida", "producto2comida")
-    )
+    UvgMarketTheme {
+        val sampleEntrepreneur = Entrepreneur(
+            name = "Hamburguesas kawaii",
+            description = "Tu lugar fav para comer",
+            rating = 3,
+            profileImage = "hamburger1",
+            productImages = listOf("hamburger1", "hamburger1") 
+        )
 
-    EntrepreneurCard(entrepreneur = sampleEntrepreneur)
+        EntrepreneurCard(entrepreneur = sampleEntrepreneur)
+    }
 }

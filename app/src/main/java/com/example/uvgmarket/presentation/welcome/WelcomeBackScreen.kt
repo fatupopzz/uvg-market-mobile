@@ -22,7 +22,7 @@ import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.core.ui.components.images.CircularImage
 import com.example.uvgmarket.core.ui.components.textfields.AppTextField
-import com.example.uvgmarket.presentation.theme.AppColors
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun WelcomeBackScreen(
@@ -53,7 +53,7 @@ fun WelcomeBackScreen(
 
                 Text(
                     text = stringResource(R.string.welcome_back_title),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -150,7 +150,7 @@ private fun LoginFormField(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.fillMaxWidth()
@@ -163,8 +163,8 @@ private fun LoginFormField(
             placeholder = placeholder,
             isPassword = isPassword,
             isError = isError,
-            backgroundColor = AppColors.UvgGreenDark,
-            textColor = AppColors.TextWhite
+            backgroundColor = MaterialTheme.colorScheme.secondary,
+            textColor = MaterialTheme.colorScheme.onSecondary
         )
     }
 }
@@ -177,13 +177,13 @@ private fun LoginFooter(onNavigateToRegister: () -> Unit) {
     ) {
         Text(
             text = stringResource(R.string.no_tienes_cuenta),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL.dp))
         Text(
             text = stringResource(R.string.crear_cuenta_link),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.clickable { onNavigateToRegister() }
@@ -195,7 +195,7 @@ private fun LoginFooter(onNavigateToRegister: () -> Unit) {
 private fun ErrorMessage(text: String) {
     Text(
         text = text,
-        color = Color.Red,
+        color = MaterialTheme.colorScheme.error,
         fontSize = 14.sp,
         textAlign = TextAlign.Center
     )
@@ -204,5 +204,7 @@ private fun ErrorMessage(text: String) {
 @Preview
 @Composable
 fun WelcomeBackScreenPreview() {
-    WelcomeBackScreen()
+    UvgMarketTheme {
+        WelcomeBackScreen()
+    }
 }

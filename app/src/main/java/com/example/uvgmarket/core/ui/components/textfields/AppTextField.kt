@@ -21,9 +21,9 @@ fun AppTextField(
     isPassword: Boolean = false,
     isError: Boolean = false,
     errorMessage: String? = null,
-    backgroundColor: Color,
-    textColor: Color,
-    placeholderColor: Color = Color.Gray
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    placeholderColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
 ) {
     Column(modifier = modifier) {
         TextField(

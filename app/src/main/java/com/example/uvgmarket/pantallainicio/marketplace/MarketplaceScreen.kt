@@ -19,9 +19,10 @@ import com.example.uvgmarket.pantallainicio.components.CustomSearchBar
 import com.example.uvgmarket.pantallainicio.components.ProfileAvatar
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
-import com.example.uvgmarket.pantallainicio.theme.AppColors
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Pantalla principal del Marketplace.
@@ -68,12 +69,12 @@ fun MarketplaceScreen(
         // Floating Action Button
         FloatingActionButton(
             onClick = onFabClick,
-            containerColor = AppColors.UvgGreen,
-            contentColor = AppColors.TextWhite,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(UiConstants.PADDING_MEDIUM.dp)
-                .navigationBarsPadding() // ← Y ESTO PARA EL FAB
+                .navigationBarsPadding()
         ) {
             Icon(
                 modifier = Modifier.size(UiConstants.ICON_SIZE_MEDIUM.dp),
@@ -95,10 +96,10 @@ private fun MarketplaceHeader(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.UvgGreen)
+            .background(MaterialTheme.colorScheme.tertiary)
             .padding(
                 horizontal = UiConstants.PADDING_MEDIUM.dp,
-                vertical = UiConstants.PADDING_MEDIUM.dp // ← Cambiar de SMALL a MEDIUM (8dp → 16dp)
+                vertical = UiConstants.PADDING_MEDIUM.dp
             )
     ) {
         Row(
@@ -114,7 +115,7 @@ private fun MarketplaceHeader(
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(UiConstants.PADDING_MEDIUM.dp)) // ← Cambiar de SMALL a MEDIUM
+            Spacer(modifier = Modifier.width(UiConstants.PADDING_MEDIUM.dp))
 
             ProfileAvatar(
                 size = 35,
@@ -192,5 +193,7 @@ private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
 )
 @Composable
 fun MarketplaceScreenPreview() {
-    MarketplaceScreen()
+    UvgMarketTheme {
+        MarketplaceScreen()
+    }
 }

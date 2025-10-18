@@ -1,13 +1,14 @@
 package com.example.uvgmarket.profile.components
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.rating.StarRatingBar
-import com.example.uvgmarket.profile.theme.AppColors
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun CustomStarRating(
@@ -21,7 +22,14 @@ fun CustomStarRating(
         modifier = modifier,
         maxStars = maxStars,
         starSize = starSize,
-        activeColor = AppColors.UvgGreen,
-        inactiveColor = Color.Gray
     )
+}
+
+@Preview
+@Composable
+fun CustomStarRatingPreview() {
+    UvgMarketTheme {
+        CustomStarRating(rating = 3.0f)
+    }
+
 }

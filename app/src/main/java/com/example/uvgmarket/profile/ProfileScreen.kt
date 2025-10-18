@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +26,6 @@ import com.example.uvgmarket.profile.components.CustomProductCard
 import com.example.uvgmarket.profile.components.CustomTopBar
 import com.example.uvgmarket.profile.components.CustomInfoCard
 import com.example.uvgmarket.profile.components.CustomProfileImage
-import com.example.uvgmarket.profile.theme.AppColors
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
@@ -41,7 +41,7 @@ fun ProfileScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Imagen de portada con overlay superior
+            // Imagen de portada
             item {
                 Box(
                     modifier = Modifier
@@ -64,7 +64,7 @@ fun ProfileScreen(
             item {
                 CustomDivider(
                     thickness = 18.dp,
-                    color = AppColors.UvgGreenLight
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
 
@@ -80,7 +80,7 @@ fun ProfileScreen(
             item {
                 CustomDivider(
                     thickness = 2.dp,
-                    color = AppColors.UvgGreen
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 

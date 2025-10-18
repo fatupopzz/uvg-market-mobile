@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,8 +21,8 @@ fun StarRatingBar(
     modifier: Modifier = Modifier,
     maxStars: Int = UiConstants.MAX_RATING_STARS,
     starSize: Dp = UiConstants.STAR_SIZE_SMALL.dp,
-    activeColor: Color,
-    inactiveColor: Color
+    activeColor: Color = MaterialTheme.colorScheme.primary,
+    inactiveColor: Color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
 ) {
     Row(
         modifier = modifier,

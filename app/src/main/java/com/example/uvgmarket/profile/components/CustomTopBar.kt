@@ -1,9 +1,11 @@
 package com.example.uvgmarket.profile.components
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.uvgmarket.core.ui.components.topbar.AppTopBar
-import com.example.uvgmarket.profile.theme.AppColors
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun CustomTopBar(
@@ -13,6 +15,13 @@ fun CustomTopBar(
     AppTopBar(
         onBackClick = onBackClick,
         modifier = modifier,
-        backgroundColor = AppColors.UvgGreenLight.copy(alpha = 0.8f)
     )
+}
+
+@Preview
+@Composable
+fun CustomTopBarPreview() {
+    UvgMarketTheme {
+        CustomTopBar(onBackClick = {})
+    }
 }

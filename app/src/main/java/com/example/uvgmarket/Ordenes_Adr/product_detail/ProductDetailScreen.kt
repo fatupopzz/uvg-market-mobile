@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -20,6 +19,7 @@ import com.example.uvgmarket.R
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.SecondaryButton
 import com.example.uvgmarket.core.ui.components.topbar.AppTopBar
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Pantalla de detalle de producto.
@@ -34,15 +34,14 @@ fun ProductDetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
             // Top bar con botón de regreso
             AppTopBar(
-                onBackClick = onBackClick,
-                backgroundColor = Color(0xFF4A7E39)
+                onBackClick = onBackClick
             )
 
             // Imagen del producto
@@ -65,7 +64,7 @@ private fun ProductImage(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.background(Color.White),
+        modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -84,7 +83,7 @@ private fun ProductInformation(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFE8E8E8))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(
                 horizontal = UiConstants.PADDING_LARGE.dp,
                 vertical = UiConstants.PADDING_EXTRA_LARGE.dp
@@ -118,9 +117,7 @@ private fun ProductInformation(
         SecondaryButton(
             text = stringResource(R.string.boton_contactar_vendedor),
             onClick = onContactSellerClick,
-            modifier = Modifier.fillMaxWidth(),
-            containerColor = Color(0xFF4A7E39),
-            contentColor = Color.White
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -131,7 +128,7 @@ private fun ProductTitle(text: String) {
         text = text,
         fontSize = 32.sp,
         fontWeight = FontWeight.Bold,
-        color = Color(0xFF4A5A4A),
+        color = MaterialTheme.colorScheme.onBackground,
         textAlign = TextAlign.Left,
         modifier = Modifier.fillMaxWidth()
     )
@@ -143,7 +140,7 @@ private fun ProductSubtitle(text: String) {
         text = text,
         fontSize = 18.sp,
         fontWeight = FontWeight.Normal,
-        color = Color(0xFF6A6A6A),
+        color = MaterialTheme.colorScheme.onSurface,
         textAlign = TextAlign.Left,
         modifier = Modifier.fillMaxWidth()
     )
@@ -155,7 +152,7 @@ private fun ProductDescription(text: String) {
         text = text,
         fontSize = 16.sp,
         fontWeight = FontWeight.Normal,
-        color = Color(0xFF4A4A4A),
+        color = MaterialTheme.colorScheme.onSurface,
         textAlign = TextAlign.Left,
         lineHeight = 22.sp,
         modifier = Modifier.fillMaxWidth()
@@ -168,7 +165,7 @@ private fun ProductPrice(price: String) {
         text = price,
         fontSize = 36.sp,
         fontWeight = FontWeight.Bold,
-        color = Color(0xFF4A5A4A),
+        color = MaterialTheme.colorScheme.onBackground,
         textAlign = TextAlign.Left,
         modifier = Modifier.fillMaxWidth()
     )
@@ -177,5 +174,7 @@ private fun ProductPrice(price: String) {
 @Preview(showBackground = true)
 @Composable
 fun ProductDetailScreenPreview() {
-    ProductDetailScreen()
+    UvgMarketTheme {
+        ProductDetailScreen()
+    }
 }

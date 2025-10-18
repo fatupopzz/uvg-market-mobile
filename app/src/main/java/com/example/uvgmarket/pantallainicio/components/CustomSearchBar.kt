@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +27,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uvgmarket.pantallainicio.theme.AppColors
 
 /**
  * Barra de búsqueda personalizada con ícono de menú y búsqueda
@@ -51,22 +51,22 @@ fun CustomSearchBar(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color = AppColors.BackgroundWhite,
-                shape = RoundedCornerShape(20.dp) // Reducido de 25dp a 20dp para que sea menos gordo
+                color = MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(20.dp)
             )
-            .padding(horizontal = 3.dp, vertical = 2.dp), // Reducido padding vertical
+            .padding(horizontal = 3.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Ícono de menú (hamburger menu)
         IconButton(
             onClick = onMenuClick,
-            modifier = Modifier.size(32.dp) // Reducido de 40dp a 32dp
+            modifier = Modifier.size(32.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Menu,
                 contentDescription = "Abrir menú",
-                tint = AppColors.IconGray,
-                modifier = Modifier.size(18.dp) // Reducido de 20dp a 18dp
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(18.dp)
             )
         }
 
@@ -74,16 +74,16 @@ fun CustomSearchBar(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 6.dp, vertical = 2.dp) // Reducido padding
+                .padding(horizontal = 6.dp, vertical = 2.dp)
         ) {
             BasicTextField(
                 value = searchText,
                 onValueChange = onSearchTextChange,
                 textStyle = TextStyle(
-                    color = AppColors.TextDark,
-                    fontSize = 11.sp // Reducido de 12sp a 11sp
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 11.sp
                 ),
-                cursorBrush = SolidColor(AppColors.UvgGreen),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -92,8 +92,8 @@ fun CustomSearchBar(
             if (searchText.isEmpty()) {
                 Text(
                     text = placeholder,
-                    color = AppColors.TextHint,
-                    fontSize = 11.sp // Reducido de 12sp a 11sp
+                    color = MaterialTheme.colorScheme.outline,
+                    fontSize = 11.sp
                 )
             }
         }
@@ -101,13 +101,13 @@ fun CustomSearchBar(
         // Ícono de búsqueda
         IconButton(
             onClick = onSearchClick,
-            modifier = Modifier.size(24.dp) // Reducido de 28dp a 24dp
+            modifier = Modifier.size(24.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Buscar",
-                tint = AppColors.IconGray,
-                modifier = Modifier.size(12.dp) // Reducido de 14dp a 12dp
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(12.dp)
             )
         }
     }

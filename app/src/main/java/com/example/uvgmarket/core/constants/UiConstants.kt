@@ -30,7 +30,7 @@ object UiConstants {
 
     // Rating
     const val MAX_RATING_STARS = 5
-    const val STAR_SIZE_SMALL = 16
+    const val STAR_SIZE_SMALL = 26
     const val STAR_SIZE_LARGE = 36
 
     // Top bar
