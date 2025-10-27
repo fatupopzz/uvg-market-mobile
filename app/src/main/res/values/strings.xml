@@ -45,4 +45,11 @@
     <string name="error_contrasenas_no_coinciden">Las contraseñas no coinciden</string>
     <string name="login_exitoso">Inicio de sesión exitoso</string>
     <string name="registro_exitoso">Registro completado exitosamente</string>
+
+    <!-- Editar perfil -->
+    <string name="Cambiar_contrasena">Cambiar contraseña</string>
+    <string name="Usuario_editar_perfil">Usuario:</string>
+    <string name="Correo_editar_perfil">Correo:</string>
+    <string name="Nombre_editar_perfil">Nombre:</string>
+
 </resources>
