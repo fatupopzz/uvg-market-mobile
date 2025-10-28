@@ -189,9 +189,10 @@ private fun LoginFormField(
         )
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
+        // ✅ CORREGIDO: Manejo apropiado del enabled
         AppTextField(
             value = value,
-            onValueChange = (if (enabled) onValueChange else {}) as (String) -> Unit,
+            onValueChange = if (enabled) onValueChange else { _ -> },
             placeholder = placeholder,
             isPassword = isPassword,
             isError = isError,
