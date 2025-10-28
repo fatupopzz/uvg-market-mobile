@@ -24,7 +24,7 @@ fun PasswordChangeTopBar(
         modifier = modifier
             .fillMaxWidth()
             .height(UiConstants.TOP_BAR_HEIGHT_LARGE.dp)
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.tertiary)
             .padding(horizontal = UiConstants.PADDING_SMALL.dp),
         contentAlignment = Alignment.CenterStart
     ) {

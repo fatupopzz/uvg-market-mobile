@@ -114,7 +114,7 @@ fun ChangePasswordScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = UiConstants.PADDING_EXTRA_LARGE.dp),
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.tertiary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
 
