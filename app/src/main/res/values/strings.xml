@@ -52,4 +52,9 @@
     <string name="Correo_editar_perfil">Correo:</string>
     <string name="Nombre_editar_perfil">Nombre:</string>
 
+    <!-- Cambio contraseña -->
+    <string name="Cambiar_contrasena_actual">Contraseña actual:</string>
+    <string name="Cambiar_contrasena_nueva">Nueva contraseña:</string>
+    <string name="Cambiar_contrasena_confirmar">Confirmar contraseña:</string>
+    <string name="Cambiar_contrasena_confirmar_boton">CONFIRMAR</string>
 </resources>
