@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +34,7 @@ fun ChatInputBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFE5E5E5))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -44,7 +43,7 @@ fun ChatInputBar(
             modifier = Modifier
                 .weight(1f)
                 .background(
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -53,7 +52,7 @@ fun ChatInputBar(
                 value = messageText,
                 onValueChange = onMessageTextChange,
                 textStyle = TextStyle(
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 15.sp
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -62,7 +61,7 @@ fun ChatInputBar(
                     if (messageText.isEmpty()) {
                         Text(
                             text = "Message",
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 15.sp
                         )
                     }
@@ -73,7 +72,7 @@ fun ChatInputBar(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Botón de envío (emoji/send)
+        // Botón de envío
         IconButton(
             onClick = {
                 if (messageText.isNotBlank()) {

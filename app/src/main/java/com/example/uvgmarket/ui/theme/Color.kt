@@ -16,7 +16,7 @@ val UvgGreen = Color(0xFF488046)        // Verde oscuro
 val UvgGreenMedium = Color(0xFF264425)   // Verde medio oscuro
 val UvgGreenLight = Color(0xFF5AA058)    // Verde claro
 
-val UvgGreenDark = Color(0xB7152814)     // Verde muy oscuro
+val UvgGreenDark = Color(0xFF265125)     // Verde muy oscuro
 val BackgroundWhite = Color(0xFFFEFEFE)  // Blanco para fondo
 val SurfaceWhite = Color(0xFFFFFFFF)     // Blanco para superficie
 val SurfaceGray = Color(0xFFD9D9D9)      // Gris claro para superficie

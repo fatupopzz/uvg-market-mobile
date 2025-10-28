@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +60,7 @@ fun ChatScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .background(Color(0xFFE5E5E5)),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
             items(
@@ -103,12 +102,12 @@ private fun ChatHeader(
                     Text(
                         text = recipientName,
                         fontSize = 16.sp,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onTertiary
                     )
                     Text(
                         text = "Online",
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.8f)
+                        color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.8f)
                     )
                 }
             }
@@ -118,7 +117,7 @@ private fun ChatHeader(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Volver",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onTertiary
                 )
             }
         },

@@ -8,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,8 +15,6 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Componente de burbuja de mensaje que sigue el diseño del mockup
- * Los mensajes enviados aparecen a la derecha con fondo verde claro
- * Los mensajes recibidos aparecen a la izquierda con fondo verde oscuro
  */
 @Composable
 fun MessageBubble(
@@ -38,7 +35,7 @@ fun MessageBubble(
                     color = if (isCurrentUser) {
                         MaterialTheme.colorScheme.tertiary
                     } else {
-                        Color(0xFF2E5C3E) // Verde oscuro para mensajes recibidos
+                        MaterialTheme.colorScheme.secondary
                     },
                     shape = RoundedCornerShape(
                         topStart = 16.dp,
@@ -51,7 +48,11 @@ fun MessageBubble(
         ) {
             Text(
                 text = message.text,
-                color = if (isCurrentUser) Color.Black else Color.White,
+                color = if (isCurrentUser) {
+                    MaterialTheme.colorScheme.onTertiary
+                } else {
+                    MaterialTheme.colorScheme.onSecondary
+                },
                 fontSize = 15.sp,
                 lineHeight = 20.sp
             )
@@ -66,7 +67,7 @@ fun MessageBubblePreview() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFE5E5E5))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(8.dp)
         ) {
             MessageBubble(
