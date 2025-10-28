@@ -2,6 +2,7 @@ package com.example.uvgmarket.profile.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +16,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,7 +34,9 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 fun CustomProductCard(
     producto: Producto,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showDeleteButton: Boolean = false,
+    onDeleteClick: () -> Unit = {}
 ) {
     Card(
         onClick = onClick,
@@ -43,52 +46,66 @@ fun CustomProductCard(
         shape = RectangleShape
     ) {
         Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Imagen del producto
-                Image(
-                    painter = painterResource(id = producto.imagen),
-                    contentDescription = producto.nombre,
+                Row(
                     modifier = Modifier
-                        .size(100.dp),
-                    contentScale = ContentScale.Crop
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Información del producto
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceBetween
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = producto.nombre,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                    // Imagen del producto
+                    Image(
+                        painter = painterResource(id = producto.imagen),
+                        contentDescription = producto.nombre,
+                        modifier = Modifier
+                            .size(100.dp),
+                        contentScale = ContentScale.Crop
                     )
 
-                    Text(
-                        text = producto.descripcion,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                    Text(
-                        text = "Q. ${String.format("%.1f", producto.precio)}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                    // Información del producto
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = producto.nombre,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Text(
+                            text = producto.descripcion,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+
+                        Text(
+                            text = "Q. ${String.format("%.1f", producto.precio)}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+
+                // Botón de eliminar
+                if (showDeleteButton) {
+                    CustomDeleteButton(
+                        onClick = onDeleteClick,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
                     )
                 }
             }
@@ -101,7 +118,7 @@ fun CustomProductCard(
     }
 }
 
-@Preview (showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun CustomProductCardPreview() {
     UvgMarketTheme {
@@ -116,6 +133,27 @@ fun CustomProductCardPreview() {
         CustomProductCard(
             producto = producto,
             onClick = { /* Preview action */ }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CustomProductCardWithDeletePreview() {
+    UvgMarketTheme {
+        val producto = Producto(
+            id = "1",
+            nombre = "Hamburguesa",
+            descripcion = "Hamburguesa con queso, lechuga y tomate",
+            imagen = R.drawable.hamburger1,
+            precio = 30.0
+        )
+
+        CustomProductCard(
+            producto = producto,
+            onClick = { /* Preview action */ },
+            showDeleteButton = true,
+            onDeleteClick = { /* Preview delete */ }
         )
     }
 }

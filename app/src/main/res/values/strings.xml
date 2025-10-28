@@ -58,4 +58,16 @@
     <string name="hint_nombre">Ingrese el nombre del producto</string>
     <string name="hint_descripcion">Ingrese la descripción</string>
     <string name="hint_precio">Ingrese el precio</string>
+  
+    <!-- Editar perfil -->
+    <string name="Cambiar_contrasena">Cambiar contraseña</string>
+    <string name="Usuario_editar_perfil">Usuario:</string>
+    <string name="Correo_editar_perfil">Correo:</string>
+    <string name="Nombre_editar_perfil">Nombre:</string>
+
+    <!-- Cambio contraseña -->
+    <string name="Cambiar_contrasena_actual">Contraseña actual:</string>
+    <string name="Cambiar_contrasena_nueva">Nueva contraseña:</string>
+    <string name="Cambiar_contrasena_confirmar">Confirmar contraseña:</string>
+    <string name="Cambiar_contrasena_confirmar_boton">CONFIRMAR</string>
 </resources>
