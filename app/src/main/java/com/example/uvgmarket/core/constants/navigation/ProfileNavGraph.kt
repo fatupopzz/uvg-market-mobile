@@ -9,13 +9,17 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
     composable(NavigationDestination.Profile.route) {
         val repository = DummyRepository()
 
+        // Pantalla de perfil propio
         ProfileScreen(
             usuario = repository.getUsuario(),
             productos = repository.getProductos(),
             onBackClick = { navigationActions.navigateBack() },
             onChatClick = { /* TODO */ },
             onProductoClick = { navigationActions.navigateToProductDetail() },
-            onFloatingActionClick = { /* TODO */ }
+            onFloatingActionClick = { /* TODO */ },
+            showFloatingActionButton = true,
+            showChatButton = false,
+            showEditButton = true
         )
     }
 }

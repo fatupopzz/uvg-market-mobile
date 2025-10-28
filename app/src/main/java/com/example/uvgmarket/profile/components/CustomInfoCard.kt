@@ -28,7 +28,10 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 fun CustomInfoCard(
     usuario: Usuario,
     onChatClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showChatButton: Boolean = true,
+    showEditButton: Boolean = false,
+    onEditClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -68,9 +71,19 @@ fun CustomInfoCard(
                         modifier = Modifier.weight(1f)
                     )
 
-                    CustomChatButton(
-                        onClick = { onChatClick(usuario.id) }
-                    )
+                    // Mostrar botón de chat solo si showChatButton es true
+                    if (showChatButton) {
+                        CustomChatButton(
+                            onClick = { onChatClick(usuario.id) }
+                        )
+                    }
+
+                    // Mostrar botón de editar solo si showEditButton es true
+                    if (showEditButton) {
+                        CustomEditButton(
+                            onClick = onEditClick
+                        )
+                    }
                 }
 
                 Text(
@@ -93,6 +106,22 @@ fun CustomInfoCardPreview() {
         CustomInfoCard(
             usuario = usuario,
             onChatClick = { /* Preview action */ }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun CustomInfoCardWithEditPreview() {
+    UvgMarketTheme {
+        val repository = DummyRepository()
+        val usuario = repository.getUsuario()
+        CustomInfoCard(
+            usuario = usuario,
+            onChatClick = { /* Preview action */ },
+            showChatButton = false,
+            showEditButton = true,
+            onEditClick = { /* Preview action */ }
         )
     }
 }
