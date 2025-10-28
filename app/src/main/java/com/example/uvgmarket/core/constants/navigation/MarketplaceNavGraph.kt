@@ -15,23 +15,36 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         MarketplaceScreen(
             onSearchClick = { /* TODO: Implementar búsqueda */ },
             onEntrepreneurClick = { entrepreneur ->
-                // Navegar al perfil del emprendedor cuando se hace click en la card
-                navigationActions.navigateToOtherUserProfile(entrepreneur.name)
+                // Navegar al perfil del emprendedor usando el nombre como ID
+                // Mapear nombres a IDs de usuario
+                val userId = when (entrepreneur.name) {
+                    "Hamburguesas kawaii" -> "1"
+                    "Accesorios Luna" -> "2"
+                    "TechRepair GT" -> "3"
+                    else -> "1"
+                }
+                navigationActions.navigateToOtherUserProfile(userId)
             },
             onEntrepreneurStarClick = { entrepreneur ->
                 // También navegar al perfil cuando se hace click en las estrellas
-                navigationActions.navigateToOtherUserProfile(entrepreneur.name)
+                val userId = when (entrepreneur.name) {
+                    "Hamburguesas kawaii" -> "1"
+                    "Accesorios Luna" -> "2"
+                    "TechRepair GT" -> "3"
+                    else -> "1"
+                }
+                navigationActions.navigateToOtherUserProfile(userId)
             },
             onFabClick = { navigationActions.navigateToChatGeneral() },
-            onProductImageClick = { productImage ->
-                // Navegar al detalle del producto con botón de contactar
-                navigationActions.navigateToProductDetail(productImage, showContactButton = true)
+            onProductImageClick = { productImageName ->
+                // Usar el nombre de la imagen como ID del producto
+                navigationActions.navigateToProductDetail(productImageName, showContactButton = true)
             },
             onProfileAvatarClick = { navigationActions.navigateToProfile() }
         )
     }
 
-    // Pantalla de detalle de producto con argumentos
+    // Pantalla de detalle de producto
     composable(
         route = NavigationDestination.ProductDetail.route,
         arguments = listOf(
@@ -42,9 +55,11 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
             }
         )
     ) { backStackEntry ->
+        val productId = backStackEntry.arguments?.getString("productId") ?: ""
         val showContactButton = backStackEntry.arguments?.getBoolean("showContactButton") ?: true
 
         ProductDetailScreen(
+            productId = productId,
             onBackClick = { navigationActions.navigateBack() },
             onContactSellerClick = {
                 // TODO: Implementar chat individual con vendedor

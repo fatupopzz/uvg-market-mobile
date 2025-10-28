@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.R
+import com.example.uvgmarket.Ordenes_Adr.product_detail.repository.ProductRepository
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.SecondaryButton
 import com.example.uvgmarket.core.ui.components.topbar.AppTopBar
@@ -25,14 +26,27 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
  * Pantalla de detalle de producto.
  * Muestra información completa del producto seleccionado.
  *
+ * @param productId ID del producto a mostrar
  * @param showContactButton Si es true, muestra el botón de contactar vendedor
  */
 @Composable
 fun ProductDetailScreen(
+    productId: String,
     onBackClick: () -> Unit = {},
     onContactSellerClick: () -> Unit = {},
     showContactButton: Boolean = true
 ) {
+    // Obtener el producto del repositorio
+    val product = remember(productId) {
+        ProductRepository.getProductById(productId)
+    }
+
+    // Si no se encuentra el producto, mostrar mensaje de error
+    if (product == null) {
+        ProductNotFound(onBackClick = onBackClick)
+        return
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -49,6 +63,8 @@ fun ProductDetailScreen(
 
             // Imagen del producto
             ProductImage(
+                imageRes = product.imagen,
+                contentDescription = product.nombre,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -56,6 +72,10 @@ fun ProductDetailScreen(
 
             // Información del producto
             ProductInformation(
+                title = product.nombre,
+                subtitle = product.subtitulo,
+                description = product.descripcion,
+                price = product.precio,
                 onContactSellerClick = onContactSellerClick,
                 showContactButton = showContactButton
             )
@@ -64,7 +84,36 @@ fun ProductDetailScreen(
 }
 
 @Composable
+private fun ProductNotFound(onBackClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AppTopBar(onBackClick = onBackClick)
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Producto no encontrado",
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ProductImage(
+    imageRes: Int,
+    contentDescription: String,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -72,8 +121,8 @@ private fun ProductImage(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.hamburger1),
-            contentDescription = "Pandita Hamburguesa",
+            painter = painterResource(id = imageRes),
+            contentDescription = contentDescription,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
@@ -82,6 +131,10 @@ private fun ProductImage(
 
 @Composable
 private fun ProductInformation(
+    title: String,
+    subtitle: String,
+    description: String,
+    price: Double,
     onContactSellerClick: () -> Unit,
     showContactButton: Boolean
 ) {
@@ -97,24 +150,22 @@ private fun ProductInformation(
         horizontalAlignment = Alignment.Start
     ) {
         // Título del producto
-        ProductTitle(text = "Pandita Hamburguesa")
+        ProductTitle(text = title)
 
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
         // Subtítulo
-        ProductSubtitle(text = "Gruesa y caliente")
+        ProductSubtitle(text = subtitle)
 
         Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
 
         // Descripción
-        ProductDescription(
-            text = "Rica hamburguesa libre de gluten sin ningún tipo de preservantes."
-        )
+        ProductDescription(text = description)
 
         Spacer(modifier = Modifier.height(UiConstants.PADDING_EXTRA_LARGE.dp))
 
         // Precio
-        ProductPrice(price = "Q39.00")
+        ProductPrice(price = price)
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -167,9 +218,9 @@ private fun ProductDescription(text: String) {
 }
 
 @Composable
-private fun ProductPrice(price: String) {
+private fun ProductPrice(price: Double) {
     Text(
-        text = price,
+        text = "Q${String.format("%.2f", price)}",
         fontSize = 36.sp,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onBackground,
@@ -182,7 +233,7 @@ private fun ProductPrice(price: String) {
 @Composable
 fun ProductDetailScreenPreview() {
     UvgMarketTheme {
-        ProductDetailScreen()
+        ProductDetailScreen(productId = "hamburger1")
     }
 }
 
@@ -190,6 +241,9 @@ fun ProductDetailScreenPreview() {
 @Composable
 fun ProductDetailScreenWithoutContactButtonPreview() {
     UvgMarketTheme {
-        ProductDetailScreen(showContactButton = false)
+        ProductDetailScreen(
+            productId = "joyeria1",
+            showContactButton = false
+        )
     }
 }

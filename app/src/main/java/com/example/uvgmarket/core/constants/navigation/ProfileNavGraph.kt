@@ -7,19 +7,21 @@ import androidx.navigation.navArgument
 import com.example.uvgmarket.change_password.ChangePasswordScreen
 import com.example.uvgmarket.edit_profile.EditProfileScreen
 import com.example.uvgmarket.profile.ProfileScreen
-import com.example.uvgmarket.profile.repository.DummyRepository
+import com.example.uvgmarket.profile.repository.UserRepository
 
 fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
-    val repository = DummyRepository()
 
     // Pantalla de perfil propio
     composable(NavigationDestination.Profile.route) {
+        val currentUser = UserRepository.getCurrentUser()
+        val productos = UserRepository.getCurrentUserProducts()
+
         ProfileScreen(
-            usuario = repository.getUsuario(),
-            productos = repository.getProductos(),
+            usuario = currentUser,
+            productos = productos,
             onBackClick = { navigationActions.navigateBack() },
             onChatClick = {
-                // TODO: Chat no disponible en perfil propio
+                // No se muestra en perfil propio
             },
             onProductoClick = { productId ->
                 // Ver producto propio sin botón de contactar
@@ -49,36 +51,43 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
     ) { backStackEntry ->
         val userId = backStackEntry.arguments?.getString("userId") ?: ""
 
-        // TODO: Obtener datos del usuario específico según userId
-        // Por ahora usa datos dummy
-        ProfileScreen(
-            usuario = repository.getUsuario(),
-            productos = repository.getProductos(),
-            onBackClick = { navigationActions.navigateBack() },
-            onChatClick = { clickedUserId ->
-                // TODO: Implementar chat individual con el usuario
-                // Por ahora no hace nada
-            },
-            onProductoClick = { productId ->
-                // Ver producto de otro usuario con botón de contactar
-                navigationActions.navigateToProductDetail(productId, showContactButton = true)
-            },
-            onFloatingActionClick = { },
-            onDeleteProductClick = { },
-            onStarClick = {
-                // TODO: Implementar sistema de calificación
-                // Por ahora no hace nada
-            },
-            showFloatingActionButton = false,
-            showChatButton = true,
-            showEditButton = false,
-            showDeleteButton = false
-        )
+        // Obtener datos del usuario específico
+        val usuario = UserRepository.getUserById(userId)
+        val productos = UserRepository.getProductsByUserId(userId)
+
+        if (usuario != null) {
+            ProfileScreen(
+                usuario = usuario,
+                productos = productos,
+                onBackClick = { navigationActions.navigateBack() },
+                onChatClick = { clickedUserId ->
+                    // TODO: Implementar chat individual con el usuario
+                    // Por ahora no hace nada
+                },
+                onProductoClick = { productId ->
+                    // Ver producto de otro usuario con botón de contactar
+                    navigationActions.navigateToProductDetail(productId, showContactButton = true)
+                },
+                onFloatingActionClick = { },
+                onDeleteProductClick = { },
+                onStarClick = {
+                    // TODO: Implementar sistema de calificación
+                    // Por ahora no hace nada
+                },
+                showFloatingActionButton = false,
+                showChatButton = true,
+                showEditButton = false,
+                showDeleteButton = false
+            )
+        } else {
+            // Si no se encuentra el usuario, navegar de regreso
+            navigationActions.navigateBack()
+        }
     }
 
     // Pantalla de editar perfil
     composable(NavigationDestination.EditProfile.route) {
-        val usuario = repository.getUsuario()
+        val usuario = UserRepository.getCurrentUser()
 
         EditProfileScreen(
             nombre = usuario.nombre,
