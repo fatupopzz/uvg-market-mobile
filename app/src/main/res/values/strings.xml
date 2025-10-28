@@ -46,6 +46,19 @@
     <string name="login_exitoso">Inicio de sesión exitoso</string>
     <string name="registro_exitoso">Registro completado exitosamente</string>
 
+
+    <!-- Pantalla Agregar Producto -->
+    <string name="agregar_producto">agregar producto</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="publicar">Publicar</string>
+    <string name="adjuntar_imagen">Adjuntar una Imagen</string>
+    <string name="nombre">Nombre:</string>
+    <string name="descripcion">Descripción:</string>
+    <string name="precio">Precio:</string>
+    <string name="hint_nombre">Ingrese el nombre del producto</string>
+    <string name="hint_descripcion">Ingrese la descripción</string>
+    <string name="hint_precio">Ingrese el precio</string>
+  
     <!-- Editar perfil -->
     <string name="Cambiar_contrasena">Cambiar contraseña</string>
     <string name="Usuario_editar_perfil">Usuario:</string>
