@@ -37,10 +37,12 @@ fun ProfileScreen(
     onChatClick: (String) -> Unit = {},
     onProductoClick: (String) -> Unit = {},
     onFloatingActionClick: () -> Unit = {},
+    onDeleteProductClick: (String) -> Unit = {},
     // Parámetros de configuración dependiendo de la pantalla
     showFloatingActionButton: Boolean = false,
     showChatButton: Boolean = true,
     showEditButton: Boolean = false,
+    showDeleteButton: Boolean = false,
     onEditClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -101,7 +103,9 @@ fun ProfileScreen(
             items(productos) { producto ->
                 CustomProductCard(
                     producto = producto,
-                    onClick = { onProductoClick(producto.id) }
+                    onClick = { onProductoClick(producto.id) },
+                    showDeleteButton = showDeleteButton,
+                    onDeleteClick = { onDeleteProductClick(producto.id) }
                 )
             }
 

@@ -32,7 +32,6 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Pantalla de Chat General que muestra la lista de conversaciones
- * Similar a la interfaz de Telegram/WhatsApp
  */
 @Composable
 fun PantallaChatGeneral(
@@ -72,7 +71,6 @@ fun PantallaChatGeneral(
                     searchText = searchText,
                     onSearchTextChange = { searchText = it },
                     placeholder = "Search",
-                    onMenuClick = { /* Handle menu */ },
                     onSearchClick = { /* Handle search */ }
                 )
             }

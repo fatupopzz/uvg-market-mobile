@@ -16,6 +16,7 @@ fun MyProfileScreen(
     onProductoClick: (String) -> Unit = {},
     onEditClick: () -> Unit = {},
     onAddProductClick: () -> Unit = {},
+    onDeleteProductClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     ProfileScreen(
@@ -26,9 +27,11 @@ fun MyProfileScreen(
         onFloatingActionClick = onAddProductClick,
         onEditClick = onEditClick,
         onChatClick = {},
+        onDeleteProductClick = onDeleteProductClick,
         showFloatingActionButton = true,
         showChatButton = false,
         showEditButton = true,
+        showDeleteButton = true,
         modifier = modifier
     )
 }
@@ -47,7 +50,8 @@ fun MyProfileScreenPreview() {
             onBackClick = { /* Preview action */ },
             onProductoClick = { productId -> /* Preview action */ },
             onEditClick = { /* Preview action */ },
-            onAddProductClick = { /* Preview action */ }
+            onAddProductClick = { /* Preview action */ },
+            onDeleteProductClick = { productId -> /* Preview delete */ }
         )
     }
 }
