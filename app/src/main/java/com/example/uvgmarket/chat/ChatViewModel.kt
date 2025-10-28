@@ -1,11 +1,9 @@
 package com.example.uvgmarket.chat
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.uvgmarket.chat.components.Message
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
 

@@ -36,7 +36,7 @@ fun MessageBubble(
                 .widthIn(max = 280.dp)
                 .background(
                     color = if (isCurrentUser) {
-                        Color(0xFF81C784) // Verde claro para mensajes enviados
+                        MaterialTheme.colorScheme.tertiary
                     } else {
                         Color(0xFF2E5C3E) // Verde oscuro para mensajes recibidos
                     },

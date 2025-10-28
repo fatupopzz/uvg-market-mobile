@@ -8,6 +8,9 @@ import com.example.uvgmarket.change_password.ChangePasswordScreen
 import com.example.uvgmarket.edit_profile.EditProfileScreen
 import com.example.uvgmarket.profile.ProfileScreen
 import com.example.uvgmarket.profile.repository.UserRepository
+import com.example.uvgmarket.chat.ChatScreen
+import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
+import com.example.uvgmarket.chat_general.PantallaChatGeneral
 
 fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
 
@@ -21,7 +24,7 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
             productos = productos,
             onBackClick = { navigationActions.navigateBack() },
             onChatClick = {
-                // No se muestra en perfil propio
+                // No hay chat en perfil propio
             },
             onProductoClick = { productId ->
                 // Ver producto propio sin botón de contactar
@@ -61,8 +64,7 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
                 productos = productos,
                 onBackClick = { navigationActions.navigateBack() },
                 onChatClick = { clickedUserId ->
-                    // TODO: Implementar chat individual con el usuario
-                    // Por ahora no hace nada
+                    navigationActions.navigateToChat()
                 },
                 onProductoClick = { productId ->
                     // Ver producto de otro usuario con botón de contactar
@@ -120,4 +122,53 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
             }
         )
     }
+
+    // Pantalla de detalle de producto
+    composable(
+        route = NavigationDestination.ProductDetail.route,
+        arguments = listOf(
+            navArgument("productId") { type = NavType.StringType },
+            navArgument("showContactButton") { defaultValue = true }
+        )
+    ) { backStackEntry ->
+        val productId = backStackEntry.arguments?.getString("productId") ?: ""
+        val showContactButton = backStackEntry.arguments?.getBoolean("showContactButton") ?: true
+
+        ProductDetailScreen(
+            productId = productId,
+            showContactButton = showContactButton,
+            onBackClick = { navigationActions.navigateBack() },
+            onContactSellerClick = {
+                // 👇 Aquí va exactamente esta línea:
+                navigationActions.navigateToChat()
+                // o si luego quieres enviar el ID del vendedor:
+                // navigationActions.navigateToChat(userId = vendedor.id)
+            }
+        )
+    }
+    // 🔹 Pantalla general de chats
+    composable(route = NavigationDestination.ChatGeneral.route) {
+        PantallaChatGeneral(
+            onBackClick = { navigationActions.navigateBack() },
+            onChatClick = {
+                // Al presionar una card, navegar al chat individual
+                navigationActions.navigateToChat()
+            },
+            onProfileAvatarClick = {
+                // Navegar al perfil propio (o editar perfil, según la UX)
+                navigationActions.navigateToProfile()
+            }
+        )
+    }
+
+
+    // Pantalla de chat
+    composable(
+        route = NavigationDestination.Chat.route
+    ) {
+        ChatScreen(
+            onBackClick = { navigationActions.navigateBack() }
+        )
+    }
+
 }
