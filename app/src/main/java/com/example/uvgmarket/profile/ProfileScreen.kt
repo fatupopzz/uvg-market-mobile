@@ -38,6 +38,7 @@ fun ProfileScreen(
     onProductoClick: (String) -> Unit = {},
     onFloatingActionClick: () -> Unit = {},
     onDeleteProductClick: (String) -> Unit = {},
+    onStarClick: () -> Unit = {},
     // Parámetros de configuración dependiendo de la pantalla
     showFloatingActionButton: Boolean = false,
     showChatButton: Boolean = true,
@@ -87,7 +88,8 @@ fun ProfileScreen(
                     onChatClick = onChatClick,
                     showChatButton = showChatButton,
                     showEditButton = showEditButton,
-                    onEditClick = onEditClick
+                    onEditClick = onEditClick,
+                    onStarClick = onStarClick
                 )
             }
 

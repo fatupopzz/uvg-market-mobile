@@ -31,7 +31,8 @@ fun CustomInfoCard(
     modifier: Modifier = Modifier,
     showChatButton: Boolean = true,
     showEditButton: Boolean = false,
-    onEditClick: () -> Unit = {}
+    onEditClick: () -> Unit = {},
+    onStarClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -47,9 +48,12 @@ fun CustomInfoCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
+                // Las estrellas son clickeables solo cuando showChatButton es true
                 CustomStarRating(
                     rating = usuario.calificacion,
-                    modifier = Modifier.padding(start = 160.dp)
+                    modifier = Modifier.padding(start = 160.dp),
+                    isClickable = showChatButton,
+                    onClick = onStarClick
                 )
             }
 

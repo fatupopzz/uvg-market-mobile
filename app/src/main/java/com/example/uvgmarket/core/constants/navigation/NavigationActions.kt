@@ -22,12 +22,36 @@ class NavigationActions(private val navController: NavHostController) {
         }
     }
 
-    fun navigateToProductDetail() {
-        navController.navigate(NavigationDestination.ProductDetail.route)
+    fun navigateToProductDetail(productId: String, showContactButton: Boolean = true) {
+        navController.navigate(
+            NavigationDestination.ProductDetail.createRoute(productId, showContactButton)
+        )
     }
 
     fun navigateToProfile() {
         navController.navigate(NavigationDestination.Profile.route)
+    }
+
+    fun navigateToOtherUserProfile(userId: String) {
+        navController.navigate(
+            NavigationDestination.OtherUserProfile.createRoute(userId)
+        )
+    }
+
+    fun navigateToEditProfile() {
+        navController.navigate(NavigationDestination.EditProfile.route)
+    }
+
+    fun navigateToChangePassword() {
+        navController.navigate(NavigationDestination.ChangePassword.route)
+    }
+
+    fun navigateToAddProduct() {
+        navController.navigate(NavigationDestination.AddProduct.route)
+    }
+
+    fun navigateToChatGeneral() {
+        navController.navigate(NavigationDestination.ChatGeneral.route)
     }
 
     fun navigateBack() {

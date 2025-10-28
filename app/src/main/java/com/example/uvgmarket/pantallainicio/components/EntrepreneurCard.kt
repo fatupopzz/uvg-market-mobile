@@ -36,12 +36,17 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Card component para mostrar información de un emprendedor/vendedor
+ *
+ * @param onClick Callback cuando se hace click en la card, menos estrellas y productos
+ * @param onStarClick Callback cuando se hace click en las estrellas
+ * @param onProductImageClick Callback cuando se hace click en una imagen de producto
  */
 @Composable
 fun EntrepreneurCard(
     entrepreneur: Entrepreneur,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
+    onStarClick: () -> Unit = {},
     onProductImageClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -61,6 +66,7 @@ fun EntrepreneurCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable { onClick() }
                 .padding(16.dp)
         ) {
             // Fila superior: Avatar + Rating
@@ -106,10 +112,13 @@ fun EntrepreneurCard(
                 }
 
                 // Rating con estrellas
-                StarRating(
-                    rating = entrepreneur.rating,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .clickable { onStarClick() }
+                        .padding(top = 4.dp)
+                ) {
+                    StarRating(rating = entrepreneur.rating)
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -133,6 +142,7 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Productos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -176,6 +186,7 @@ fun EntrepreneurCard(
                     }
                 }
 
+                // Espacios vacíos si hay menos de 2 productos
                 repeat(2 - entrepreneur.productImages.size.coerceAtMost(2)) {
                     Box(
                         modifier = Modifier
@@ -202,7 +213,7 @@ fun EntrepreneurCardPreview() {
             description = "Tu lugar fav para comer",
             rating = 3,
             profileImage = "hamburger1",
-            productImages = listOf("hamburger1", "hamburger1") 
+            productImages = listOf("hamburger1", "hamburger1")
         )
 
         EntrepreneurCard(entrepreneur = sampleEntrepreneur)

@@ -24,11 +24,14 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 /**
  * Pantalla de detalle de producto.
  * Muestra información completa del producto seleccionado.
+ *
+ * @param showContactButton Si es true, muestra el botón de contactar vendedor
  */
 @Composable
 fun ProductDetailScreen(
     onBackClick: () -> Unit = {},
-    onContactSellerClick: () -> Unit = {}
+    onContactSellerClick: () -> Unit = {},
+    showContactButton: Boolean = true
 ) {
     Box(
         modifier = Modifier
@@ -53,7 +56,8 @@ fun ProductDetailScreen(
 
             // Información del producto
             ProductInformation(
-                onContactSellerClick = onContactSellerClick
+                onContactSellerClick = onContactSellerClick,
+                showContactButton = showContactButton
             )
         }
     }
@@ -78,7 +82,8 @@ private fun ProductImage(
 
 @Composable
 private fun ProductInformation(
-    onContactSellerClick: () -> Unit
+    onContactSellerClick: () -> Unit,
+    showContactButton: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -114,11 +119,13 @@ private fun ProductInformation(
         Spacer(modifier = Modifier.height(40.dp))
 
         // Botón de contactar vendedor
-        SecondaryButton(
-            text = stringResource(R.string.boton_contactar_vendedor),
-            onClick = onContactSellerClick,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (showContactButton) {
+            SecondaryButton(
+                text = stringResource(R.string.boton_contactar_vendedor),
+                onClick = onContactSellerClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -176,5 +183,13 @@ private fun ProductPrice(price: String) {
 fun ProductDetailScreenPreview() {
     UvgMarketTheme {
         ProductDetailScreen()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProductDetailScreenWithoutContactButtonPreview() {
+    UvgMarketTheme {
+        ProductDetailScreen(showContactButton = false)
     }
 }

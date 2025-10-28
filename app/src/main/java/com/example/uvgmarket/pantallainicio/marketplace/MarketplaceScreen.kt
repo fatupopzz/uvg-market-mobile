@@ -33,6 +33,7 @@ fun MarketplaceScreen(
     modifier: Modifier = Modifier,
     onSearchClick: () -> Unit = {},
     onEntrepreneurClick: (Entrepreneur) -> Unit = {},
+    onEntrepreneurStarClick: (Entrepreneur) -> Unit = {},
     onFabClick: () -> Unit = {},
     onProductImageClick: (String) -> Unit = {},
     onProfileAvatarClick: () -> Unit = {}
@@ -60,6 +61,7 @@ fun MarketplaceScreen(
             EntrepreneursList(
                 entrepreneurs = entrepreneursList,
                 onEntrepreneurClick = onEntrepreneurClick,
+                onEntrepreneurStarClick = onEntrepreneurStarClick,
                 onProductImageClick = onProductImageClick
             )
         }
@@ -126,6 +128,7 @@ private fun MarketplaceHeader(
 private fun EntrepreneursList(
     entrepreneurs: List<Entrepreneur>,
     onEntrepreneurClick: (Entrepreneur) -> Unit,
+    onEntrepreneurStarClick: (Entrepreneur) -> Unit,
     onProductImageClick: (String) -> Unit
 ) {
     LazyColumn(
@@ -138,6 +141,7 @@ private fun EntrepreneursList(
             EntrepreneurCard(
                 entrepreneur = entrepreneur,
                 onClick = { onEntrepreneurClick(entrepreneur) },
+                onStarClick = { onEntrepreneurStarClick(entrepreneur) },
                 onProductImageClick = onProductImageClick
             )
         }

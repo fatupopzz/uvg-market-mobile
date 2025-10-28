@@ -1,5 +1,6 @@
 package com.example.uvgmarket.profile.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,11 +16,19 @@ fun CustomStarRating(
     rating: Float,
     maxStars: Int = UiConstants.MAX_RATING_STARS,
     starSize: Dp = UiConstants.STAR_SIZE_LARGE.dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isClickable: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
+    val finalModifier = if (isClickable) {
+        modifier.clickable { onClick() }
+    } else {
+        modifier
+    }
+
     StarRatingBar(
         rating = rating.toInt(),
-        modifier = modifier,
+        modifier = finalModifier,
         maxStars = maxStars,
         starSize = starSize,
     )
@@ -31,5 +40,16 @@ fun CustomStarRatingPreview() {
     UvgMarketTheme {
         CustomStarRating(rating = 3.0f)
     }
+}
 
+@Preview
+@Composable
+fun CustomStarRatingClickablePreview() {
+    UvgMarketTheme {
+        CustomStarRating(
+            rating = 3.0f,
+            isClickable = true,
+            onClick = { /* Click action */ }
+        )
+    }
 }
