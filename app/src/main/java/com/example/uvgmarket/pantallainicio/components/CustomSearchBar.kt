@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.sp
  * @param searchText Texto actual de búsqueda
  * @param onSearchTextChange Callback cuando cambia el texto de búsqueda
  * @param placeholder Texto de placeholder a mostrar
- * @param onMenuClick Callback cuando se presiona el ícono de menú
  * @param onSearchClick Callback cuando se presiona el ícono de búsqueda
  */
 @Composable
@@ -44,7 +42,6 @@ fun CustomSearchBar(
     onSearchTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "Hinted search text",
-    onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {}
 ) {
     Row(
@@ -57,18 +54,6 @@ fun CustomSearchBar(
             .padding(horizontal = 3.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Ícono de menú (hamburger menu)
-        IconButton(
-            onClick = onMenuClick,
-            modifier = Modifier.size(32.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = "Abrir menú",
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(18.dp)
-            )
-        }
 
         // Campo de texto de búsqueda
         Box(

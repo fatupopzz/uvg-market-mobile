@@ -31,7 +31,6 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 @Composable
 fun MarketplaceScreen(
     modifier: Modifier = Modifier,
-    onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onEntrepreneurClick: (Entrepreneur) -> Unit = {},
     onFabClick: () -> Unit = {},
@@ -53,7 +52,6 @@ fun MarketplaceScreen(
             MarketplaceHeader(
                 searchText = searchText,
                 onSearchTextChange = { searchText = it },
-                onMenuClick = onMenuClick,
                 onSearchClick = onSearchClick,
                 onProfileAvatarClick = onProfileAvatarClick
             )
@@ -89,7 +87,6 @@ fun MarketplaceScreen(
 private fun MarketplaceHeader(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
-    onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onProfileAvatarClick: () -> Unit
 ) {
@@ -109,7 +106,6 @@ private fun MarketplaceHeader(
             CustomSearchBar(
                 searchText = searchText,
                 onSearchTextChange = onSearchTextChange,
-                onMenuClick = onMenuClick,
                 onSearchClick = onSearchClick,
                 placeholder = stringResource(R.string.barra_busqueda_menu),
                 modifier = Modifier.weight(1f)
