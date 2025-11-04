@@ -8,6 +8,7 @@ import com.example.uvgmarket.core.navigation.AppNavigationHost
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
