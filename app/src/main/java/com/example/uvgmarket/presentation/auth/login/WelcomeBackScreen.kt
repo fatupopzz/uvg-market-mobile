@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.welcome
+package com.example.uvgmarket.presentation.auth.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -17,21 +16,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.core.ui.components.images.CircularImage
 import com.example.uvgmarket.core.ui.components.textfields.AppTextField
+import com.example.uvgmarket.presentation.auth.login.LoginViewModel
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun WelcomeBackScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> },
-    onNavigateToRegister: () -> Unit = {}
+    onLoginSuccess: () -> Unit = {},
+    onNavigateToRegister: () -> Unit = {},
+    viewModel: LoginViewModel = viewModel()
 ) {
-    var usuario by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
-    var showErrors by remember { mutableStateOf(false) }
+
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Verificar si ya hay un usuario logueado al iniciar
+    LaunchedEffect(Unit) {
+        if (viewModel.checkLoginStatus()) {
+            onLoginSuccess()
+        }
+    }
+
+    // Manejar el éxito del login
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onLoginSuccess()
+            viewModel.resetState()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -75,14 +94,15 @@ fun WelcomeBackScreen(
 
             item {
                 LoginFormField(
-                    label = stringResource(R.string.usuario_label),
-                    value = usuario,
+                    label = stringResource(R.string.correo_label),
+                    value = correo,
                     onValueChange = {
-                        usuario = it
-                        showErrors = false
+                        correo = it
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.welcome_usuario_hint),
-                    isError = showErrors && usuario.isBlank()
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -94,11 +114,12 @@ fun WelcomeBackScreen(
                     value = contrasena,
                     onValueChange = {
                         contrasena = it
-                        showErrors = false
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.welcome_contrasena_hint),
                     isPassword = true,
-                    isError = showErrors && contrasena.isBlank()
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -106,15 +127,12 @@ fun WelcomeBackScreen(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 PrimaryButton(
-                    text = stringResource(R.string.boton_iniciar_sesion),
+                    text = if (uiState.isLoading) "Iniciando sesión..." else stringResource(R.string.boton_iniciar_sesion),
                     onClick = {
-                        if (usuario.isNotBlank() && contrasena.isNotBlank()) {
-                            onLoginClick(usuario, contrasena)
-                        } else {
-                            showErrors = true
-                        }
+                        viewModel.login(correo, contrasena)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -124,16 +142,29 @@ fun WelcomeBackScreen(
                 LoginFooter(onNavigateToRegister = onNavigateToRegister)
             }
 
-            if (showErrors) {
+            // Mostrar error si existe
+            if (uiState.error != null) {
                 item {
                     Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM.dp))
-                    ErrorMessage(text = "Por favor completa todos los campos")
+                    Text(
+                        text = uiState.error ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
 
             item {
                 Spacer(modifier = Modifier.height(60.dp))
             }
+        }
+
+        // Indicador de carga
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
@@ -145,7 +176,8 @@ private fun LoginFormField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     isPassword: Boolean = false,
-    isError: Boolean = false
+    isError: Boolean = false,
+    enabled: Boolean = true
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -157,14 +189,16 @@ private fun LoginFormField(
         )
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
+        // ✅ CORREGIDO: Manejo apropiado del enabled
         AppTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = if (enabled) onValueChange else { _ -> },
             placeholder = placeholder,
             isPassword = isPassword,
             isError = isError,
             backgroundColor = MaterialTheme.colorScheme.secondary,
-            textColor = MaterialTheme.colorScheme.onSecondary
+            textColor = MaterialTheme.colorScheme.onSecondary,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -189,16 +223,6 @@ private fun LoginFooter(onNavigateToRegister: () -> Unit) {
             modifier = Modifier.clickable { onNavigateToRegister() }
         )
     }
-}
-
-@Composable
-private fun ErrorMessage(text: String) {
-    Text(
-        text = text,
-        color = MaterialTheme.colorScheme.error,
-        fontSize = 14.sp,
-        textAlign = TextAlign.Center
-    )
 }
 
 @Preview

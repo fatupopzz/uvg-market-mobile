@@ -3,8 +3,8 @@ package com.example.uvgmarket.core.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.uvgmarket.auth.AuthScreen
-import com.example.uvgmarket.presentation.registro.RegistroScreen
-import com.example.uvgmarket.presentation.welcome.WelcomeBackScreen
+import com.example.uvgmarket.presentation.auth.register.RegistroScreen
+import com.example.uvgmarket.presentation.auth.login.WelcomeBackScreen
 
 fun NavGraphBuilder.authGraph(navigationActions: NavigationActions) {
     composable(NavigationDestination.Auth.route) {
@@ -16,15 +16,25 @@ fun NavGraphBuilder.authGraph(navigationActions: NavigationActions) {
 
     composable(NavigationDestination.Login.route) {
         WelcomeBackScreen(
-            onLoginClick = { _, _ -> navigationActions.navigateToMarketplace() },
-            onNavigateToRegister = { navigationActions.navigateToRegister() }
+            onLoginSuccess = {
+                // Navegar al marketplace cuando el login sea exitoso
+                navigationActions.navigateToMarketplace()
+            },
+            onNavigateToRegister = {
+                navigationActions.navigateToRegister()
+            }
         )
     }
 
     composable(NavigationDestination.Register.route) {
         RegistroScreen(
-            onRegistroClick = { _, _, _, _ -> navigationActions.navigateToMarketplace() },
-            onNavigateToLogin = { navigationActions.navigateToLogin() }
+            onRegistroSuccess = {
+                // Navegar al marketplace cuando el registro sea exitoso
+                navigationActions.navigateToMarketplace()
+            },
+            onNavigateToLogin = {
+                navigationActions.navigateToLogin()
+            }
         )
     }
 }

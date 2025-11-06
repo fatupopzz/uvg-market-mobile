@@ -1,4 +1,4 @@
-package com.example.uvgmarket.presentation.registro
+package com.example.uvgmarket.presentation.auth.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -17,33 +16,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
 import com.example.uvgmarket.core.constants.UiConstants
-import com.example.uvgmarket.core.constants.ValidationConstants
 import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.core.ui.components.images.CircularImage
 import com.example.uvgmarket.core.ui.components.textfields.AppTextField
+import com.example.uvgmarket.presentation.auth.register.RegisterViewModel
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun RegistroScreen(
-    onRegistroClick: (String, String, String, String) -> Unit = { _, _, _, _ -> },
-    onNavigateToLogin: () -> Unit = {}
+    onRegistroSuccess: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
+    viewModel: RegisterViewModel = viewModel()
 ) {
     var nombre by remember { mutableStateOf("") }
     var usuario by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
-    var showErrors by remember { mutableStateOf(false) }
 
-    val validationErrors = remember(
-        nombre, usuario, correo, contrasena, confirmarContrasena, showErrors
-    ) {
-        if (showErrors) {
-            getValidationErrors(nombre, usuario, correo, contrasena, confirmarContrasena)
-        } else {
-            emptyList()
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Manejar el éxito del registro
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onRegistroSuccess()
+            viewModel.resetState()
         }
     }
 
@@ -93,10 +94,11 @@ fun RegistroScreen(
                     value = nombre,
                     onValueChange = {
                         nombre = it
-                        showErrors = false
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.registro_nombre_hint),
-                    isError = showErrors && nombre.isBlank()
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -106,10 +108,11 @@ fun RegistroScreen(
                     value = usuario,
                     onValueChange = {
                         usuario = it
-                        showErrors = false
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.registro_usuario_hint),
-                    isError = showErrors && usuario.isBlank()
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -119,10 +122,11 @@ fun RegistroScreen(
                     value = correo,
                     onValueChange = {
                         correo = it
-                        showErrors = false
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.registro_correo_hint),
-                    isError = showErrors && (!correo.contains("@") || correo.isBlank())
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -132,11 +136,12 @@ fun RegistroScreen(
                     value = contrasena,
                     onValueChange = {
                         contrasena = it
-                        showErrors = false
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.registro_contrasena_hint),
                     isPassword = true,
-                    isError = showErrors && contrasena.length < ValidationConstants.MIN_PASSWORD_LENGTH
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -146,11 +151,12 @@ fun RegistroScreen(
                     value = confirmarContrasena,
                     onValueChange = {
                         confirmarContrasena = it
-                        showErrors = false
+                        viewModel.clearError()
                     },
                     placeholder = stringResource(R.string.registro_confirmar_hint),
                     isPassword = true,
-                    isError = showErrors && confirmarContrasena != contrasena
+                    isError = false,
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -158,15 +164,12 @@ fun RegistroScreen(
                 Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
                 PrimaryButton(
-                    text = stringResource(R.string.boton_registrarse),
+                    text = if (uiState.isLoading) "Registrando..." else stringResource(R.string.boton_registrarse),
                     onClick = {
-                        if (isValidRegistration(nombre, usuario, correo, contrasena, confirmarContrasena)) {
-                            onRegistroClick(nombre, usuario, correo, contrasena)
-                        } else {
-                            showErrors = true
-                        }
+                        viewModel.register(nombre, usuario, correo, contrasena, confirmarContrasena)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !uiState.isLoading
                 )
             }
 
@@ -174,15 +177,29 @@ fun RegistroScreen(
                 RegistroFooter(onNavigateToLogin = onNavigateToLogin)
             }
 
-            if (validationErrors.isNotEmpty()) {
+            // Mostrar error si existe
+            if (uiState.error != null) {
                 item {
-                    ValidationErrorsList(errors = validationErrors)
+                    Text(
+                        text = uiState.error ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = UiConstants.PADDING_MEDIUM.dp)
+                    )
                 }
             }
 
             item {
                 Spacer(modifier = Modifier.height(40.dp))
             }
+        }
+
+        // Indicador de carga
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
@@ -194,7 +211,8 @@ private fun RegistroFormField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     isPassword: Boolean = false,
-    isError: Boolean = false
+    isError: Boolean = false,
+    enabled: Boolean = true
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -206,14 +224,16 @@ private fun RegistroFormField(
         )
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
+        // ✅ CORREGIDO: Manejo apropiado del enabled
         AppTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = if (enabled) onValueChange else { _ -> },
             placeholder = placeholder,
             isPassword = isPassword,
             isError = isError,
             backgroundColor = MaterialTheme.colorScheme.secondary,
-            textColor = MaterialTheme.colorScheme.onSecondary
+            textColor = MaterialTheme.colorScheme.onSecondary,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -238,63 +258,6 @@ private fun RegistroFooter(onNavigateToLogin: () -> Unit) {
             modifier = Modifier.clickable { onNavigateToLogin() }
         )
     }
-}
-
-@Composable
-private fun ValidationErrorsList(errors: List<String>) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = UiConstants.PADDING_MEDIUM.dp)
-    ) {
-        errors.forEach { error ->
-            Text(
-                text = "• $error",
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-private fun isValidRegistration(
-    nombre: String,
-    usuario: String,
-    correo: String,
-    contrasena: String,
-    confirmarContrasena: String
-): Boolean {
-    return nombre.isNotBlank() &&
-            usuario.isNotBlank() &&
-            correo.isNotBlank() &&
-            correo.contains("@") &&
-            contrasena.length >= ValidationConstants.MIN_PASSWORD_LENGTH &&
-            contrasena == confirmarContrasena
-}
-
-private fun getValidationErrors(
-    nombre: String,
-    usuario: String,
-    correo: String,
-    contrasena: String,
-    confirmarContrasena: String
-): List<String> {
-    val errors = mutableListOf<String>()
-
-    if (nombre.isBlank() || usuario.isBlank() || correo.isBlank()) {
-        errors.add("Completa todos los campos requeridos")
-    }
-    if (contrasena.length < ValidationConstants.MIN_PASSWORD_LENGTH) {
-        errors.add("La contraseña debe tener al menos ${ValidationConstants.MIN_PASSWORD_LENGTH} caracteres")
-    }
-    if (!correo.contains("@")) {
-        errors.add("El correo electrónico no es válido")
-    }
-    if (contrasena != confirmarContrasena) {
-        errors.add("Las contraseñas no coinciden")
-    }
-
-    return errors
 }
 
 @Preview
