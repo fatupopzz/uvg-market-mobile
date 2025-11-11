@@ -1,3 +1,73 @@
 <resources>
-    <string name="app_name">UvgMarket</string>
+    <string name="app_name">UVG Market</string>
+
+    <!-- First Screen -->
+    <string name="iniciar_sesion">INICIAR SESIÓN</string>
+    <string name="registrarse">REGISTRARSE</string>
+
+    <!-- Welcome Back Screen -->
+    <string name="welcome_back_title">BIENVENIDO DE VUELTA</string>
+    <string name="welcome_usuario_hint">Tu nombre de usuario</string>
+    <string name="welcome_contrasena_hint">Tu contraseña</string>
+    <string name="boton_iniciar_sesion">INICIAR SESIÓN</string>
+    <string name="no_tienes_cuenta">¿No tienes cuenta?</string>
+    <string name="crear_cuenta_link">Crear cuenta</string>
+
+    <!-- Registro Screen -->
+    <string name="registro_title">CREAR CUENTA</string>
+    <string name="registro_nombre_hint">Nombre completo</string>
+    <string name="registro_usuario_hint">Nombre de usuario</string>
+    <string name="registro_correo_hint">Correo institucional</string>
+    <string name="registro_contrasena_hint">Mínimo 8 caracteres</string>
+    <string name="registro_confirmar_hint">Confirmar contraseña</string>
+    <string name="boton_registrarse">REGISTRARSE</string>
+    <string name="ya_tienes_cuenta">¿Ya tienes cuenta?</string>
+    <string name="iniciar_sesion_link">Iniciar sesión</string>
+
+    <!-- Home Screen -->
+    <string name="barra_busqueda_menu">Buscar...</string>"
+
+    <!-- Product Detail Screen -->
+    <string name="boton_contactar_vendedor">CONTACTAR AL VENDEDOR</string>
+
+
+    <!-- Labels -->
+    <string name="usuario_label">Usuario</string>
+    <string name="contrasena_label">Contraseña</string>
+    <string name="nombre_label">Nombre</string>
+    <string name="correo_label">Correo</string>
+    <string name="confirmar_contrasena_label">Confirmar Contraseña</string>
+
+    <!-- Validaciones -->
+    <string name="error_campo_vacio">Este campo es requerido</string>
+    <string name="error_contrasena_corta">La contraseña debe tener mínimo 8 caracteres</string>
+    <string name="error_correo_invalido">Ingresa un correo válido</string>
+    <string name="error_contrasenas_no_coinciden">Las contraseñas no coinciden</string>
+    <string name="login_exitoso">Inicio de sesión exitoso</string>
+    <string name="registro_exitoso">Registro completado exitosamente</string>
+
+
+    <!-- Pantalla Agregar Producto -->
+    <string name="agregar_producto">agregar producto</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="publicar">Publicar</string>
+    <string name="adjuntar_imagen">Adjuntar una Imagen</string>
+    <string name="nombre">Nombre:</string>
+    <string name="descripcion">Descripción:</string>
+    <string name="precio">Precio:</string>
+    <string name="hint_nombre">Ingrese el nombre del producto</string>
+    <string name="hint_descripcion">Ingrese la descripción</string>
+    <string name="hint_precio">Ingrese el precio</string>
+  
+    <!-- Editar perfil -->
+    <string name="Cambiar_contrasena">Cambiar contraseña</string>
+    <string name="Usuario_editar_perfil">Usuario:</string>
+    <string name="Correo_editar_perfil">Correo:</string>
+    <string name="Nombre_editar_perfil">Nombre:</string>
+
+    <!-- Cambio contraseña -->
+    <string name="Cambiar_contrasena_actual">Contraseña actual:</string>
+    <string name="Cambiar_contrasena_nueva">Nueva contraseña:</string>
+    <string name="Cambiar_contrasena_confirmar">Confirmar contraseña:</string>
+    <string name="Cambiar_contrasena_confirmar_boton">CONFIRMAR</string>
 </resources>

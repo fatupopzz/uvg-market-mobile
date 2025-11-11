@@ -1,0 +1,234 @@
+package com.example.uvgmarket.presentation.auth.login
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.uvgmarket.R
+import com.example.uvgmarket.core.constants.UiConstants
+import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
+import com.example.uvgmarket.core.ui.components.images.CircularImage
+import com.example.uvgmarket.core.ui.components.textfields.AppTextField
+import com.example.uvgmarket.presentation.auth.login.LoginViewModel
+import com.example.uvgmarket.ui.theme.UvgMarketTheme
+
+@Composable
+fun WelcomeBackScreen(
+    onLoginSuccess: () -> Unit = {},
+    onNavigateToRegister: () -> Unit = {},
+    viewModel: LoginViewModel = viewModel()
+) {
+    var correo by remember { mutableStateOf("") }
+    var contrasena by remember { mutableStateOf("") }
+
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Verificar si ya hay un usuario logueado al iniciar
+    LaunchedEffect(Unit) {
+        if (viewModel.checkLoginStatus()) {
+            onLoginSuccess()
+        }
+    }
+
+    // Manejar el éxito del login
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onLoginSuccess()
+            viewModel.resetState()
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.background_ingresar_datos),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(UiConstants.PADDING_LARGE.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(60.dp))
+
+                Text(
+                    text = stringResource(R.string.welcome_back_title),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    letterSpacing = 2.sp
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(60.dp))
+
+                CircularImage(
+                    imageRes = R.drawable.avatar_ingresar_datos,
+                    contentDescription = "Profile Avatar",
+                    size = UiConstants.AVATAR_SIZE_EXTRA_LARGE.dp
+                )
+
+                Spacer(modifier = Modifier.height(50.dp))
+            }
+
+            item {
+                LoginFormField(
+                    label = stringResource(R.string.correo_label),
+                    value = correo,
+                    onValueChange = {
+                        correo = it
+                        viewModel.clearError()
+                    },
+                    placeholder = stringResource(R.string.welcome_usuario_hint),
+                    isError = false,
+                    enabled = !uiState.isLoading
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
+
+                LoginFormField(
+                    label = stringResource(R.string.contrasena_label),
+                    value = contrasena,
+                    onValueChange = {
+                        contrasena = it
+                        viewModel.clearError()
+                    },
+                    placeholder = stringResource(R.string.welcome_contrasena_hint),
+                    isPassword = true,
+                    isError = false,
+                    enabled = !uiState.isLoading
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(40.dp))
+
+                PrimaryButton(
+                    text = if (uiState.isLoading) "Iniciando sesión..." else stringResource(R.string.boton_iniciar_sesion),
+                    onClick = {
+                        viewModel.login(correo, contrasena)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !uiState.isLoading
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_EXTRA_LARGE.dp))
+
+                LoginFooter(onNavigateToRegister = onNavigateToRegister)
+            }
+
+            // Mostrar error si existe
+            if (uiState.error != null) {
+                item {
+                    Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM.dp))
+                    Text(
+                        text = uiState.error ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(60.dp))
+            }
+        }
+
+        // Indicador de carga
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoginFormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    isPassword: Boolean = false,
+    isError: Boolean = false,
+    enabled: Boolean = true
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
+
+        // ✅ CORREGIDO: Manejo apropiado del enabled
+        AppTextField(
+            value = value,
+            onValueChange = if (enabled) onValueChange else { _ -> },
+            placeholder = placeholder,
+            isPassword = isPassword,
+            isError = isError,
+            backgroundColor = MaterialTheme.colorScheme.secondary,
+            textColor = MaterialTheme.colorScheme.onSecondary,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun LoginFooter(onNavigateToRegister: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.no_tienes_cuenta),
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL.dp))
+        Text(
+            text = stringResource(R.string.crear_cuenta_link),
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.clickable { onNavigateToRegister() }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun WelcomeBackScreenPreview() {
+    UvgMarketTheme {
+        WelcomeBackScreen()
+    }
+}
