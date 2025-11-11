@@ -36,9 +36,17 @@ fun ProfileScreen(
     onBackClick: () -> Unit = {},
     onChatClick: (String) -> Unit = {},
     onProductoClick: (String) -> Unit = {},
-    onFloatingActionClick: () -> Unit = {}
+    onFloatingActionClick: () -> Unit = {},
+    onDeleteProductClick: (String) -> Unit = {},
+    // Parámetros de configuración dependiendo de la pantalla
+    showFloatingActionButton: Boolean = false,
+    showChatButton: Boolean = true,
+    showEditButton: Boolean = false,
+    showDeleteButton: Boolean = false,
+    onEditClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier
+    Box(modifier = modifier
         .fillMaxSize()
         .statusBarsPadding()
     ) {
@@ -76,7 +84,10 @@ fun ProfileScreen(
             item {
                 CustomInfoCard(
                     usuario = usuario,
-                    onChatClick = onChatClick
+                    onChatClick = onChatClick,
+                    showChatButton = showChatButton,
+                    showEditButton = showEditButton,
+                    onEditClick = onEditClick
                 )
             }
 
@@ -92,7 +103,9 @@ fun ProfileScreen(
             items(productos) { producto ->
                 CustomProductCard(
                     producto = producto,
-                    onClick = { onProductoClick(producto.id) }
+                    onClick = { onProductoClick(producto.id) },
+                    showDeleteButton = showDeleteButton,
+                    onDeleteClick = { onDeleteProductClick(producto.id) }
                 )
             }
 
@@ -112,19 +125,24 @@ fun ProfileScreen(
                 .zIndex(1f)
         )
 
-        // Botón flotante circular
-        CustomFloatingActionButton(
-            onClick = onFloatingActionClick,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        )
+        // Botón flotante circular solo si showFloatingActionButton es true
+        if (showFloatingActionButton) {
+            CustomFloatingActionButton(
+                onClick = onFloatingActionClick,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
+        }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
 @Composable
-fun PerfilScreenPreview() {
+fun ProfileScreenPreview() {
     val repository = DummyRepository()
     UvgMarketTheme {
         ProfileScreen(

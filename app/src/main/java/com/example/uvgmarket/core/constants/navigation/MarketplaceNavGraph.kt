@@ -8,7 +8,6 @@ import com.example.uvgmarket.pantallainicio.marketplace.MarketplaceScreen
 fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
     composable(NavigationDestination.Marketplace.route) {
         MarketplaceScreen(
-            onMenuClick = { /* TODO */ },
             onSearchClick = { /* TODO */ },
             onEntrepreneurClick = { navigationActions.navigateToProfile() },
             onFabClick = { /* TODO */ },
