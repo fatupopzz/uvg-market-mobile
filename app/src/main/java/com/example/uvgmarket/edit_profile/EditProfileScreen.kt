@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.edit_profile.components.ChangePasswordButton
@@ -26,14 +27,25 @@ fun EditProfileScreen(
     imagenPerfil: Int = R.drawable.profile_picture,
     imagenPortada: Int = R.drawable.portada_perfil,
     onCancelClick: () -> Unit = {},
-    onSaveClick: (String, String, String) -> Unit = { _, _, _ -> },
-    onChangeProfileImage: () -> Unit = {},
-    onChangeCoverImage: () -> Unit = {},
-    onChangePassword: () -> Unit = {}
+    onSaveSuccess: () -> Unit = {},
+    onChangePassword: () -> Unit = {},
+    viewModel: EditProfileViewModel = viewModel()
 ) {
-    var nombreState by remember { mutableStateOf(nombre) }
-    var usuarioState by remember { mutableStateOf(usuario) }
-    var correoState by remember { mutableStateOf(correo) }
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Inicializar el ViewModel con los datos recibidos
+    LaunchedEffect(nombre, usuario, correo, imagenPerfil, imagenPortada) {
+        viewModel.initializeProfile(nombre, usuario, correo, imagenPerfil, imagenPortada)
+    }
+
+    // Manejar el éxito del guardado
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onSaveSuccess()
+            viewModel.resetState()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -48,7 +60,7 @@ fun EditProfileScreen(
                 EditProfileTopBar(
                     onCancelClick = onCancelClick,
                     onSaveClick = {
-                        onSaveClick(nombreState, usuarioState, correoState)
+                        viewModel.saveProfile()
                     }
                 )
             }
@@ -61,8 +73,8 @@ fun EditProfileScreen(
                         .height(200.dp)
                 ) {
                     EditCoverImage(
-                        imageRes = imagenPortada,
-                        onCameraClick = onChangeCoverImage
+                        imageRes = uiState.imagenPortada ?: imagenPortada,
+                        onCameraClick = { viewModel.onCoverImageChange() }
                     )
                 }
             }
@@ -81,8 +93,8 @@ fun EditProfileScreen(
                 ) {
                     EditTextField(
                         label = stringResource(R.string.Nombre_editar_perfil),
-                        value = nombreState,
-                        onValueChange = { nombreState = it },
+                        value = uiState.nombre,
+                        onValueChange = { viewModel.updateNombre(it) },
                         placeholder = "Ingresa tu nombre"
                     )
 
@@ -90,8 +102,8 @@ fun EditProfileScreen(
 
                     EditTextField(
                         label = stringResource(R.string.Usuario_editar_perfil),
-                        value = usuarioState,
-                        onValueChange = { usuarioState = it },
+                        value = uiState.usuario,
+                        onValueChange = { viewModel.updateUsuario(it) },
                         placeholder = "Ingresa tu usuario"
                     )
 
@@ -99,8 +111,8 @@ fun EditProfileScreen(
 
                     EditTextField(
                         label = stringResource(R.string.Correo_editar_perfil),
-                        value = correoState,
-                        onValueChange = { correoState = it },
+                        value = uiState.correo,
+                        onValueChange = { viewModel.updateCorreo(it) },
                         placeholder = "Ingresa tu correo"
                     )
 
@@ -112,6 +124,20 @@ fun EditProfileScreen(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 
+                    // Mostrar error si existe
+                    if (uiState.error != null) {
+                        Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
+
+                        Text(
+                            text = uiState.error ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = UiConstants.PADDING_LARGE.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
@@ -119,12 +145,19 @@ fun EditProfileScreen(
 
         // Avatar superpuesto
         EditProfileAvatar(
-            imageRes = imagenPerfil,
-            onCameraClick = onChangeProfileImage,
+            imageRes = uiState.imagenPerfil ?: imagenPerfil,
+            onCameraClick = { viewModel.onProfileImageChange() },
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = 16.dp, y = 170.dp)
         )
+
+        // Indicador de carga
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
 

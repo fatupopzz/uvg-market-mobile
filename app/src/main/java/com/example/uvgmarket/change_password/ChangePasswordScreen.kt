@@ -1,7 +1,6 @@
 package com.example.uvgmarket.change_password
 
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,31 +11,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
 import com.example.uvgmarket.change_password.components.PasswordChangeTopBar
 import com.example.uvgmarket.change_password.components.PasswordTextField
 import com.example.uvgmarket.core.constants.UiConstants
-import com.example.uvgmarket.core.constants.ValidationConstants
 import com.example.uvgmarket.core.ui.components.buttons.SecondaryButton
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun ChangePasswordScreen(
     onBackClick: () -> Unit = {},
-    onConfirmClick: (String, String, String) -> Unit = { _, _, _ -> }
+    onPasswordChanged: () -> Unit = {},
+    viewModel: ChangePasswordViewModel = viewModel()
 ) {
     var contrasenaActual by remember { mutableStateOf("") }
     var nuevaContrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
-    var showErrors by remember { mutableStateOf(false) }
 
-    val validationErrors = remember(
-        contrasenaActual, nuevaContrasena, confirmarContrasena, showErrors
-    ) {
-        if (showErrors) {
-            getPasswordValidationErrors(contrasenaActual, nuevaContrasena, confirmarContrasena)
-        } else {
-            emptyList()
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Manejar el éxito del cambio de contraseña
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onPasswordChanged()
+            viewModel.resetState()
         }
     }
 
@@ -68,9 +68,10 @@ fun ChangePasswordScreen(
                         value = contrasenaActual,
                         onValueChange = {
                             contrasenaActual = it
-                            showErrors = false
+                            viewModel.clearError()
                         },
-                        isError = showErrors && contrasenaActual.isBlank()
+                        isError = uiState.validationErrors.isNotEmpty() && contrasenaActual.isBlank(),
+                        enabled = !uiState.isLoading
                     )
 
                     Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
@@ -81,9 +82,10 @@ fun ChangePasswordScreen(
                         value = nuevaContrasena,
                         onValueChange = {
                             nuevaContrasena = it
-                            showErrors = false
+                            viewModel.clearError()
                         },
-                        isError = showErrors && nuevaContrasena.length < ValidationConstants.MIN_PASSWORD_LENGTH
+                        isError = uiState.validationErrors.isNotEmpty() && nuevaContrasena.length < 8,
+                        enabled = !uiState.isLoading
                     )
 
                     Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
@@ -94,39 +96,41 @@ fun ChangePasswordScreen(
                         value = confirmarContrasena,
                         onValueChange = {
                             confirmarContrasena = it
-                            showErrors = false
+                            viewModel.clearError()
                         },
-                        isError = showErrors && confirmarContrasena != nuevaContrasena
+                        isError = uiState.validationErrors.isNotEmpty() && confirmarContrasena != nuevaContrasena,
+                        enabled = !uiState.isLoading
                     )
 
                     Spacer(modifier = Modifier.height(40.dp))
 
                     // Botón CONFIRMAR
                     SecondaryButton(
-                        text = stringResource(R.string.Cambiar_contrasena_confirmar_boton),
+                        text = if (uiState.isLoading) "Cambiando..." else stringResource(R.string.Cambiar_contrasena_confirmar_boton),
                         onClick = {
-                            if (isValidPasswordChange(contrasenaActual, nuevaContrasena, confirmarContrasena)) {
-                                onConfirmClick(contrasenaActual, nuevaContrasena, confirmarContrasena)
-                            } else {
-                                showErrors = true
-                            }
+                            viewModel.changePassword(
+                                contrasenaActual,
+                                nuevaContrasena,
+                                confirmarContrasena
+                            )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = UiConstants.PADDING_EXTRA_LARGE.dp),
                         containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        enabled = !uiState.isLoading
                     )
 
                     // Mostrar errores de validación si existen
-                    if (validationErrors.isNotEmpty()) {
+                    if (uiState.validationErrors.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
 
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            validationErrors.forEach { error ->
+                            uiState.validationErrors.forEach { error ->
                                 Text(
                                     text = "• $error",
                                     color = MaterialTheme.colorScheme.error,
@@ -137,48 +141,32 @@ fun ChangePasswordScreen(
                         }
                     }
 
+                    // Mostrar error general si existe
+                    if (uiState.error != null) {
+                        Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
+
+                        Text(
+                            text = uiState.error ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = UiConstants.PADDING_LARGE.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
         }
+
+        // Indicador de carga
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
-}
-
-private fun isValidPasswordChange(
-    contrasenaActual: String,
-    nuevaContrasena: String,
-    confirmarContrasena: String
-): Boolean {
-    return contrasenaActual.isNotBlank() &&
-            nuevaContrasena.length >= ValidationConstants.MIN_PASSWORD_LENGTH &&
-            nuevaContrasena == confirmarContrasena &&
-            contrasenaActual != nuevaContrasena
-}
-
-private fun getPasswordValidationErrors(
-    contrasenaActual: String,
-    nuevaContrasena: String,
-    confirmarContrasena: String
-): List<String> {
-    val errors = mutableListOf<String>()
-
-    if (contrasenaActual.isBlank()) {
-        errors.add("Debes ingresar tu contraseña actual")
-    }
-
-    if (nuevaContrasena.length < ValidationConstants.MIN_PASSWORD_LENGTH) {
-        errors.add("La nueva contraseña debe tener al menos ${ValidationConstants.MIN_PASSWORD_LENGTH} caracteres")
-    }
-
-    if (nuevaContrasena != confirmarContrasena) {
-        errors.add("Las contraseñas no coinciden")
-    }
-
-    if (contrasenaActual.isNotBlank() && contrasenaActual == nuevaContrasena) {
-        errors.add("La nueva contraseña debe ser diferente a la actual")
-    }
-
-    return errors
 }
 
 @Preview(showBackground = true, showSystemUi = true)
