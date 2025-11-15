@@ -1,6 +1,5 @@
 package com.example.uvgmarket.Ordenes_Adr.product_detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -60,6 +59,17 @@ fun ProductDetailScreen(
             AppTopBar(
                 onBackClick = onBackClick
             )
+        },
+        containerColor = Color(0xFFF5F5F5)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(Color(0xFFF5F5F5)),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CustomProductImage(modifier = Modifier.size(300.dp))
 
             // Imagen del producto
             ProductImage(
