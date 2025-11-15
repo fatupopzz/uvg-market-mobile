@@ -1,159 +1,185 @@
 package com.example.uvgmarket.profile
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.uvgmarket.profile.components.*
 import com.example.uvgmarket.profile.models.Usuario
 import com.example.uvgmarket.profile.models.Producto
-import com.example.uvgmarket.profile.repository.DummyRepository
-import com.example.uvgmarket.profile.components.CustomCoverImage
-import com.example.uvgmarket.profile.components.CustomDivider
-import com.example.uvgmarket.profile.components.CustomFloatingActionButton
-import com.example.uvgmarket.profile.components.CustomProductCard
-import com.example.uvgmarket.profile.components.CustomTopBar
-import com.example.uvgmarket.profile.components.CustomInfoCard
-import com.example.uvgmarket.profile.components.CustomProfileImage
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
+/**
+ * Pantalla de perfil que muestra información del usuario y sus productos
+ * Puede ser el perfil propio o el de otro usuario
+ */
 @Composable
 fun ProfileScreen(
-    usuario: Usuario,
-    productos: List<Producto> = emptyList(),
+    userId: String? = null,
+    isOwnProfile: Boolean = true,
     onBackClick: () -> Unit = {},
     onChatClick: (String) -> Unit = {},
     onProductoClick: (String) -> Unit = {},
     onFloatingActionClick: () -> Unit = {},
-    onDeleteProductClick: (String) -> Unit = {},
-    onStarClick: () -> Unit = {},
-    // Parámetros de configuración dependiendo de la pantalla
-    showFloatingActionButton: Boolean = false,
-    showChatButton: Boolean = true,
-    showEditButton: Boolean = false,
-    showDeleteButton: Boolean = false,
     onEditClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onStarClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = viewModel()
 ) {
-    Box(modifier = modifier
-        .fillMaxSize()
-        .statusBarsPadding()
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Imagen de portada
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                ) {
-                    CustomCoverImage(
-                        imageRes = usuario.imagenPortada,
-                        contentDescription = "Portada de ${usuario.nombre}"
-                    )
+    val uiState by viewModel.uiState.collectAsState()
 
-                    CustomTopBar(
-                        onBackClick = onBackClick,
-                        modifier = Modifier.align(Alignment.TopCenter)
+    // Cargar datos al iniciar la pantalla
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            viewModel.loadUserProfile(userId)
+        } else {
+            viewModel.loadCurrentUserProfile()
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+    ) {
+        when {
+            // Estado de carga
+            uiState.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            // Estado de error
+            uiState.error != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = uiState.error ?: "Error desconocido",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
 
-            // Separador verde
-            item {
-                CustomDivider(
-                    thickness = 18.dp,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
+            // Estado con datos
+            uiState.usuario != null -> {
+                val usuario = uiState.usuario!!
+                val productos = uiState.productos
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        // Imagen de portada
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                            ) {
+                                CustomCoverImage(
+                                    imageRes = usuario.imagenPortada,
+                                    contentDescription = "Portada de ${usuario.nombre}"
+                                )
+
+                                CustomTopBar(
+                                    onBackClick = onBackClick,
+                                    modifier = Modifier.align(Alignment.TopCenter)
+                                )
+                            }
+                        }
+
+                        // Separador verde
+                        item {
+                            CustomDivider(
+                                thickness = 18.dp,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+
+                        // Información del usuario
+                        item {
+                            CustomInfoCard(
+                                usuario = usuario,
+                                onChatClick = onChatClick,
+                                showChatButton = !isOwnProfile,
+                                showEditButton = isOwnProfile,
+                                onEditClick = onEditClick,
+                                onStarClick = onStarClick
+                            )
+                        }
+
+                        // Separador después del card del usuario
+                        item {
+                            CustomDivider(
+                                thickness = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
+                        // Lista de productos
+                        items(productos) { producto ->
+                            CustomProductCard(
+                                producto = producto,
+                                onClick = { onProductoClick(producto.id) },
+                                showDeleteButton = isOwnProfile,
+                                onDeleteClick = { viewModel.deleteProduct(producto.id) }
+                            )
+                        }
+
+                        // Espacio para el botón flotante
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp))
+                        }
+                    }
+
+                    // Foto de perfil superpuesta
+                    CustomProfileImage(
+                        imageRes = usuario.imagenPerfil,
+                        contentDescription = usuario.nombre,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .offset(x = 16.dp, y = 130.dp)
+                            .zIndex(1f)
+                    )
+
+                    // Botón flotante circular solo si es perfil propio
+                    if (isOwnProfile) {
+                        CustomFloatingActionButton(
+                            onClick = onFloatingActionClick,
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp)
+                        )
+                    }
+                }
             }
-
-            // Información del usuario
-            item {
-                CustomInfoCard(
-                    usuario = usuario,
-                    onChatClick = onChatClick,
-                    showChatButton = showChatButton,
-                    showEditButton = showEditButton,
-                    onEditClick = onEditClick,
-                    onStarClick = onStarClick
-                )
-            }
-
-            // Separador después del card del usuario
-            item {
-                CustomDivider(
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            // Lista de productos
-            items(productos) { producto ->
-                CustomProductCard(
-                    producto = producto,
-                    onClick = { onProductoClick(producto.id) },
-                    showDeleteButton = showDeleteButton,
-                    onDeleteClick = { onDeleteProductClick(producto.id) }
-                )
-            }
-
-            // Espacio para el botón flotante
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
-            }
-        }
-
-        // Foto de perfil superpuesta
-        CustomProfileImage(
-            imageRes = usuario.imagenPerfil,
-            contentDescription = usuario.nombre,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 16.dp, y = 130.dp)
-                .zIndex(1f)
-        )
-
-        // Botón flotante circular solo si showFloatingActionButton es true
-        if (showFloatingActionButton) {
-            CustomFloatingActionButton(
-                onClick = onFloatingActionClick,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            )
         }
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProfileScreenPreview() {
-    val repository = DummyRepository()
     UvgMarketTheme {
-        ProfileScreen(
-            usuario = repository.getUsuario(),
-            productos = repository.getProductos(),
-            onBackClick = { /* Preview action */ },
-            onChatClick = { userId -> /* Preview action */ },
-            onProductoClick = { productId -> /* Preview action */ },
-            onFloatingActionClick = { /* Preview action */ }
-        )
+        ProfileScreen(isOwnProfile = true)
     }
 }
