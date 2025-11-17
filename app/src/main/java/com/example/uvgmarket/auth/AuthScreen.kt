@@ -16,6 +16,7 @@ import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
+
 @Composable
 fun AuthScreen(
     onLogin: () -> Unit = {},
