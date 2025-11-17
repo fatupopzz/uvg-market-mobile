@@ -12,8 +12,11 @@ import com.example.uvgmarket.profile.repository.UserRepository
 import com.example.uvgmarket.chat.ChatScreen
 import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
+import com.example.uvgmarket.data.repository.AuthRepository
 
 fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
+
+    val authRepository = AuthRepository()
 
     // Pantalla de perfil propio
     composable(NavigationDestination.Profile.route) {
@@ -67,11 +70,16 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
             onSaveSuccess = {
                 navigationActions.navigateBack()
             },
-            onChangePassword = { navigationActions.navigateToChangePassword() }
+            onChangePassword = { navigationActions.navigateToChangePassword() },
+            onLogout = {
+                // Cerrar sesión y volver a Auth
+                authRepository.logout()
+                navigationActions.navigateToAuth()
+            }
         )
     }
 
-    // Pantalla de cambiar contraseña
+    // Resto del código igual...
     composable(NavigationDestination.ChangePassword.route) {
         ChangePasswordScreen(
             onBackClick = { navigationActions.navigateBack() },
@@ -81,7 +89,6 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla de detalle de producto
     composable(
         route = NavigationDestination.ProductDetail.route,
         arguments = listOf(
@@ -105,7 +112,6 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla general de chats
     composable(route = NavigationDestination.ChatGeneral.route) {
         PantallaChatGeneral(
             onBackClick = { navigationActions.navigateBack() },
@@ -118,7 +124,6 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla de chat
     composable(route = NavigationDestination.Chat.route) {
         ChatScreen(
             onBackClick = { navigationActions.navigateBack() }

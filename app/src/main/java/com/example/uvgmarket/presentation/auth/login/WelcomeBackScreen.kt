@@ -37,12 +37,8 @@ fun WelcomeBackScreen(
     // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
-    // Verificar si ya hay un usuario logueado al iniciar
-    LaunchedEffect(Unit) {
-        if (viewModel.checkLoginStatus()) {
-            onLoginSuccess()
-        }
-    }
+    // REMOVIDO: Ya no verificamos si hay sesión activa automáticamente
+    // El usuario debe hacer login cada vez
 
     // Manejar el éxito del login
     LaunchedEffect(uiState.isSuccess) {
@@ -189,7 +185,6 @@ private fun LoginFormField(
         )
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
-        // ✅ CORREGIDO: Manejo apropiado del enabled
         AppTextField(
             value = value,
             onValueChange = if (enabled) onValueChange else { _ -> },
