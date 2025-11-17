@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,21 +29,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Barra de búsqueda personalizada con ícono de menú y búsqueda
- * Sigue el diseño del mockup con esquinas redondeadas
+ * Barra de búsqueda personalizada con ícono de limpiar y búsqueda
+ * Ahora con funcionalidad completa
  *
  * @param searchText Texto actual de búsqueda
  * @param onSearchTextChange Callback cuando cambia el texto de búsqueda
  * @param placeholder Texto de placeholder a mostrar
  * @param onSearchClick Callback cuando se presiona el ícono de búsqueda
+ * @param onClearClick Callback cuando se presiona el botón de limpiar
  */
 @Composable
 fun CustomSearchBar(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Hinted search text",
-    onSearchClick: () -> Unit = {}
+    placeholder: String = "Buscar...",
+    onSearchClick: () -> Unit = {},
+    onClearClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -83,6 +86,21 @@ fun CustomSearchBar(
             }
         }
 
+        // Botón de limpiar (solo visible si hay texto)
+        if (searchText.isNotEmpty() && onClearClick != null) {
+            IconButton(
+                onClick = onClearClick,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Limpiar búsqueda",
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
+
         // Ícono de búsqueda
         IconButton(
             onClick = onSearchClick,
@@ -109,6 +127,20 @@ fun CustomSearchBarPreview() {
     CustomSearchBar(
         searchText = searchText,
         onSearchTextChange = { searchText = it },
+        onClearClick = { searchText = "" },
+        modifier = Modifier.padding(16.dp)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CustomSearchBarWithTextPreview() {
+    var searchText by remember { mutableStateOf("hamburguesas") }
+
+    CustomSearchBar(
+        searchText = searchText,
+        onSearchTextChange = { searchText = it },
+        onClearClick = { searchText = "" },
         modifier = Modifier.padding(16.dp)
     )
 }

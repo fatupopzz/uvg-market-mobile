@@ -29,7 +29,7 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 /**
  * Pantalla principal del Marketplace.
- * Muestra una lista de emprendedores con barra de búsqueda y FAB.
+ * Muestra una lista de emprendedores con barra de búsqueda funcional y FAB.
  */
 @Composable
 fun MarketplaceScreen(
@@ -86,8 +86,29 @@ fun MarketplaceScreen(
                         searchText = uiState.searchText,
                         onSearchTextChange = { viewModel.onSearchTextChange(it) },
                         onSearchClick = { viewModel.onSearchClick() },
+                        onClearClick = { viewModel.clearSearch() },
                         onProfileAvatarClick = onProfileAvatarClick
                     )
+
+                    // Mensaje cuando hay búsqueda activa
+                    if (uiState.isSearching) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = if (uiState.entrepreneurs.isEmpty()) {
+                                    "No se encontraron resultados para \"${uiState.searchText}\""
+                                } else {
+                                    "Mostrando ${uiState.entrepreneurs.size} resultado(s) para \"${uiState.searchText}\""
+                                },
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
 
                     // Lista de emprendedores
                     EntrepreneursList(
@@ -124,6 +145,7 @@ private fun MarketplaceHeader(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
     onSearchClick: () -> Unit,
+    onClearClick: () -> Unit,
     onProfileAvatarClick: () -> Unit
 ) {
     Box(
@@ -143,6 +165,7 @@ private fun MarketplaceHeader(
                 searchText = searchText,
                 onSearchTextChange = onSearchTextChange,
                 onSearchClick = onSearchClick,
+                onClearClick = onClearClick,
                 placeholder = stringResource(R.string.barra_busqueda_menu),
                 modifier = Modifier.weight(1f)
             )
@@ -165,19 +188,45 @@ private fun EntrepreneursList(
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
     onProductImageClick: (String) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
-    ) {
-        itemsIndexed(
-            items = entrepreneurs
-        ) { _, entrepreneur ->
-            EntrepreneurCard(
-                entrepreneur = entrepreneur,
-                onClick = { onEntrepreneurClick(entrepreneur) },
-                onStarClick = { onEntrepreneurStarClick(entrepreneur) },
-                onProductImageClick = onProductImageClick
-            )
+    if (entrepreneurs.isEmpty()) {
+        // Mostrar mensaje cuando no hay resultados
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "No hay emprendedores para mostrar",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Intenta con otra búsqueda",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
+        ) {
+            itemsIndexed(
+                items = entrepreneurs
+            ) { _, entrepreneur ->
+                EntrepreneurCard(
+                    entrepreneur = entrepreneur,
+                    onClick = { onEntrepreneurClick(entrepreneur) },
+                    onStarClick = { onEntrepreneurStarClick(entrepreneur) },
+                    onProductImageClick = onProductImageClick
+                )
+            }
         }
     }
 }
