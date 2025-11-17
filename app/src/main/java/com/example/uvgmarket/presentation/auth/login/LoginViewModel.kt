@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.util.Log
 
 /**
  * Estado de la UI para la pantalla de login
@@ -22,16 +23,13 @@ data class LoginUiState(
 
 /**
  * ViewModel para la pantalla de login
- * Maneja la lógica de validación e inicio de sesión
  */
 class LoginViewModel : ViewModel() {
 
     private val repository = AuthRepository()
+    private val TAG = "LoginViewModel"
 
-    // Estado privado mutable
     private val _uiState = MutableStateFlow(LoginUiState())
-
-    // Estado público inmutable que observa la UI
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     /**
@@ -45,21 +43,22 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        // Lanzar coroutine en el scope del ViewModel
         viewModelScope.launch {
-            // Observar el Flow del repositorio
             repository.login(correo, contrasena).collect { result ->
                 when (result) {
                     is Resource.Loading -> {
+                        Log.d(TAG, "Estado: Cargando")
                         _uiState.value = LoginUiState(isLoading = true)
                     }
                     is Resource.Success -> {
+                        Log.d(TAG, "Estado: Éxito - Usuario: ${result.data?.nombre}")
                         _uiState.value = LoginUiState(
                             isSuccess = true,
                             user = result.data
                         )
                     }
                     is Resource.Error -> {
+                        Log.e(TAG, "Estado: Error - ${result.message}")
                         _uiState.value = LoginUiState(
                             error = result.message ?: "Error desconocido"
                         )
@@ -69,10 +68,6 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Valida los campos del formulario
-     * @return Mensaje de error o null si todo está correcto
-     */
     private fun validateFields(correo: String, contrasena: String): String? {
         return when {
             correo.isBlank() -> "El correo no puede estar vacío"
@@ -82,23 +77,14 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Verifica si hay un usuario con sesión activa
-     */
     fun checkLoginStatus(): Boolean {
         return repository.isUserLoggedIn()
     }
 
-    /**
-     * Resetea el estado de error
-     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
-    /**
-     * Resetea todo el estado
-     */
     fun resetState() {
         _uiState.value = LoginUiState()
     }

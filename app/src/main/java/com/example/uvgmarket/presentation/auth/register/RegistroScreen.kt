@@ -164,13 +164,26 @@ fun RegistroScreen(
                 Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
                 PrimaryButton(
-                    text = if (uiState.isLoading) "Registrando..." else stringResource(R.string.boton_registrarse),
+                    text = if (uiState.isLoading) "Creando cuenta..." else stringResource(R.string.boton_registrarse),
                     onClick = {
                         viewModel.register(nombre, usuario, correo, contrasena, confirmarContrasena)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isLoading
                 )
+            }
+
+            // Mensaje de estado durante el registro
+            if (uiState.isLoading) {
+                item {
+                    Text(
+                        text = "Creando tu cuenta en Firebase...\nEsto puede tardar unos segundos.",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = UiConstants.PADDING_SMALL.dp)
+                    )
+                }
             }
 
             item {
@@ -180,13 +193,22 @@ fun RegistroScreen(
             // Mostrar error si existe
             if (uiState.error != null) {
                 item {
-                    Text(
-                        text = uiState.error ?: "",
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = UiConstants.PADDING_MEDIUM.dp)
-                    )
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = UiConstants.PADDING_MEDIUM.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Text(
+                            text = uiState.error ?: "",
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(UiConstants.PADDING_MEDIUM.dp)
+                        )
+                    }
                 }
             }
 
@@ -197,9 +219,18 @@ fun RegistroScreen(
 
         // Indicador de carga
         if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(60.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 6.dp
+                )
+            }
         }
     }
 }
@@ -224,7 +255,6 @@ private fun RegistroFormField(
         )
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL.dp))
 
-        // ✅ CORREGIDO: Manejo apropiado del enabled
         AppTextField(
             value = value,
             onValueChange = if (enabled) onValueChange else { _ -> },

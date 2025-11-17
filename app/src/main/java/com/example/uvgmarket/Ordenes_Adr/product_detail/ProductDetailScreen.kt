@@ -1,5 +1,6 @@
 package com.example.uvgmarket.Ordenes_Adr.product_detail
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -14,8 +15,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
-import com.example.uvgmarket.Ordenes_Adr.product_detail.repository.ProductRepository
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.SecondaryButton
 import com.example.uvgmarket.core.ui.components.topbar.AppTopBar
@@ -33,18 +34,16 @@ fun ProductDetailScreen(
     productId: String,
     onBackClick: () -> Unit = {},
     onContactSellerClick: () -> Unit = {},
-    showContactButton: Boolean = true
+    showContactButton: Boolean = true,
+    viewModel: ProductDetailViewModel = viewModel()
 ) {
-    // Obtener el producto del repositorio
-    val product = remember(productId) {
-        ProductRepository.getProductById(productId)
+    // Cargar producto cuando cambia el ID
+    LaunchedEffect(productId) {
+        viewModel.loadProduct(productId)
     }
 
-    // Si no se encuentra el producto, mostrar mensaje de error
-    if (product == null) {
-        ProductNotFound(onBackClick = onBackClick)
-        return
-    }
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -56,65 +55,63 @@ fun ProductDetailScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             // Top bar con botón de regreso
-            AppTopBar(
-                onBackClick = onBackClick
-            )
-        },
-        containerColor = Color(0xFFF5F5F5)
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .background(Color(0xFFF5F5F5)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CustomProductImage(modifier = Modifier.size(300.dp))
-
-            // Imagen del producto
-            ProductImage(
-                imageRes = product.imagen,
-                contentDescription = product.nombre,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-
-            // Información del producto
-            ProductInformation(
-                title = product.nombre,
-                subtitle = product.subtitulo,
-                description = product.descripcion,
-                price = product.precio,
-                onContactSellerClick = onContactSellerClick,
-                showContactButton = showContactButton
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProductNotFound(onBackClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
             AppTopBar(onBackClick = onBackClick)
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Producto no encontrado",
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            when {
+                // Estado de carga
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                // Estado de error
+                uiState.error != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = uiState.error ?: "Error desconocido",
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                // Estado con datos
+                uiState.product != null -> {
+                    val product = uiState.product!!
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Imagen del producto
+                        ProductImage(
+                            imageRes = product.imagen,
+                            contentDescription = product.nombre,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        )
+
+                        // Información del producto
+                        ProductInformation(
+                            title = product.nombre,
+                            subtitle = product.subtitulo,
+                            description = product.descripcion,
+                            price = product.precio,
+                            onContactSellerClick = onContactSellerClick,
+                            showContactButton = showContactButton
+                        )
+                    }
+                }
             }
         }
     }

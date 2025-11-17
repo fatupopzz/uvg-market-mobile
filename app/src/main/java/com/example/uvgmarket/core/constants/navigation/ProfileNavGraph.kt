@@ -1,6 +1,5 @@
 package com.example.uvgmarket.core.navigation
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -8,14 +7,16 @@ import androidx.navigation.navArgument
 import com.example.uvgmarket.change_password.ChangePasswordScreen
 import com.example.uvgmarket.edit_profile.EditProfileScreen
 import com.example.uvgmarket.profile.ProfileScreen
-import com.example.uvgmarket.profile.ProfileViewModel
 import com.example.uvgmarket.profile.MyProfileScreen
 import com.example.uvgmarket.profile.repository.UserRepository
 import com.example.uvgmarket.chat.ChatScreen
 import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
+import com.example.uvgmarket.data.repository.AuthRepository
 
 fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
+
+    val authRepository = AuthRepository()
 
     // Pantalla de perfil propio
     composable(NavigationDestination.Profile.route) {
@@ -61,42 +62,41 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
 
         EditProfileScreen(
             nombre = usuario.nombre,
-            usuario = "hamburguesaskawaii", // TODO: Obtener usuario real
-            correo = "hamburguesas@uvg.edu.gt", // TODO: Obtener correo real
+            usuario = "hamburguesaskawaii",
+            correo = "hamburguesas@uvg.edu.gt",
             imagenPerfil = usuario.imagenPerfil,
             imagenPortada = usuario.imagenPortada,
             onCancelClick = { navigationActions.navigateBack() },
-            onSaveClick = { nombre, usuarioNuevo, correo ->
-                // TODO: Guardar cambios del perfil
+            onSaveSuccess = {
                 navigationActions.navigateBack()
             },
-            onChangeProfileImage = {
-                // TODO: Implementar cambio de imagen de perfil
-            },
-            onChangeCoverImage = {
-                // TODO: Implementar cambio de imagen de portada
-            },
-            onChangePassword = { navigationActions.navigateToChangePassword() }
+            onChangePassword = { navigationActions.navigateToChangePassword() },
+            onLogout = {
+                // Cerrar sesión y volver a Auth
+                authRepository.logout()
+                navigationActions.navigateToAuth()
+            }
         )
     }
 
-    // Pantalla de cambiar contraseña
+    // Resto del código igual...
     composable(NavigationDestination.ChangePassword.route) {
         ChangePasswordScreen(
             onBackClick = { navigationActions.navigateBack() },
-            onConfirmClick = { contrasenaActual, nuevaContrasena, confirmarContrasena ->
-                // TODO: Implementar cambio de contraseña
+            onPasswordChanged = {
                 navigationActions.navigateBack()
             }
         )
     }
 
-    // Pantalla de detalle de producto
     composable(
         route = NavigationDestination.ProductDetail.route,
         arguments = listOf(
             navArgument("productId") { type = NavType.StringType },
-            navArgument("showContactButton") { defaultValue = true }
+            navArgument("showContactButton") {
+                type = NavType.BoolType
+                defaultValue = true
+            }
         )
     ) { backStackEntry ->
         val productId = backStackEntry.arguments?.getString("productId") ?: ""
@@ -112,7 +112,6 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla general de chats
     composable(route = NavigationDestination.ChatGeneral.route) {
         PantallaChatGeneral(
             onBackClick = { navigationActions.navigateBack() },
@@ -125,7 +124,6 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla de chat
     composable(route = NavigationDestination.Chat.route) {
         ChatScreen(
             onBackClick = { navigationActions.navigateBack() }

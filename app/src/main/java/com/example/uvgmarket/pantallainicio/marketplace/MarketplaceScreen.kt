@@ -4,24 +4,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.pantallainicio.components.CustomSearchBar
 import com.example.uvgmarket.pantallainicio.components.ProfileAvatar
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.MaterialTheme
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 // Función helper para mapear nombres a IDs - DEBE IR ANTES DE LOS COMPOSABLES
@@ -37,7 +40,7 @@ private fun getUserRatingForEntrepreneur(name: String, ratings: Map<String, Int>
 
 /**
  * Pantalla principal del Marketplace.
- * Muestra una lista de emprendedores con barra de búsqueda y FAB.
+ * Muestra una lista de emprendedores con barra de búsqueda funcional y FAB.
  */
 @Composable
 fun MarketplaceScreen(
@@ -47,10 +50,11 @@ fun MarketplaceScreen(
     onEntrepreneurStarClick: (Entrepreneur) -> Unit = {},
     onFabClick: () -> Unit = {},
     onProductImageClick: (String) -> Unit = {},
-    onProfileAvatarClick: () -> Unit = {}
+    onProfileAvatarClick: () -> Unit = {},
+    viewModel: MarketplaceViewModel = viewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
-    val entrepreneursList = remember { getHardcodedEntrepreneurs() }
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
 
     // Estados para el rating dialog
     var showRatingDialog by remember { mutableStateOf(false) }
@@ -62,45 +66,92 @@ fun MarketplaceScreen(
             .fillMaxSize()
             .statusBarsPadding()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Header con fondo verde y barra de búsqueda
-            MarketplaceHeader(
-                searchText = searchText,
-                onSearchTextChange = { searchText = it },
-                onSearchClick = onSearchClick,
-                onProfileAvatarClick = onProfileAvatarClick
-            )
+        when {
+            // Estado de carga
+            uiState.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
 
-            // Lista de emprendedores
-            EntrepreneursList(
-                entrepreneurs = entrepreneursList,
-                userRatings = userRatings,
-                onEntrepreneurClick = onEntrepreneurClick,
-                onEntrepreneurStarClick = { entrepreneur ->
-                    selectedEntrepreneur = entrepreneur
-                    showRatingDialog = true
-                },
-                onProductImageClick = onProductImageClick
-            )
-        }
+            // Estado de error
+            uiState.error != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = uiState.error ?: "Error desconocido",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
 
-        // Floating Action Button
-        FloatingActionButton(
-            onClick = onFabClick,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(UiConstants.PADDING_MEDIUM.dp)
-                .navigationBarsPadding()
-        ) {
-            Icon(
-                modifier = Modifier.size(UiConstants.ICON_SIZE_MEDIUM.dp),
-                painter = painterResource(id = R.drawable.chat),
-                contentDescription = "Ver chat"
-            )
+            // Estado con datos
+            else -> {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    // Header con fondo verde y barra de búsqueda
+                    MarketplaceHeader(
+                        searchText = uiState.searchText,
+                        onSearchTextChange = { viewModel.onSearchTextChange(it) },
+                        onSearchClick = { viewModel.onSearchClick() },
+                        onClearClick = { viewModel.clearSearch() },
+                        onProfileAvatarClick = onProfileAvatarClick
+                    )
+
+                    // Mensaje cuando hay búsqueda activa
+                    if (uiState.isSearching) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = if (uiState.entrepreneurs.isEmpty()) {
+                                    "No se encontraron resultados para \"${uiState.searchText}\""
+                                } else {
+                                    "Mostrando ${uiState.entrepreneurs.size} resultado(s) para \"${uiState.searchText}\""
+                                },
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+
+                    // Lista de emprendedores
+                    EntrepreneursList(
+                        entrepreneurs = uiState.entrepreneurs,
+                        onEntrepreneurClick = onEntrepreneurClick,
+                        onEntrepreneurStarClick = onEntrepreneurStarClick,
+                        onProductImageClick = onProductImageClick
+                    )
+                }
+
+                // Floating Action Button
+                FloatingActionButton(
+                    onClick = onFabClick,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(UiConstants.PADDING_MEDIUM.dp)
+                        .navigationBarsPadding()
+                ) {
+                    Icon(
+                        modifier = Modifier.size(UiConstants.ICON_SIZE_MEDIUM.dp),
+                        painter = painterResource(id = R.drawable.chat),
+                        contentDescription = "Ver chat"
+                    )
+                }
+            }
         }
 
         // Dialog de calificación
@@ -131,6 +182,7 @@ private fun MarketplaceHeader(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
     onSearchClick: () -> Unit,
+    onClearClick: () -> Unit,
     onProfileAvatarClick: () -> Unit
 ) {
     Box(
@@ -150,6 +202,7 @@ private fun MarketplaceHeader(
                 searchText = searchText,
                 onSearchTextChange = onSearchTextChange,
                 onSearchClick = onSearchClick,
+                onClearClick = onClearClick,
                 placeholder = stringResource(R.string.barra_busqueda_menu),
                 modifier = Modifier.weight(1f)
             )
@@ -173,62 +226,47 @@ private fun EntrepreneursList(
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
     onProductImageClick: (String) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
-    ) {
-        itemsIndexed(
-            items = entrepreneurs
-        ) { _, entrepreneur ->
-            val currentRating = getUserRatingForEntrepreneur(entrepreneur.name, userRatings)
-
-            EntrepreneurCard(
-                entrepreneur = entrepreneur.copy(rating = currentRating),
-                onClick = { onEntrepreneurClick(entrepreneur) },
-                onStarClick = { onEntrepreneurStarClick(entrepreneur) },
-                onProductImageClick = onProductImageClick
-            )
+    if (entrepreneurs.isEmpty()) {
+        // Mostrar mensaje cuando no hay resultados
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "No hay emprendedores para mostrar",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Intenta con otra búsqueda",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
+        ) {
+            itemsIndexed(
+                items = entrepreneurs
+            ) { _, entrepreneur ->
+                EntrepreneurCard(
+                    entrepreneur = entrepreneur,
+                    onClick = { onEntrepreneurClick(entrepreneur) },
+                    onStarClick = { onEntrepreneurStarClick(entrepreneur) },
+                    onProductImageClick = onProductImageClick
+                )
+            }
         }
     }
-}
-
-/**
- * Retorna una lista hardcodeada de emprendedores para testing.
- * En producción, esto vendría de un repositorio/API.
- */
-private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
-    return listOf(
-        Entrepreneur(
-            name = "Hamburguesas kawaii",
-            description = "Tu lugar fav para comer",
-            rating = 3,
-            profileImage = "fotodeperfilhamburger",
-            productImages = listOf(
-                "hamburger1",
-                "hamburger2"
-            )
-        ),
-        Entrepreneur(
-            name = "Accesorios Luna",
-            description = "Joyería artesanal hecha a mano",
-            rating = 5,
-            profileImage = "fotodeperfiljoyeria",
-            productImages = listOf(
-                "joyeria1",
-                "joyeria2"
-            )
-        ),
-        Entrepreneur(
-            name = "TechRepair GT",
-            description = "Reparación de celulares y laptops",
-            rating = 4,
-            profileImage = "imagendeperfilcomputadora",
-            productImages = listOf(
-                "limpinado1",
-                "limpiando2"
-            )
-        )
-    )
 }
 
 @Preview(

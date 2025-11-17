@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ fun EditProfileScreen(
     onCancelClick: () -> Unit = {},
     onSaveSuccess: () -> Unit = {},
     onChangePassword: () -> Unit = {},
+    onLogout: () -> Unit = {},  // NUEVO
     viewModel: EditProfileViewModel = viewModel()
 ) {
     // Observar el estado del ViewModel
@@ -124,6 +126,14 @@ fun EditProfileScreen(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 
+                    Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
+
+                    // NUEVO: Botón de Logout
+                    LogoutButton(
+                        onClick = onLogout,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
                     // Mostrar error si existe
                     if (uiState.error != null) {
                         Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
@@ -158,6 +168,30 @@ fun EditProfileScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+    }
+}
+
+@Composable
+private fun LogoutButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = UiConstants.PADDING_EXTRA_LARGE.dp)
+            .height(50.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFD32F2F),  // Rojo
+            contentColor = Color.White
+        ),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(
+            text = "CERRAR SESIÓN",
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
 

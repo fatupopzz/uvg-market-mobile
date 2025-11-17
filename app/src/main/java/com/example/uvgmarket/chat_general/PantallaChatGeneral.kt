@@ -12,18 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.chat_general.components.ChatCard
-import com.example.uvgmarket.chat_general.models.Chat
 import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.topbar.AppTopBar
 import com.example.uvgmarket.pantallainicio.components.CustomSearchBar
@@ -38,71 +38,102 @@ fun PantallaChatGeneral(
     onBackClick: () -> Unit = {},
     onChatClick: (String) -> Unit = {},
     onProfileAvatarClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ChatGeneralViewModel = viewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
-    val chatsList = remember { getHardcodedChats() }
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Top bar con botón de regreso y avatar de perfil
-            ChatGeneralTopBar(
-                onBackClick = onBackClick,
-                onProfileAvatarClick = onProfileAvatarClick
-            )
-
-            // Barra de búsqueda
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(
-                        horizontal = UiConstants.PADDING_MEDIUM.dp,
-                        vertical = UiConstants.PADDING_SMALL.dp
-                    )
-            ) {
-                CustomSearchBar(
-                    searchText = searchText,
-                    onSearchTextChange = { searchText = it },
-                    placeholder = "Search",
-                    onSearchClick = { /* Handle search */ }
+        when {
+            // Estado de carga
+            uiState.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
 
-            // Spacer entre barra de búsqueda y chats
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-            )
+            // Estado de error
+            uiState.error != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                ) {
+                    Text(
+                        text = uiState.error ?: "Error desconocido",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
 
-            // Lista de chats
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
-            ) {
-                items(chatsList) { chat ->
-                    Column {
-                        ChatCard(
-                            chat = chat,
-                            onClick = { onChatClick(chat.id) }
+            // Estado con datos
+            else -> {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    // Top bar con botón de regreso y avatar de perfil
+                    ChatGeneralTopBar(
+                        onBackClick = onBackClick,
+                        onProfileAvatarClick = onProfileAvatarClick
+                    )
+
+                    // Barra de búsqueda
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(
+                                horizontal = UiConstants.PADDING_MEDIUM.dp,
+                                vertical = UiConstants.PADDING_SMALL.dp
+                            )
+                    ) {
+                        CustomSearchBar(
+                            searchText = uiState.searchText,
+                            onSearchTextChange = { viewModel.onSearchTextChange(it) },
+                            placeholder = "Search",
+                            onSearchClick = { /* Búsqueda en tiempo real */ }
                         )
-                        // Spacer entre chats (gris oscuro)
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                        )
+                    }
+
+                    // Spacer entre barra de búsqueda y chats
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                    )
+
+                    // Lista de chats
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
+                    ) {
+                        items(uiState.chats) { chat ->
+                            Column {
+                                ChatCard(
+                                    chat = chat,
+                                    onClick = { onChatClick(chat.id) }
+                                )
+                                // Spacer entre chats (gris oscuro)
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -141,31 +172,6 @@ private fun ChatGeneralTopBar(
             )
         }
     }
-}
-
-/**
- * Lista hardcodeada de chats para testing
- * En producción vendría de un repositorio/base de datos
- */
-private fun getHardcodedChats(): List<Chat> {
-    return listOf(
-        Chat(
-            id = "1",
-            nombreContacto = "Hamburguesas kawaii",
-            ultimoMensaje = "no se, ahorita te digo.",
-            hora = "2:14 PM",
-            imagenPerfil = "fotodeperfilhamburger",
-            mensajesNoLeidos = 1
-        ),
-        Chat(
-            id = "2",
-            nombreContacto = "Grupo de Ux Lab",
-            ultimoMensaje = "Fatima hacete shhhh",
-            hora = "2:59 PM",
-            imagenPerfil = "fotodeperfiljoyeria",
-            mensajesNoLeidos = 1
-        )
-    )
 }
 
 @Preview(

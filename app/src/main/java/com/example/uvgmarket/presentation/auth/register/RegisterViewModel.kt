@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.util.Log
 
 /**
  * Estado de la UI para la pantalla de registro
@@ -23,44 +24,48 @@ data class RegisterUiState(
 
 /**
  * ViewModel para la pantalla de registro
- * Maneja la lógica de validación y registro de usuarios
  */
 class RegisterViewModel : ViewModel() {
 
     private val repository = AuthRepository()
+    private val TAG = "RegisterViewModel"
 
-    // Estado privado mutable
     private val _uiState = MutableStateFlow(RegisterUiState())
-
-    // Estado público inmutable que observa la UI
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
 
     /**
      * Registra un nuevo usuario
      */
-    fun register(nombre: String, usuario: String, correo: String, contrasena: String, confirmarContrasena: String) {
-        // Validar campos antes de hacer la petición
+    fun register(
+        nombre: String,
+        usuario: String,
+        correo: String,
+        contrasena: String,
+        confirmarContrasena: String
+    ) {
+        // Validar campos
         val validationError = validateFields(nombre, usuario, correo, contrasena, confirmarContrasena)
         if (validationError != null) {
             _uiState.value = RegisterUiState(error = validationError)
             return
         }
 
-        // Lanzar coroutine en el scope del ViewModel
         viewModelScope.launch {
-            // Observar el Flow del repositorio
             repository.register(nombre, usuario, correo, contrasena).collect { result ->
                 when (result) {
                     is Resource.Loading -> {
+                        Log.d(TAG, "Estado: Cargando")
                         _uiState.value = RegisterUiState(isLoading = true)
                     }
                     is Resource.Success -> {
+                        Log.d(TAG, "Estado: Éxito - Usuario: ${result.data?.nombre}")
                         _uiState.value = RegisterUiState(
                             isSuccess = true,
                             user = result.data
                         )
                     }
                     is Resource.Error -> {
+                        Log.e(TAG, "Estado: Error - ${result.message}")
                         _uiState.value = RegisterUiState(
                             error = result.message ?: "Error desconocido"
                         )
@@ -70,10 +75,6 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Valida los campos del formulario
-     * @return Mensaje de error o null si todo está correcto
-     */
     private fun validateFields(
         nombre: String,
         usuario: String,
@@ -99,16 +100,10 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Resetea el estado de error
-     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
-    /**
-     * Resetea todo el estado
-     */
     fun resetState() {
         _uiState.value = RegisterUiState()
     }
