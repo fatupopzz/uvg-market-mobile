@@ -3,55 +3,36 @@ package com.example.uvgmarket.profile
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.uvgmarket.profile.models.Usuario
-import com.example.uvgmarket.profile.models.Producto
-import com.example.uvgmarket.profile.repository.DummyRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
 fun MyProfileScreen(
-    usuario: Usuario,
-    productos: List<Producto> = emptyList(),
     onBackClick: () -> Unit = {},
     onProductoClick: (String) -> Unit = {},
     onEditClick: () -> Unit = {},
     onAddProductClick: () -> Unit = {},
-    onDeleteProductClick: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = viewModel()
 ) {
     ProfileScreen(
-        usuario = usuario,
-        productos = productos,
+        userId = null, // null indica que es el perfil propio
+        isOwnProfile = true,
         onBackClick = onBackClick,
         onProductoClick = onProductoClick,
         onFloatingActionClick = onAddProductClick,
         onEditClick = onEditClick,
-        onChatClick = {},
-        onDeleteProductClick = onDeleteProductClick,
-        showFloatingActionButton = true,
-        showChatButton = false,
-        showEditButton = true,
-        showDeleteButton = true,
-        modifier = modifier
+        onChatClick = {}, // No hay chat en perfil propio
+        onStarClick = {}, // Las estrellas no son clickeables en perfil propio
+        modifier = modifier,
+        viewModel = viewModel
     )
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MyProfileScreenPreview() {
-    val repository = DummyRepository()
     UvgMarketTheme {
-        MyProfileScreen(
-            usuario = repository.getUsuario(),
-            productos = repository.getProductos(),
-            onBackClick = { /* Preview action */ },
-            onProductoClick = { productId -> /* Preview action */ },
-            onEditClick = { /* Preview action */ },
-            onAddProductClick = { /* Preview action */ },
-            onDeleteProductClick = { productId -> /* Preview delete */ }
-        )
+        MyProfileScreen()
     }
 }

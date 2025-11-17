@@ -7,30 +7,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.addProd.components.*
 import com.example.uvgmarket.ui.theme.*
 
 /**
  * Pantalla para agregar un nuevo producto al marketplace
  *
+ * @param viewModel ViewModel que maneja el estado y lógica
  * @param onCancelar Callback cuando se presiona Cancelar
  * @param onPublicar Callback cuando se presiona Publicar con los datos del producto
  */
 @Composable
 fun AgregarProductoScreen(
+    viewModel: AgregarProductoViewModel = viewModel(),
     onCancelar: () -> Unit = {},
     onPublicar: (nombre: String, descripcion: String, precio: String, tieneImagen: Boolean) -> Unit = { _, _, _, _ -> }
 ) {
-    var nombre by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var precio by remember { mutableStateOf("") }
-    var imagenSeleccionada by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             AddProductTopBar(
                 onCancelar = onCancelar,
-                onPublicar = { onPublicar(nombre, descripcion, precio, imagenSeleccionada) }
+                onPublicar = {
+                    onPublicar(
+                        uiState.nombre,
+                        uiState.descripcion,
+                        uiState.precio,
+                        uiState.imagenSeleccionada
+                    )
+                }
             )
         }
     ) { paddingValues ->
@@ -42,19 +49,19 @@ fun AgregarProductoScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ImageSection(
-                imagenSeleccionada = imagenSeleccionada,
-                onImagenClick = { imagenSeleccionada = !imagenSeleccionada }
+                imagenSeleccionada = uiState.imagenSeleccionada,
+                onImagenClick = { viewModel.onImagenClick() }
             )
 
             CustomDivider()
 
             FormSection(
-                nombre = nombre,
-                onNombreChange = { nombre = it },
-                descripcion = descripcion,
-                onDescripcionChange = { descripcion = it },
-                precio = precio,
-                onPrecioChange = { precio = it }
+                nombre = uiState.nombre,
+                onNombreChange = { viewModel.onNombreChange(it) },
+                descripcion = uiState.descripcion,
+                onDescripcionChange = { viewModel.onDescripcionChange(it) },
+                precio = uiState.precio,
+                onPrecioChange = { viewModel.onPrecioChange(it) }
             )
         }
     }
