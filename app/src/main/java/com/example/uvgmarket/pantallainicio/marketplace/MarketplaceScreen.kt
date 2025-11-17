@@ -27,6 +27,17 @@ import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
+// Función helper para mapear nombres a IDs - DEBE IR ANTES DE LOS COMPOSABLES
+private fun getUserRatingForEntrepreneur(name: String, ratings: Map<String, Int>): Int {
+    val userId = when (name) {
+        "Hamburguesas kawaii" -> "1"
+        "Accesorios Luna" -> "2"
+        "TechRepair GT" -> "3"
+        else -> "1"
+    }
+    return ratings[userId] ?: 3
+}
+
 /**
  * Pantalla principal del Marketplace.
  * Muestra una lista de emprendedores con barra de búsqueda funcional y FAB.
@@ -44,6 +55,11 @@ fun MarketplaceScreen(
 ) {
     // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
+
+    // Estados para el rating dialog
+    var showRatingDialog by remember { mutableStateOf(false) }
+    var selectedEntrepreneur by remember { mutableStateOf<Entrepreneur?>(null) }
+    val userRatings by com.example.uvgmarket.profile.repository.RatingRepository.userRatings.collectAsState()
 
     Box(
         modifier = modifier
@@ -137,6 +153,27 @@ fun MarketplaceScreen(
                 }
             }
         }
+
+        // Dialog de calificación
+        if (showRatingDialog && selectedEntrepreneur != null) {
+            com.example.uvgmarket.core.ui.components.rating.RatingDialog(
+                userName = selectedEntrepreneur!!.name,
+                currentRating = getUserRatingForEntrepreneur(selectedEntrepreneur!!.name, userRatings),
+                onDismiss = {
+                    showRatingDialog = false
+                    selectedEntrepreneur = null
+                },
+                onRatingSubmit = { newRating ->
+                    val userId = when (selectedEntrepreneur!!.name) {
+                        "Hamburguesas kawaii" -> "1"
+                        "Accesorios Luna" -> "2"
+                        "TechRepair GT" -> "3"
+                        else -> "1"
+                    }
+                    com.example.uvgmarket.profile.repository.RatingRepository.updateRating(userId, newRating)
+                }
+            )
+        }
     }
 }
 
@@ -184,6 +221,7 @@ private fun MarketplaceHeader(
 @Composable
 private fun EntrepreneursList(
     entrepreneurs: List<Entrepreneur>,
+    userRatings: Map<String, Int>,
     onEntrepreneurClick: (Entrepreneur) -> Unit,
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
     onProductImageClick: (String) -> Unit
