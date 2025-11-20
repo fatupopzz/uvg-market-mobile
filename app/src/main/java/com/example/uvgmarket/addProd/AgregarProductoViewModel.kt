@@ -10,53 +10,33 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import android.util.Log
 
-/**
- * ViewModel para la pantalla de agregar producto
- * Conectado a Firebase Firestore
- */
 class AgregarProductoViewModel : ViewModel() {
 
     private val productRepository = ProductRepository()
     private val auth = FirebaseAuth.getInstance()
+    private val TAG = "AgregarProductoVM"
 
-    // Estado privado mutable
     private val _uiState = MutableStateFlow(AgregarProductoUiState())
-
-    // Estado público inmutable para la UI
     val uiState: StateFlow<AgregarProductoUiState> = _uiState.asStateFlow()
 
-    /**
-     * Actualiza el nombre del producto
-     */
     fun onNombreChange(nuevoNombre: String) {
         _uiState.update { it.copy(nombre = nuevoNombre, error = null) }
     }
 
-    /**
-     * Actualiza la descripción del producto
-     */
     fun onDescripcionChange(nuevaDescripcion: String) {
         _uiState.update { it.copy(descripcion = nuevaDescripcion, error = null) }
     }
 
-    /**
-     * Actualiza el precio del producto
-     */
     fun onPrecioChange(nuevoPrecio: String) {
         _uiState.update { it.copy(precio = nuevoPrecio, error = null) }
     }
 
-    /**
-     * Alterna el estado de imagen seleccionada
-     */
     fun onImagenClick() {
         _uiState.update { it.copy(imagenSeleccionada = !it.imagenSeleccionada) }
     }
 
-    /**
-     * Valida si el formulario está completo para publicar
-     */
     fun puedePublicar(): Boolean {
         val state = _uiState.value
         return state.nombre.isNotBlank() &&
@@ -64,13 +44,9 @@ class AgregarProductoViewModel : ViewModel() {
                 state.precio.isNotBlank()
     }
 
-    /**
-     * Publica el producto en Firebase
-     */
     fun publicarProducto(onSuccess: () -> Unit) {
         val state = _uiState.value
 
-        // Validar campos
         if (!puedePublicar()) {
             _uiState.update { it.copy(error = "Todos los campos son requeridos") }
             return
@@ -83,7 +59,6 @@ class AgregarProductoViewModel : ViewModel() {
             return
         }
 
-        // Obtener usuario actual
         val currentUser = auth.currentUser
         if (currentUser == null) {
             _uiState.update { it.copy(error = "Debes iniciar sesión para publicar") }
@@ -94,15 +69,17 @@ class AgregarProductoViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
 
             try {
+                Log.d(TAG, "Creando producto: ${state.nombre}")
+
                 val product = Product(
-                    id = "", // Se generará automáticamente
+                    id = "", // Se generará automáticamente en Firestore
                     nombre = state.nombre,
-                    subtitulo = "", // Puedes agregar este campo al formulario si lo necesitas
+                    subtitulo = state.nombre, // Usar nombre como subtítulo por defecto
                     descripcion = state.descripcion,
                     precio = precioDouble,
-                    imagen = if (state.imagenSeleccionada) "product_placeholder" else "product_placeholder",
+                    imagen = "product_placeholder", // Imagen por defecto
                     vendedorId = currentUser.uid,
-                    vendedorNombre = currentUser.displayName ?: "Vendedor",
+                    vendedorNombre = currentUser.displayName ?: currentUser.email?.split("@")?.get(0) ?: "Usuario",
                     fechaCreacion = System.currentTimeMillis(),
                     activo = true
                 )
@@ -110,6 +87,7 @@ class AgregarProductoViewModel : ViewModel() {
                 val success = productRepository.createProduct(product)
 
                 if (success) {
+                    Log.d(TAG, "Producto creado exitosamente")
                     _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                     onSuccess()
                 } else {
@@ -121,6 +99,7 @@ class AgregarProductoViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "Error al crear producto", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -131,17 +110,11 @@ class AgregarProductoViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Limpia todos los campos del formulario
-     */
     fun limpiarFormulario() {
         _uiState.value = AgregarProductoUiState()
     }
 }
 
-/**
- * Estado de la UI para agregar producto
- */
 data class AgregarProductoUiState(
     val nombre: String = "",
     val descripcion: String = "",
