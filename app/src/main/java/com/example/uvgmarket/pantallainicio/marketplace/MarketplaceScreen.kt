@@ -27,7 +27,7 @@ import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
-// Función helper para mapear nombres a IDs - DEBE IR ANTES DE LOS COMPOSABLES
+// Función helper para mapear nombres a IDs
 private fun getUserRatingForEntrepreneur(name: String, ratings: Map<String, Int>): Int {
     val userId = when (name) {
         "Hamburguesas kawaii" -> "1"
@@ -130,7 +130,10 @@ fun MarketplaceScreen(
                     EntrepreneursList(
                         entrepreneurs = uiState.entrepreneurs,
                         onEntrepreneurClick = onEntrepreneurClick,
-                        onEntrepreneurStarClick = onEntrepreneurStarClick,
+                        onEntrepreneurStarClick = { entrepreneur ->
+                            selectedEntrepreneur = entrepreneur
+                            showRatingDialog = true
+                        },
                         onProductImageClick = onProductImageClick
                     )
                 }
@@ -221,7 +224,6 @@ private fun MarketplaceHeader(
 @Composable
 private fun EntrepreneursList(
     entrepreneurs: List<Entrepreneur>,
-    userRatings: Map<String, Int>,
     onEntrepreneurClick: (Entrepreneur) -> Unit,
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
     onProductImageClick: (String) -> Unit

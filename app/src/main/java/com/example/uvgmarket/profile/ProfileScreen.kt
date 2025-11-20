@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,10 +14,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.core.ui.components.rating.RatingDialog
 import com.example.uvgmarket.profile.models.Usuario
 import com.example.uvgmarket.profile.models.Producto
-import com.example.uvgmarket.profile.repository.DummyRepository
 import com.example.uvgmarket.profile.repository.RatingRepository
 import com.example.uvgmarket.profile.components.CustomCoverImage
 import com.example.uvgmarket.profile.components.CustomDivider
@@ -44,16 +45,28 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = viewModel()
 ) {
+    // Cargar datos según el tipo de perfil
+    LaunchedEffect(userId, isOwnProfile) {
+        if (isOwnProfile || userId == null) {
+            viewModel.loadCurrentUserProfile()
+        } else {
+            viewModel.loadUserProfile(userId)
+        }
+    }
+
+    // Observar el estado del ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
     // Estado para el dialog de calificación
     var showRatingDialog by remember { mutableStateOf(false) }
 
     // Observar las calificaciones desde el repositorio
     val userRatings by RatingRepository.userRatings.collectAsState()
-    val currentRating = userRatings[usuario.id] ?: usuario.calificacion.toInt()
 
-    Box(modifier = modifier
-        .fillMaxSize()
-        .statusBarsPadding()
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
     ) {
         when {
             // Estado de carga
@@ -85,23 +98,19 @@ fun ProfileScreen(
             uiState.usuario != null -> {
                 val usuario = uiState.usuario!!
                 val productos = uiState.productos
+                val currentRating = userRatings[usuario.id] ?: usuario.calificacion.toInt()
 
-            // Información del usuario
-            item {
-                CustomInfoCard(
-                    usuario = usuario.copy(calificacion = currentRating.toFloat()),
-                    onChatClick = onChatClick,
-                    showChatButton = showChatButton,
-                    showEditButton = showEditButton,
-                    onEditClick = onEditClick,
-                    onStarClick = {
-                        // Solo permitir calificar si es perfil de otro usuario
-                        if (showChatButton) {
-                            showRatingDialog = true
-                        }
-                    }
-                )
-            }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        // Imagen de portada con TopBar superpuesto
+                        item {
+                            Box {
+                                CustomCoverImage(
+                                    imageRes = usuario.imagenPortada,
+                                    contentDescription = "Portada de ${usuario.nombre}"
+                                )
 
                                 CustomTopBar(
                                     onBackClick = onBackClick,
@@ -121,12 +130,16 @@ fun ProfileScreen(
                         // Información del usuario
                         item {
                             CustomInfoCard(
-                                usuario = usuario,
+                                usuario = usuario.copy(calificacion = currentRating.toFloat()),
                                 onChatClick = onChatClick,
                                 showChatButton = !isOwnProfile,
                                 showEditButton = isOwnProfile,
                                 onEditClick = onEditClick,
-                                onStarClick = onStarClick
+                                onStarClick = {
+                                    if (!isOwnProfile) {
+                                        showRatingDialog = true
+                                    }
+                                }
                             )
                         }
 
@@ -173,20 +186,20 @@ fun ProfileScreen(
                                 .padding(16.dp)
                         )
                     }
+
+                    // Dialog de calificación
+                    if (showRatingDialog) {
+                        RatingDialog(
+                            userName = usuario.nombre,
+                            currentRating = currentRating,
+                            onDismiss = { showRatingDialog = false },
+                            onRatingSubmit = { newRating ->
+                                RatingRepository.updateRating(usuario.id, newRating)
+                            }
+                        )
+                    }
                 }
             }
-        }
-
-        // Dialog de calificación
-        if (showRatingDialog) {
-            RatingDialog(
-                userName = usuario.nombre,
-                currentRating = currentRating,
-                onDismiss = { showRatingDialog = false },
-                onRatingSubmit = { newRating ->
-                    RatingRepository.updateRating(usuario.id, newRating)
-                }
-            )
         }
     }
 }
