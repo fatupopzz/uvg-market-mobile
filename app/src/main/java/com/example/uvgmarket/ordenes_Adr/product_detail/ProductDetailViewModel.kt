@@ -1,9 +1,9 @@
-package com.example.uvgmarket.Ordenes_Adr.product_detail
+package com.example.uvgmarket.ordenes_Adr.product_detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uvgmarket.Ordenes_Adr.product_detail.models.ProductDetail
-import com.example.uvgmarket.Ordenes_Adr.product_detail.repository.ProductRepository
+import com.example.uvgmarket.data.model.Product
+import com.example.uvgmarket.data.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,14 +14,17 @@ import kotlinx.coroutines.launch
  */
 data class ProductDetailUiState(
     val isLoading: Boolean = false,
-    val product: ProductDetail? = null,
+    val product: Product? = null,
     val error: String? = null
 )
 
 /**
  * ViewModel para la pantalla de detalle de producto
+ * Conectado a Firebase Firestore
  */
 class ProductDetailViewModel : ViewModel() {
+
+    private val productRepository = ProductRepository()
 
     private val _uiState = MutableStateFlow(ProductDetailUiState())
     val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
@@ -34,7 +37,7 @@ class ProductDetailViewModel : ViewModel() {
             _uiState.value = ProductDetailUiState(isLoading = true)
 
             try {
-                val product = ProductRepository.getProductById(productId)
+                val product = productRepository.getProductById(productId)
 
                 if (product != null) {
                     _uiState.value = ProductDetailUiState(product = product)

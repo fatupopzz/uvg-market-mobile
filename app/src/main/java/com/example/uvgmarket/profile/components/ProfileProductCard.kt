@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,17 +28,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uvgmarket.R
-import com.example.uvgmarket.profile.models.Producto
+import com.example.uvgmarket.data.model.Product
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
-fun CustomProductCard(
-    producto: Producto,
+fun ProfileProductCard(
+    producto: Product,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showDeleteButton: Boolean = false,
     onDeleteClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -55,11 +58,18 @@ fun CustomProductCard(
                         .padding(16.dp)
                 ) {
                     // Imagen del producto
+                    val imageResId = context.resources.getIdentifier(
+                        producto.imagen,
+                        "drawable",
+                        context.packageName
+                    )
+
                     Image(
-                        painter = painterResource(id = producto.imagen),
+                        painter = painterResource(
+                            id = if (imageResId != 0) imageResId else R.drawable.product_placeholder
+                        ),
                         contentDescription = producto.nombre,
-                        modifier = Modifier
-                            .size(100.dp),
+                        modifier = Modifier.size(100.dp),
                         contentScale = ContentScale.Crop
                     )
 
@@ -120,40 +130,40 @@ fun CustomProductCard(
 
 @Preview(showBackground = true)
 @Composable
-fun CustomProductCardPreview() {
+fun ProfileProductCardPreview() {
     UvgMarketTheme {
-        val producto = Producto(
+        val producto = Product(
             id = "1",
             nombre = "Hamburguesa",
             descripcion = "Hamburguesa con queso, lechuga y tomate",
-            imagen = R.drawable.hamburger1,
+            imagen = "hamburger1",
             precio = 30.0
         )
 
-        CustomProductCard(
+        ProfileProductCard(
             producto = producto,
-            onClick = { /* Preview action */ }
+            onClick = {}
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun CustomProductCardWithDeletePreview() {
+fun ProfileProductCardWithDeletePreview() {
     UvgMarketTheme {
-        val producto = Producto(
+        val producto = Product(
             id = "1",
             nombre = "Hamburguesa",
             descripcion = "Hamburguesa con queso, lechuga y tomate",
-            imagen = R.drawable.hamburger1,
+            imagen = "hamburger1",
             precio = 30.0
         )
 
-        CustomProductCard(
+        ProfileProductCard(
             producto = producto,
-            onClick = { /* Preview action */ },
+            onClick = {},
             showDeleteButton = true,
-            onDeleteClick = { /* Preview delete */ }
+            onDeleteClick = {}
         )
     }
 }

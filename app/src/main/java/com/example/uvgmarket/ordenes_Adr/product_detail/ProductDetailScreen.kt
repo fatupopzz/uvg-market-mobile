@@ -1,4 +1,4 @@
-package com.example.uvgmarket.Ordenes_Adr.product_detail
+package com.example.uvgmarket.ordenes_Adr.product_detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +38,8 @@ fun ProductDetailScreen(
     showContactButton: Boolean = true,
     viewModel: ProductDetailViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+
     // Cargar producto cuando cambia el ID
     LaunchedEffect(productId) {
         viewModel.loadProduct(productId)
@@ -94,7 +97,7 @@ fun ProductDetailScreen(
                     ) {
                         // Imagen del producto
                         ProductImage(
-                            imageRes = product.imagen,
+                            imageName = product.imagen,
                             contentDescription = product.nombre,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -119,20 +122,39 @@ fun ProductDetailScreen(
 
 @Composable
 private fun ProductImage(
-    imageRes: Int,
+    imageName: String,
     contentDescription: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = contentDescription,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+        // Obtener el resource ID dinámicamente
+        val imageResId = context.resources.getIdentifier(
+            imageName,
+            "drawable",
+            context.packageName
         )
+
+        if (imageResId != 0) {
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = contentDescription,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            // Fallback si no se encuentra la imagen
+            Image(
+                painter = painterResource(id = R.drawable.product_placeholder),
+                contentDescription = contentDescription,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.uvgmarket.profile
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,22 +10,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.uvgmarket.R
 import com.example.uvgmarket.core.ui.components.rating.RatingDialog
-import com.example.uvgmarket.profile.models.Usuario
-import com.example.uvgmarket.profile.models.Producto
-import com.example.uvgmarket.profile.repository.RatingRepository
+import com.example.uvgmarket.data.model.Product
+import com.example.uvgmarket.data.model.Seller
 import com.example.uvgmarket.profile.components.CustomCoverImage
 import com.example.uvgmarket.profile.components.CustomDivider
 import com.example.uvgmarket.profile.components.CustomFloatingActionButton
-import com.example.uvgmarket.profile.components.CustomProductCard
 import com.example.uvgmarket.profile.components.CustomTopBar
-import com.example.uvgmarket.profile.components.CustomInfoCard
+import com.example.uvgmarket.profile.components.ProfileInfoCard
+import com.example.uvgmarket.profile.components.ProfileProductCard
 import com.example.uvgmarket.profile.components.CustomProfileImage
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
@@ -45,6 +49,8 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+
     // Cargar datos según el tipo de perfil
     LaunchedEffect(userId, isOwnProfile) {
         if (isOwnProfile || userId == null) {
@@ -59,9 +65,7 @@ fun ProfileScreen(
 
     // Estado para el dialog de calificación
     var showRatingDialog by remember { mutableStateOf(false) }
-
-    // Observar las calificaciones desde el repositorio
-    val userRatings by RatingRepository.userRatings.collectAsState()
+    var currentRating by remember { mutableStateOf(0) }
 
     Box(
         modifier = modifier
@@ -95,10 +99,14 @@ fun ProfileScreen(
             }
 
             // Estado con datos
-            uiState.usuario != null -> {
-                val usuario = uiState.usuario!!
+            uiState.seller != null -> {
+                val seller = uiState.seller!!
                 val productos = uiState.productos
-                val currentRating = userRatings[usuario.id] ?: usuario.calificacion.toInt()
+
+                // Actualizar rating actual
+                LaunchedEffect(seller.calificacion) {
+                    currentRating = seller.calificacion.toInt()
+                }
 
                 Box(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
@@ -107,9 +115,9 @@ fun ProfileScreen(
                         // Imagen de portada con TopBar superpuesto
                         item {
                             Box {
-                                CustomCoverImage(
-                                    imageRes = usuario.imagenPortada,
-                                    contentDescription = "Portada de ${usuario.nombre}"
+                                ProfileCoverImage(
+                                    imageName = seller.imagenPortada,
+                                    contentDescription = "Portada de ${seller.nombre}"
                                 )
 
                                 CustomTopBar(
@@ -129,8 +137,9 @@ fun ProfileScreen(
 
                         // Información del usuario
                         item {
-                            CustomInfoCard(
-                                usuario = usuario.copy(calificacion = currentRating.toFloat()),
+                            ProfileInfoCard(
+                                seller = seller,
+                                currentRating = currentRating,
                                 onChatClick = onChatClick,
                                 showChatButton = !isOwnProfile,
                                 showEditButton = isOwnProfile,
@@ -153,7 +162,7 @@ fun ProfileScreen(
 
                         // Lista de productos
                         items(productos) { producto ->
-                            CustomProductCard(
+                            ProfileProductCard(
                                 producto = producto,
                                 onClick = { onProductoClick(producto.id) },
                                 showDeleteButton = isOwnProfile,
@@ -168,9 +177,9 @@ fun ProfileScreen(
                     }
 
                     // Foto de perfil superpuesta
-                    CustomProfileImage(
-                        imageRes = usuario.imagenPerfil,
-                        contentDescription = usuario.nombre,
+                    ProfileAvatarImage(
+                        imageName = seller.imagenPerfil,
+                        contentDescription = seller.nombre,
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .offset(x = 16.dp, y = 130.dp)
@@ -190,11 +199,12 @@ fun ProfileScreen(
                     // Dialog de calificación
                     if (showRatingDialog) {
                         RatingDialog(
-                            userName = usuario.nombre,
+                            userName = seller.nombre,
                             currentRating = currentRating,
                             onDismiss = { showRatingDialog = false },
                             onRatingSubmit = { newRating ->
-                                RatingRepository.updateRating(usuario.id, newRating)
+                                currentRating = newRating
+                                // TODO: Guardar en Firebase
                             }
                         )
                     }
@@ -202,6 +212,51 @@ fun ProfileScreen(
             }
         }
     }
+}
+
+@Composable
+private fun ProfileCoverImage(
+    imageName: String,
+    contentDescription: String,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val imageResId = context.resources.getIdentifier(
+        imageName,
+        "drawable",
+        context.packageName
+    )
+
+    Image(
+        painter = painterResource(
+            id = if (imageResId != 0) imageResId else R.drawable.portada_perfil
+        ),
+        contentDescription = contentDescription,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+private fun ProfileAvatarImage(
+    imageName: String,
+    contentDescription: String,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val imageResId = context.resources.getIdentifier(
+        imageName,
+        "drawable",
+        context.packageName
+    )
+
+    CustomProfileImage(
+        imageRes = if (imageResId != 0) imageResId else R.drawable.profile_picture,
+        contentDescription = contentDescription,
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

@@ -2,9 +2,11 @@ package com.example.uvgmarket.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uvgmarket.profile.models.Usuario
-import com.example.uvgmarket.profile.models.Producto
-import com.example.uvgmarket.profile.repository.UserRepository
+import com.example.uvgmarket.data.model.Product
+import com.example.uvgmarket.data.model.Seller
+import com.example.uvgmarket.data.repository.ProductRepository
+import com.example.uvgmarket.data.repository.SellerRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,16 +17,20 @@ import kotlinx.coroutines.launch
  */
 data class ProfileUiState(
     val isLoading: Boolean = false,
-    val usuario: Usuario? = null,
-    val productos: List<Producto> = emptyList(),
+    val seller: Seller? = null,
+    val productos: List<Product> = emptyList(),
     val error: String? = null
 )
 
 /**
  * ViewModel para la pantalla de perfil
- * Maneja la lógica de carga de datos del usuario y sus productos
+ * Conectado a Firebase Firestore
  */
 class ProfileViewModel : ViewModel() {
+
+    private val sellerRepository = SellerRepository()
+    private val productRepository = ProductRepository()
+    private val auth = FirebaseAuth.getInstance()
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -37,13 +43,40 @@ class ProfileViewModel : ViewModel() {
             _uiState.value = ProfileUiState(isLoading = true)
 
             try {
-                val usuario = UserRepository.getCurrentUser()
-                val productos = UserRepository.getCurrentUserProducts()
+                val currentUserId = auth.currentUser?.uid
 
-                _uiState.value = ProfileUiState(
-                    usuario = usuario,
-                    productos = productos
-                )
+                if (currentUserId != null) {
+                    // Buscar si el usuario es un vendedor
+                    val seller = sellerRepository.getSellerById(currentUserId)
+
+                    if (seller != null) {
+                        val productos = productRepository.getProductsByVendor(currentUserId)
+
+                        _uiState.value = ProfileUiState(
+                            seller = seller,
+                            productos = productos
+                        )
+                    } else {
+                        // Si no es vendedor, crear un perfil básico desde Auth
+                        val basicSeller = Seller(
+                            id = currentUserId,
+                            nombre = auth.currentUser?.displayName ?: "Usuario",
+                            descripcion = "Sin descripción",
+                            imagenPerfil = "fotodeperfilindu",
+                            imagenPortada = "encabezado_usuario",
+                            correo = auth.currentUser?.email ?: ""
+                        )
+
+                        _uiState.value = ProfileUiState(
+                            seller = basicSeller,
+                            productos = emptyList()
+                        )
+                    }
+                } else {
+                    _uiState.value = ProfileUiState(
+                        error = "Usuario no autenticado"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = ProfileUiState(
                     error = "Error al cargar el perfil: ${e.message}"
@@ -60,13 +93,13 @@ class ProfileViewModel : ViewModel() {
             _uiState.value = ProfileUiState(isLoading = true)
 
             try {
-                val usuario = UserRepository.getUserById(userId)
+                val seller = sellerRepository.getSellerById(userId)
 
-                if (usuario != null) {
-                    val productos = UserRepository.getProductsByUserId(userId)
+                if (seller != null) {
+                    val productos = productRepository.getProductsByVendor(userId)
 
                     _uiState.value = ProfileUiState(
-                        usuario = usuario,
+                        seller = seller,
                         productos = productos
                     )
                 } else {
@@ -88,14 +121,22 @@ class ProfileViewModel : ViewModel() {
     fun deleteProduct(productId: String) {
         viewModelScope.launch {
             try {
-                // TODO: Implementar eliminación en Firebase
-                val productosActualizados = _uiState.value.productos.filter {
-                    it.id != productId
-                }
+                val success = productRepository.deleteProduct(productId)
 
-                _uiState.value = _uiState.value.copy(
-                    productos = productosActualizados
-                )
+                if (success) {
+                    // Actualizar la lista local
+                    val productosActualizados = _uiState.value.productos.filter {
+                        it.id != productId
+                    }
+
+                    _uiState.value = _uiState.value.copy(
+                        productos = productosActualizados
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Error al eliminar el producto"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     error = "Error al eliminar el producto: ${e.message}"

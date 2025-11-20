@@ -16,14 +16,14 @@ fun MyProfileScreen(
     viewModel: ProfileViewModel = viewModel()
 ) {
     ProfileScreen(
-        userId = null, // null indica que es el perfil propio
+        userId = null,
         isOwnProfile = true,
         onBackClick = onBackClick,
         onProductoClick = onProductoClick,
         onFloatingActionClick = onAddProductClick,
         onEditClick = onEditClick,
-        onChatClick = {}, // No hay chat en perfil propio
-        onStarClick = {}, // Las estrellas no son clickeables en perfil propio
+        onChatClick = {},
+        onStarClick = {},
         modifier = modifier,
         viewModel = viewModel
     )

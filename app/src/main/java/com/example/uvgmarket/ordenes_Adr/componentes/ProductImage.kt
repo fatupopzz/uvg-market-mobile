@@ -1,4 +1,4 @@
-package com.example.uvgmarket.Ordenes_Adr.product_detail
+package com.example.uvgmarket.ordenes_Adr.product_detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

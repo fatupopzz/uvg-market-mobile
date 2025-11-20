@@ -4,7 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
+import com.example.uvgmarket.ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.addProd.AgregarProductoScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
 import com.example.uvgmarket.pantallainicio.marketplace.MarketplaceScreen

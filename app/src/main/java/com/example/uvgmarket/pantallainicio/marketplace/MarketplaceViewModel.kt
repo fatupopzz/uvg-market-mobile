@@ -2,6 +2,8 @@ package com.example.uvgmarket.pantallainicio.marketplace
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uvgmarket.data.model.Seller
+import com.example.uvgmarket.data.repository.SellerRepository
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,17 +16,19 @@ import kotlinx.coroutines.launch
 data class MarketplaceUiState(
     val isLoading: Boolean = false,
     val entrepreneurs: List<Entrepreneur> = emptyList(),
-    val allEntrepreneurs: List<Entrepreneur> = emptyList(), // Lista completa sin filtrar
+    val allEntrepreneurs: List<Entrepreneur> = emptyList(),
     val searchText: String = "",
     val error: String? = null,
-    val isSearching: Boolean = false // Indica si hay una búsqueda activa
+    val isSearching: Boolean = false
 )
 
 /**
  * ViewModel para la pantalla de Marketplace
- * Ahora con búsqueda funcional en tiempo real
+ * Ahora conectado a Firebase Firestore
  */
 class MarketplaceViewModel : ViewModel() {
+
+    private val sellerRepository = SellerRepository()
 
     private val _uiState = MutableStateFlow(MarketplaceUiState())
     val uiState: StateFlow<MarketplaceUiState> = _uiState.asStateFlow()
@@ -34,20 +38,22 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     /**
-     * Carga la lista de emprendedores
+     * Carga la lista de emprendedores desde Firebase
      */
     private fun loadEntrepreneurs() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                // TODO: Reemplazar con llamada a repositorio/Firebase
-                val entrepreneurs = getHardcodedEntrepreneurs()
+                val sellers = sellerRepository.getAllSellers()
+                val entrepreneurs = sellers.map { seller ->
+                    seller.toEntrepreneur()
+                }
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     entrepreneurs = entrepreneurs,
-                    allEntrepreneurs = entrepreneurs // Guardar lista completa para búsquedas
+                    allEntrepreneurs = entrepreneurs
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -63,8 +69,6 @@ class MarketplaceViewModel : ViewModel() {
      */
     fun onSearchTextChange(newText: String) {
         _uiState.value = _uiState.value.copy(searchText = newText)
-
-        // Filtrar en tiempo real mientras el usuario escribe
         performSearch(newText)
     }
 
@@ -76,20 +80,18 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     /**
-     * Lógica de búsqueda reutilizable
+     * Lógica de búsqueda
      */
     private fun performSearch(query: String) {
         viewModelScope.launch {
             val trimmedQuery = query.trim()
 
             if (trimmedQuery.isBlank()) {
-                // Si la búsqueda está vacía, mostrar todos los emprendedores
                 _uiState.value = _uiState.value.copy(
                     entrepreneurs = _uiState.value.allEntrepreneurs,
                     isSearching = false
                 )
             } else {
-                // Filtrar emprendedores por nombre o descripción
                 val filtered = _uiState.value.allEntrepreneurs.filter { entrepreneur ->
                     entrepreneur.name.contains(trimmedQuery, ignoreCase = true) ||
                             entrepreneur.description.contains(trimmedQuery, ignoreCase = true)
@@ -115,6 +117,13 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     /**
+     * Recarga los emprendedores desde Firebase
+     */
+    fun refresh() {
+        loadEntrepreneurs()
+    }
+
+    /**
      * Limpia el error
      */
     fun clearError() {
@@ -122,32 +131,15 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     /**
-     * Datos hardcodeados (temporal)
-     * TODO: Mover a repositorio
+     * Extensión para convertir Seller a Entrepreneur
      */
-    private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
-        return listOf(
-            Entrepreneur(
-                name = "Hamburguesas kawaii",
-                description = "Tu lugar fav para comer",
-                rating = 3,
-                profileImage = "fotodeperfilhamburger",
-                productImages = listOf("hamburger1", "hamburger2")
-            ),
-            Entrepreneur(
-                name = "Accesorios Luna",
-                description = "Joyería artesanal hecha a mano",
-                rating = 5,
-                profileImage = "fotodeperfiljoyeria",
-                productImages = listOf("joyeria1", "joyeria2")
-            ),
-            Entrepreneur(
-                name = "TechRepair GT",
-                description = "Reparación de celulares y laptops",
-                rating = 4,
-                profileImage = "imagendeperfilcomputadora",
-                productImages = listOf("limpinado1", "limpiando2")
-            )
+    private fun Seller.toEntrepreneur(): Entrepreneur {
+        return Entrepreneur(
+            name = this.nombre,
+            description = this.descripcion,
+            rating = this.calificacion.toInt(),
+            profileImage = this.imagenPerfil,
+            productImages = this.productImages
         )
     }
 }

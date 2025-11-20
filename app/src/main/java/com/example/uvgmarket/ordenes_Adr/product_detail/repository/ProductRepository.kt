@@ -1,7 +1,7 @@
-package com.example.uvgmarket.Ordenes_Adr.product_detail.repository
+package com.example.uvgmarket.ordenes_Adr.product_detail.repository
 
 import com.example.uvgmarket.R
-import com.example.uvgmarket.Ordenes_Adr.product_detail.models.ProductDetail
+import com.example.uvgmarket.ordenes_Adr.product_detail.models.ProductDetail
 
 /**
  * Repositorio de productos para manejo de datos de demostración
