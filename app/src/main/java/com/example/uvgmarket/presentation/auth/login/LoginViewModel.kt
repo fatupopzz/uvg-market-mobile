@@ -2,13 +2,14 @@ package com.example.uvgmarket.presentation.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uvgmarket.core.util.Resource
 import com.example.uvgmarket.data.model.User
-import com.example.uvgmarket.data.repository.AuthRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import android.util.Log
 
 /**
@@ -26,7 +27,8 @@ data class LoginUiState(
  */
 class LoginViewModel : ViewModel() {
 
-    private val repository = AuthRepository()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val TAG = "LoginViewModel"
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -44,26 +46,69 @@ class LoginViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            repository.login(correo, contrasena).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        Log.d(TAG, "Estado: Cargando")
-                        _uiState.value = LoginUiState(isLoading = true)
+            try {
+                _uiState.value = LoginUiState(isLoading = true)
+                Log.d(TAG, "Iniciando login...")
+
+                // Autenticar con Firebase Auth
+                val result = auth.signInWithEmailAndPassword(correo, contrasena).await()
+                val uid = result.user?.uid
+
+                if (uid != null) {
+                    Log.d(TAG, "Autenticación exitosa: $uid")
+
+                    // Intentar obtener datos de Firestore
+                    var user: User? = null
+                    try {
+                        val document = firestore.collection("users").document(uid).get().await()
+                        if (document.exists()) {
+                            val data = document.data
+                            if (data != null) {
+                                user = User.fromMap(data)
+                                Log.d(TAG, "Datos de usuario obtenidos de Firestore")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "No se pudieron obtener datos de Firestore: ${e.message}")
                     }
-                    is Resource.Success -> {
-                        Log.d(TAG, "Estado: Éxito - Usuario: ${result.data?.nombre}")
-                        _uiState.value = LoginUiState(
-                            isSuccess = true,
-                            user = result.data
+
+                    // Si no hay datos en Firestore, crear usuario básico
+                    if (user == null) {
+                        user = User(
+                            uid = uid,
+                            nombre = result.user?.displayName ?: "Usuario",
+                            usuario = correo.split("@")[0],
+                            correo = correo
                         )
+                        Log.d(TAG, "Usuario básico creado")
                     }
-                    is Resource.Error -> {
-                        Log.e(TAG, "Estado: Error - ${result.message}")
-                        _uiState.value = LoginUiState(
-                            error = result.message ?: "Error desconocido"
-                        )
-                    }
+
+                    // Emitir éxito
+                    _uiState.value = LoginUiState(
+                        isSuccess = true,
+                        user = user
+                    )
+                    Log.d(TAG, "Login completado")
+                } else {
+                    _uiState.value = LoginUiState(error = "Error al iniciar sesión")
                 }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error en login: ${e.message}", e)
+                val errorMessage = when {
+                    e.message?.contains("no user record") == true ||
+                            e.message?.contains("invalid-credential") == true ||
+                            e.message?.contains("INVALID_LOGIN_CREDENTIALS") == true ||
+                            e.message?.contains("wrong-password") == true ||
+                            e.message?.contains("invalid-email") == true ->
+                        "Correo o contraseña incorrectos"
+                    e.message?.contains("network") == true ->
+                        "Error de conexión. Verifica tu internet"
+                    e.message?.contains("too-many-requests") == true ->
+                        "Demasiados intentos. Espera un momento"
+                    else -> "Error al iniciar sesión: ${e.message}"
+                }
+                _uiState.value = LoginUiState(error = errorMessage)
             }
         }
     }
@@ -78,7 +123,7 @@ class LoginViewModel : ViewModel() {
     }
 
     fun checkLoginStatus(): Boolean {
-        return repository.isUserLoggedIn()
+        return auth.currentUser != null
     }
 
     fun clearError() {

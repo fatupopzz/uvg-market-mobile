@@ -22,8 +22,8 @@ import com.example.uvgmarket.core.constants.UiConstants
 import com.example.uvgmarket.core.ui.components.buttons.PrimaryButton
 import com.example.uvgmarket.core.ui.components.images.CircularImage
 import com.example.uvgmarket.core.ui.components.textfields.AppTextField
-import com.example.uvgmarket.presentation.auth.register.RegisterViewModel
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
+import androidx.compose.foundation.layout.Box
 
 @Composable
 fun RegistroScreen(
@@ -37,15 +37,63 @@ fun RegistroScreen(
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
 
+    // Estado para el diálogo de éxito
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
     // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
-    // Manejar el éxito del registro
+    // Manejar el éxito del registro - mostrar diálogo en lugar de navegar
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            onRegistroSuccess()
-            viewModel.resetState()
+            showSuccessDialog = true
         }
+    }
+
+    // Diálogo de éxito
+    if (showSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "¡Registro Exitoso!",
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            text = {
+                Text(
+                    text = "Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(
+                        onClick = {
+                            showSuccessDialog = false
+                            viewModel.resetState()
+                            onNavigateToLogin()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Ir a Iniciar Sesión")
+                    }
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -171,19 +219,6 @@ fun RegistroScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !uiState.isLoading
                 )
-            }
-
-            // Mensaje de estado durante el registro
-            if (uiState.isLoading) {
-                item {
-                    Text(
-                        text = "Creando tu cuenta en Firebase...\nEsto puede tardar unos segundos.",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = UiConstants.PADDING_SMALL.dp)
-                    )
-                }
             }
 
             item {

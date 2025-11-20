@@ -3,13 +3,13 @@ package com.example.uvgmarket.presentation.auth.register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uvgmarket.core.constants.ValidationConstants
-import com.example.uvgmarket.core.util.Resource
 import com.example.uvgmarket.data.model.User
-import com.example.uvgmarket.data.repository.AuthRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import android.util.Log
 
 /**
@@ -27,7 +27,7 @@ data class RegisterUiState(
  */
 class RegisterViewModel : ViewModel() {
 
-    private val repository = AuthRepository()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val TAG = "RegisterViewModel"
 
     private val _uiState = MutableStateFlow(RegisterUiState())
@@ -51,26 +51,50 @@ class RegisterViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            repository.register(nombre, usuario, correo, contrasena).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        Log.d(TAG, "Estado: Cargando")
-                        _uiState.value = RegisterUiState(isLoading = true)
-                    }
-                    is Resource.Success -> {
-                        Log.d(TAG, "Estado: Éxito - Usuario: ${result.data?.nombre}")
-                        _uiState.value = RegisterUiState(
-                            isSuccess = true,
-                            user = result.data
-                        )
-                    }
-                    is Resource.Error -> {
-                        Log.e(TAG, "Estado: Error - ${result.message}")
-                        _uiState.value = RegisterUiState(
-                            error = result.message ?: "Error desconocido"
-                        )
-                    }
+            try {
+                _uiState.value = RegisterUiState(isLoading = true)
+                Log.d(TAG, "Iniciando registro...")
+
+                // Crear usuario en Firebase Auth
+                val result = auth.createUserWithEmailAndPassword(correo, contrasena).await()
+                val uid = result.user?.uid
+
+                if (uid != null) {
+                    Log.d(TAG, "Usuario creado exitosamente: $uid")
+
+                    // Crear objeto User
+                    val newUser = User(
+                        uid = uid,
+                        nombre = nombre,
+                        usuario = usuario,
+                        correo = correo
+                    )
+
+                    // Emitir éxito inmediatamente
+                    _uiState.value = RegisterUiState(
+                        isSuccess = true,
+                        user = newUser
+                    )
+                    Log.d(TAG, "Registro completado")
+                } else {
+                    _uiState.value = RegisterUiState(error = "Error al crear usuario")
                 }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error en registro: ${e.message}", e)
+                val errorMessage = when {
+                    e.message?.contains("email address is already in use") == true ->
+                        "El correo electrónico ya está registrado"
+                    e.message?.contains("badly formatted") == true ->
+                        "El formato del correo no es válido"
+                    e.message?.contains("weak-password") == true ||
+                            e.message?.contains("password") == true ->
+                        "La contraseña debe tener al menos 6 caracteres"
+                    e.message?.contains("network") == true ->
+                        "Error de conexión. Verifica tu internet"
+                    else -> "Error al registrar: ${e.message}"
+                }
+                _uiState.value = RegisterUiState(error = errorMessage)
             }
         }
     }

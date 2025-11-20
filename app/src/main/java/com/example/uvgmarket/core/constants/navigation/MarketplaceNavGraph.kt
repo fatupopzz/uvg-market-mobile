@@ -1,4 +1,4 @@
-package com.example.uvgmarket.core.navigation
+package com.example.uvgmarket.core.constants.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -8,6 +8,8 @@ import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.addProd.AgregarProductoScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
 import com.example.uvgmarket.pantallainicio.marketplace.MarketplaceScreen
+import com.example.uvgmarket.core.navigation.NavigationActions
+import com.example.uvgmarket.core.navigation.NavigationDestination
 
 fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
     // Pantalla principal del Marketplace
@@ -15,8 +17,6 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         MarketplaceScreen(
             onSearchClick = { /* TODO: Implementar búsqueda */ },
             onEntrepreneurClick = { entrepreneur ->
-                // Navegar al perfil del emprendedor usando el nombre como ID
-                // Mapear nombres a IDs de usuario
                 val userId = when (entrepreneur.name) {
                     "Hamburguesas kawaii" -> "1"
                     "Accesorios Luna" -> "2"
@@ -26,7 +26,6 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
                 navigationActions.navigateToOtherUserProfile(userId)
             },
             onEntrepreneurStarClick = { entrepreneur ->
-                // También navegar al perfil cuando se hace click en las estrellas
                 val userId = when (entrepreneur.name) {
                     "Hamburguesas kawaii" -> "1"
                     "Accesorios Luna" -> "2"
@@ -37,7 +36,6 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
             },
             onFabClick = { navigationActions.navigateToChatGeneral() },
             onProductImageClick = { productImageName ->
-                // Usar el nombre de la imagen como ID del producto
                 navigationActions.navigateToProductDetail(productImageName, showContactButton = true)
             },
             onProfileAvatarClick = { navigationActions.navigateToProfile() }
@@ -61,10 +59,7 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         ProductDetailScreen(
             productId = productId,
             onBackClick = { navigationActions.navigateBack() },
-            onContactSellerClick = {
-                // TODO: Implementar chat individual con vendedor
-                // Por ahora no hace nada
-            },
+            onContactSellerClick = { },
             showContactButton = showContactButton
         )
     }
@@ -74,8 +69,6 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         AgregarProductoScreen(
             onCancelar = { navigationActions.navigateBack() },
             onPublicar = { nombre, descripcion, precio, tieneImagen ->
-                // TODO: Guardar producto
-                // Por ahora solo navega de regreso
                 navigationActions.navigateBack()
             }
         )
@@ -85,10 +78,7 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
     composable(NavigationDestination.ChatGeneral.route) {
         PantallaChatGeneral(
             onBackClick = { navigationActions.navigateBack() },
-            onChatClick = { chatId ->
-                // TODO: Navegar a chat individual cuando esté implementado
-                // Por ahora no hace nada
-            },
+            onChatClick = { chatId -> },
             onProfileAvatarClick = { navigationActions.navigateToProfile() }
         )
     }

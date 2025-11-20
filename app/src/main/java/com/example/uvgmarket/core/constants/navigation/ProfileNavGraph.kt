@@ -1,4 +1,4 @@
-package com.example.uvgmarket.core.navigation
+package com.example.uvgmarket.core.constants.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -13,6 +13,8 @@ import com.example.uvgmarket.chat.ChatScreen
 import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
 import com.example.uvgmarket.data.repository.AuthRepository
+import com.example.uvgmarket.core.navigation.NavigationActions
+import com.example.uvgmarket.core.navigation.NavigationDestination
 
 fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
 
@@ -50,9 +52,7 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
                 navigationActions.navigateToProductDetail(productId, showContactButton = true)
             },
             onFloatingActionClick = { },
-            onStarClick = {
-                // TODO: Implementar sistema de calificación
-            }
+            onStarClick = { }
         )
     }
 
@@ -72,14 +72,12 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
             },
             onChangePassword = { navigationActions.navigateToChangePassword() },
             onLogout = {
-                // Cerrar sesión y volver a Auth
                 authRepository.logout()
                 navigationActions.navigateToAuth()
             }
         )
     }
 
-    // Resto del código igual...
     composable(NavigationDestination.ChangePassword.route) {
         ChangePasswordScreen(
             onBackClick = { navigationActions.navigateBack() },

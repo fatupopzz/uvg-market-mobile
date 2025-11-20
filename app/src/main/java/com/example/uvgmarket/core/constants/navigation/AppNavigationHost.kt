@@ -1,4 +1,4 @@
-package com.example.uvgmarket.core.navigation
+package com.example.uvgmarket.core.constants.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -6,6 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.example.uvgmarket.core.navigation.NavigationActions
+import com.example.uvgmarket.core.navigation.NavigationDestination
 
 @Composable
 fun AppNavigationHost(
