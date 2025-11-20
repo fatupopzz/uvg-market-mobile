@@ -41,11 +41,18 @@ class AgregarProductoViewModel : ViewModel() {
         val state = _uiState.value
         return state.nombre.isNotBlank() &&
                 state.descripcion.isNotBlank() &&
-                state.precio.isNotBlank()
+                state.precio.isNotBlank() &&
+                !state.isLoading // Evitar múltiples clics
     }
 
     fun publicarProducto(onSuccess: () -> Unit) {
         val state = _uiState.value
+
+        // Prevenir múltiples llamadas
+        if (state.isLoading) {
+            Log.w(TAG, "Ya hay una publicación en proceso")
+            return
+        }
 
         if (!puedePublicar()) {
             _uiState.update { it.copy(error = "Todos los campos son requeridos") }
@@ -74,10 +81,10 @@ class AgregarProductoViewModel : ViewModel() {
                 val product = Product(
                     id = "", // Se generará automáticamente en Firestore
                     nombre = state.nombre,
-                    subtitulo = state.nombre, // Usar nombre como subtítulo por defecto
+                    subtitulo = state.nombre,
                     descripcion = state.descripcion,
                     precio = precioDouble,
-                    imagen = "product_placeholder", // Imagen por defecto
+                    imagen = "product_placeholder",
                     vendedorId = currentUser.uid,
                     vendedorNombre = currentUser.displayName ?: currentUser.email?.split("@")?.get(0) ?: "Usuario",
                     fechaCreacion = System.currentTimeMillis(),
@@ -89,7 +96,12 @@ class AgregarProductoViewModel : ViewModel() {
                 if (success) {
                     Log.d(TAG, "Producto creado exitosamente")
                     _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+
+                    // Llamar al callback de éxito
                     onSuccess()
+
+                    // Limpiar el estado DESPUÉS de navegar
+                    limpiarFormulario()
                 } else {
                     _uiState.update {
                         it.copy(

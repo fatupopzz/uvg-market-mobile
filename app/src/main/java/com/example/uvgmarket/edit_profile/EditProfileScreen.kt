@@ -30,15 +30,14 @@ fun EditProfileScreen(
     onCancelClick: () -> Unit = {},
     onSaveSuccess: () -> Unit = {},
     onChangePassword: () -> Unit = {},
-    onLogout: () -> Unit = {},  // NUEVO
+    onLogout: () -> Unit = {},
     viewModel: EditProfileViewModel = viewModel()
 ) {
-    // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
-    // Inicializar el ViewModel con los datos recibidos
-    LaunchedEffect(nombre, usuario, correo, imagenPerfil, imagenPortada) {
-        viewModel.initializeProfile(nombre, usuario, correo, imagenPerfil, imagenPortada)
+    // Cargar datos del usuario al iniciar
+    LaunchedEffect(Unit) {
+        viewModel.loadUserData()
     }
 
     // Manejar el éxito del guardado
@@ -75,7 +74,7 @@ fun EditProfileScreen(
                         .height(200.dp)
                 ) {
                     EditCoverImage(
-                        imageRes = uiState.imagenPortada ?: imagenPortada,
+                        imageRes = imagenPortada,
                         onCameraClick = { viewModel.onCoverImageChange() }
                     )
                 }
@@ -93,6 +92,7 @@ fun EditProfileScreen(
                         .fillMaxWidth()
                         .padding(horizontal = UiConstants.PADDING_LARGE.dp)
                 ) {
+                    // Mostrar campos con los valores del ViewModel
                     EditTextField(
                         label = stringResource(R.string.Nombre_editar_perfil),
                         value = uiState.nombre,
@@ -128,7 +128,6 @@ fun EditProfileScreen(
 
                     Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
 
-                    // NUEVO: Botón de Logout
                     LogoutButton(
                         onClick = onLogout,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -155,7 +154,7 @@ fun EditProfileScreen(
 
         // Avatar superpuesto
         EditProfileAvatar(
-            imageRes = uiState.imagenPerfil ?: imagenPerfil,
+            imageRes = imagenPerfil,
             onCameraClick = { viewModel.onProfileImageChange() },
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -183,7 +182,7 @@ private fun LogoutButton(
             .padding(horizontal = UiConstants.PADDING_EXTRA_LARGE.dp)
             .height(50.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFD32F2F),  // Rojo
+            containerColor = Color(0xFFD32F2F),
             contentColor = Color.White
         ),
         shape = MaterialTheme.shapes.medium
@@ -199,10 +198,6 @@ private fun LogoutButton(
 @Composable
 fun EditProfileScreenPreview() {
     UvgMarketTheme {
-        EditProfileScreen(
-            nombre = "Hamburguesas Kawaii",
-            usuario = "hamburguesaskawaii",
-            correo = "hamburguesas@uvg.edu.gt"
-        )
+        EditProfileScreen()
     }
 }

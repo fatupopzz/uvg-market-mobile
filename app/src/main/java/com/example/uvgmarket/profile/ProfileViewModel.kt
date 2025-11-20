@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uvgmarket.data.model.Product
 import com.example.uvgmarket.data.model.Seller
+import com.example.uvgmarket.data.model.User
 import com.example.uvgmarket.data.repository.ProductRepository
+import com.example.uvgmarket.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,15 +24,13 @@ data class ProfileUiState(
 class ProfileViewModel : ViewModel() {
 
     private val productRepository = ProductRepository()
+    private val userRepository = UserRepository()
     private val auth = FirebaseAuth.getInstance()
     private val TAG = "ProfileViewModel"
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    /**
-     * Carga los datos del usuario actual desde Firebase
-     */
     fun loadCurrentUserProfile() {
         viewModelScope.launch {
             _uiState.value = ProfileUiState(isLoading = true)
@@ -41,25 +41,57 @@ class ProfileViewModel : ViewModel() {
                 if (currentUser != null) {
                     Log.d(TAG, "Cargando perfil del usuario: ${currentUser.uid}")
 
-                    // Crear un perfil básico desde Firebase Auth
-                    val basicSeller = Seller(
-                        id = currentUser.uid,
-                        nombre = currentUser.displayName ?: "Usuario",
-                        descripcion = currentUser.email ?: "Sin descripción",
-                        imagenPerfil = "fotodeperfilindu",
-                        imagenPortada = "encabezado_usuario",
-                        correo = currentUser.email ?: "",
-                        calificacion = 3f
-                    )
+                    // Obtener datos del usuario desde Firestore
+                    val user = userRepository.getUserById(currentUser.uid)
 
-                    // Cargar productos del usuario desde Firebase
-                    val productos = productRepository.getProductsByVendor(currentUser.uid)
-                    Log.d(TAG, "Productos cargados: ${productos.size}")
+                    if (user != null) {
+                        // Convertir User a Seller para mantener compatibilidad
+                        val seller = Seller(
+                            id = user.uid,
+                            nombre = user.nombre,
+                            descripcion = user.correo,
+                            imagenPerfil = user.imagenPerfil.ifEmpty { "fotodeperfilindu" },
+                            imagenPortada = user.imagenPortada.ifEmpty { "encabezado_usuario" },
+                            correo = user.correo,
+                            calificacion = user.rating.toFloat()
+                        )
 
-                    _uiState.value = ProfileUiState(
-                        seller = basicSeller,
-                        productos = productos
-                    )
+                        // Cargar productos del usuario
+                        val productos = productRepository.getProductsByVendor(currentUser.uid)
+                        Log.d(TAG, "Datos cargados - Productos: ${productos.size}")
+
+                        _uiState.value = ProfileUiState(
+                            seller = seller,
+                            productos = productos
+                        )
+                    } else {
+                        Log.w(TAG, "Usuario no encontrado en Firestore, creando perfil básico")
+                        // Crear perfil básico si no existe en Firestore
+                        val basicUser = User(
+                            uid = currentUser.uid,
+                            nombre = currentUser.displayName ?: "Usuario",
+                            usuario = currentUser.email?.split("@")?.get(0) ?: "usuario",
+                            correo = currentUser.email ?: "",
+                            imagenPerfil = "fotodeperfilindu",
+                            imagenPortada = "encabezado_usuario"
+                        )
+                        userRepository.createUser(basicUser)
+
+                        val seller = Seller(
+                            id = basicUser.uid,
+                            nombre = basicUser.nombre,
+                            descripcion = basicUser.correo,
+                            imagenPerfil = "fotodeperfilindu",
+                            imagenPortada = "encabezado_usuario",
+                            correo = basicUser.correo,
+                            calificacion = 3f
+                        )
+
+                        _uiState.value = ProfileUiState(
+                            seller = seller,
+                            productos = emptyList()
+                        )
+                    }
                 } else {
                     _uiState.value = ProfileUiState(
                         error = "Usuario no autenticado"
@@ -74,9 +106,6 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Carga los datos de un usuario específico por su ID
-     */
     fun loadUserProfile(userId: String) {
         viewModelScope.launch {
             _uiState.value = ProfileUiState(isLoading = true)
@@ -84,25 +113,32 @@ class ProfileViewModel : ViewModel() {
             try {
                 Log.d(TAG, "Cargando perfil del usuario: $userId")
 
-                // Crear perfil básico (podrías buscar en Firestore si guardas info adicional)
-                val basicSeller = Seller(
-                    id = userId,
-                    nombre = "Usuario",
-                    descripcion = "Vendedor",
-                    imagenPerfil = "fotodeperfilhamburger",
-                    imagenPortada = "portada_perfil",
-                    correo = "",
-                    calificacion = 3f
-                )
+                // Obtener datos del usuario desde Firestore
+                val user = userRepository.getUserById(userId)
 
-                // Cargar productos del usuario
-                val productos = productRepository.getProductsByVendor(userId)
-                Log.d(TAG, "Productos cargados: ${productos.size}")
+                if (user != null) {
+                    val seller = Seller(
+                        id = user.uid,
+                        nombre = user.nombre,
+                        descripcion = user.correo,
+                        imagenPerfil = user.imagenPerfil.ifEmpty { "fotodeperfilhamburger" },
+                        imagenPortada = user.imagenPortada.ifEmpty { "portada_perfil" },
+                        correo = user.correo,
+                        calificacion = user.rating.toFloat()
+                    )
 
-                _uiState.value = ProfileUiState(
-                    seller = basicSeller,
-                    productos = productos
-                )
+                    val productos = productRepository.getProductsByVendor(userId)
+                    Log.d(TAG, "Productos cargados: ${productos.size}")
+
+                    _uiState.value = ProfileUiState(
+                        seller = seller,
+                        productos = productos
+                    )
+                } else {
+                    _uiState.value = ProfileUiState(
+                        error = "Usuario no encontrado"
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error al cargar perfil", e)
                 _uiState.value = ProfileUiState(
