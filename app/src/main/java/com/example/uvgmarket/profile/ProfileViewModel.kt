@@ -18,7 +18,10 @@ data class ProfileUiState(
     val isLoading: Boolean = false,
     val seller: Seller? = null,
     val productos: List<Product> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val showDeleteDialog: Boolean = false,
+    val productToDelete: Product? = null,
+    val deleteSuccess: String? = null
 )
 
 class ProfileViewModel : ViewModel() {
@@ -41,11 +44,9 @@ class ProfileViewModel : ViewModel() {
                 if (currentUser != null) {
                     Log.d(TAG, "Cargando perfil del usuario: ${currentUser.uid}")
 
-                    // Obtener datos del usuario desde Firestore
                     val user = userRepository.getUserById(currentUser.uid)
 
                     if (user != null) {
-                        // Convertir User a Seller para mantener compatibilidad
                         val seller = Seller(
                             id = user.uid,
                             nombre = user.nombre,
@@ -56,7 +57,6 @@ class ProfileViewModel : ViewModel() {
                             calificacion = user.rating.toFloat()
                         )
 
-                        // Cargar productos del usuario
                         val productos = productRepository.getProductsByVendor(currentUser.uid)
                         Log.d(TAG, "Datos cargados - Productos: ${productos.size}")
 
@@ -66,7 +66,6 @@ class ProfileViewModel : ViewModel() {
                         )
                     } else {
                         Log.w(TAG, "Usuario no encontrado en Firestore, creando perfil básico")
-                        // Crear perfil básico si no existe en Firestore
                         val basicUser = User(
                             uid = currentUser.uid,
                             nombre = currentUser.displayName ?: "Usuario",
@@ -113,7 +112,6 @@ class ProfileViewModel : ViewModel() {
             try {
                 Log.d(TAG, "Cargando perfil del usuario: $userId")
 
-                // Obtener datos del usuario desde Firestore
                 val user = userRepository.getUserById(userId)
 
                 if (user != null) {
@@ -148,30 +146,68 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun deleteProduct(productId: String) {
+    // Mostrar diálogo de confirmación
+    fun showDeleteDialog(product: Product) {
+        _uiState.value = _uiState.value.copy(
+            showDeleteDialog = true,
+            productToDelete = product
+        )
+    }
+
+    // Ocultar diálogo de confirmación
+    fun hideDeleteDialog() {
+        _uiState.value = _uiState.value.copy(
+            showDeleteDialog = false,
+            productToDelete = null
+        )
+    }
+
+    // Confirmar eliminación
+    fun confirmDeleteProduct() {
+        val product = _uiState.value.productToDelete ?: return
+
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Eliminando producto: $productId")
-                val success = productRepository.deleteProduct(productId)
+                Log.d(TAG, "Eliminando producto: ${product.id}")
+
+                // Mostrar loading
+                _uiState.value = _uiState.value.copy(isLoading = true)
+
+                val success = productRepository.deleteProduct(product.id)
 
                 if (success) {
                     val productosActualizados = _uiState.value.productos.filter {
-                        it.id != productId
+                        it.id != product.id
                     }
 
                     _uiState.value = _uiState.value.copy(
-                        productos = productosActualizados
+                        productos = productosActualizados,
+                        showDeleteDialog = false,
+                        productToDelete = null,
+                        isLoading = false,
+                        deleteSuccess = "Producto eliminado exitosamente"
                     )
+
                     Log.d(TAG, "Producto eliminado exitosamente")
+
+                    // Limpiar mensaje de éxito después de 3 segundos
+                    kotlinx.coroutines.delay(3000)
+                    _uiState.value = _uiState.value.copy(deleteSuccess = null)
                 } else {
                     _uiState.value = _uiState.value.copy(
-                        error = "Error al eliminar el producto"
+                        error = "Error al eliminar el producto",
+                        showDeleteDialog = false,
+                        productToDelete = null,
+                        isLoading = false
                     )
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error al eliminar producto", e)
                 _uiState.value = _uiState.value.copy(
-                    error = "Error al eliminar el producto: ${e.message}"
+                    error = "Error al eliminar el producto: ${e.message}",
+                    showDeleteDialog = false,
+                    productToDelete = null,
+                    isLoading = false
                 )
             }
         }
@@ -181,9 +217,14 @@ class ProfileViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
+    fun clearDeleteSuccess() {
+        _uiState.value = _uiState.value.copy(deleteSuccess = null)
+    }
+
     fun resetState() {
         _uiState.value = ProfileUiState()
     }
+
     fun refresh() {
         val currentUser = auth.currentUser
         if (currentUser != null) {

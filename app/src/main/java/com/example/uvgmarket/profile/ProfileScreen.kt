@@ -4,25 +4,22 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.R
 import com.example.uvgmarket.core.ui.components.rating.RatingDialog
 import com.example.uvgmarket.data.model.Product
-import com.example.uvgmarket.data.model.Seller
 import com.example.uvgmarket.profile.components.CustomCoverImage
 import com.example.uvgmarket.profile.components.CustomDivider
 import com.example.uvgmarket.profile.components.CustomFloatingActionButton
@@ -32,10 +29,6 @@ import com.example.uvgmarket.profile.components.ProfileProductCard
 import com.example.uvgmarket.profile.components.CustomProfileImage
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
-/**
- * Pantalla de perfil que muestra información del usuario y sus productos
- * Puede ser el perfil propio o el de otro usuario
- */
 @Composable
 fun ProfileScreen(
     userId: String? = null,
@@ -104,7 +97,6 @@ fun ProfileScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        // Imagen de portada con TopBar superpuesto
                         item {
                             Box {
                                 ProfileCoverImage(
@@ -119,7 +111,6 @@ fun ProfileScreen(
                             }
                         }
 
-                        // Avatar con offset negativo para superponerlo
                         item {
                             Box(
                                 modifier = Modifier
@@ -135,7 +126,6 @@ fun ProfileScreen(
                             }
                         }
 
-                        // Separador verde (sin espacio extra)
                         item {
                             CustomDivider(
                                 thickness = 18.dp,
@@ -144,7 +134,6 @@ fun ProfileScreen(
                             )
                         }
 
-                        // Información del usuario
                         item {
                             ProfileInfoCard(
                                 seller = seller,
@@ -162,7 +151,6 @@ fun ProfileScreen(
                             )
                         }
 
-                        // Separador después del card del usuario
                         item {
                             CustomDivider(
                                 thickness = 2.dp,
@@ -171,18 +159,19 @@ fun ProfileScreen(
                             )
                         }
 
-                        // Lista de productos
                         items(productos) { producto ->
                             ProfileProductCard(
                                 producto = producto,
                                 onClick = { onProductoClick(producto.id) },
                                 showDeleteButton = isOwnProfile,
-                                onDeleteClick = { viewModel.deleteProduct(producto.id) },
+                                onDeleteClick = {
+                                    // Mostrar diálogo de confirmación
+                                    viewModel.showDeleteDialog(producto)
+                                },
                                 modifier = Modifier.offset(y = (-70).dp)
                             )
                         }
 
-                        // Spacer final reducido
                         item {
                             Spacer(modifier = Modifier.height(80.dp))
                         }
@@ -198,6 +187,7 @@ fun ProfileScreen(
                         )
                     }
 
+                    // Diálogo de calificación
                     if (showRatingDialog) {
                         RatingDialog(
                             userName = seller.nombre,
@@ -208,11 +198,77 @@ fun ProfileScreen(
                             }
                         )
                     }
+
+                    // Diálogo de confirmación de eliminación
+                    if (uiState.showDeleteDialog && uiState.productToDelete != null) {
+                        DeleteProductDialog(
+                            productName = uiState.productToDelete!!.nombre,
+                            onConfirm = { viewModel.confirmDeleteProduct() },
+                            onDismiss = { viewModel.hideDeleteDialog() }
+                        )
+                    }
+
+                    // Snackbar de éxito
+                    if (uiState.deleteSuccess != null) {
+                        Snackbar(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(16.dp)
+                                .navigationBarsPadding(),
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                text = uiState.deleteSuccess ?: "",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
+
+@Composable
+private fun DeleteProductDialog(
+    productName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Eliminar Producto",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = "¿Estás seguro de que deseas eliminar \"$productName\"?\n\nEsta acción no se puede deshacer.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Eliminar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface
+    )
+}
+
 @Composable
 private fun ProfileCoverImage(
     imageName: String,
