@@ -41,6 +41,11 @@ fun PantallaChatGeneral(
     modifier: Modifier = Modifier,
     viewModel: ChatGeneralViewModel = viewModel()
 ) {
+    // Refrescar cuando la pantalla aparece
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
     // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
@@ -113,25 +118,40 @@ fun PantallaChatGeneral(
                     )
 
                     // Lista de chats
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
-                    ) {
-                        items(uiState.chats) { chat ->
-                            Column {
-                                ChatCard(
-                                    chat = chat,
-                                    onClick = { onChatClick(chat.id) }
-                                )
-                                // Spacer entre chats (gris oscuro)
-                                Spacer(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                                )
+                    if (uiState.chats.isEmpty()) {
+                        // Mensaje cuando no hay chats
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No tienes conversaciones aún.\n\nContacta a un vendedor para empezar a chatear.",
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(32.dp)
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentPadding = PaddingValues(vertical = UiConstants.PADDING_SMALL.dp)
+                        ) {
+                            items(uiState.chats) { chat ->
+                                Column {
+                                    ChatCard(
+                                        chat = chat,
+                                        onClick = { onChatClick(chat.id) }
+                                    )
+                                    // Spacer entre chats (gris oscuro)
+                                    Spacer(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                                    )
+                                }
                             }
                         }
                     }
