@@ -51,7 +51,6 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
 
-    // Cargar datos según el tipo de perfil
     LaunchedEffect(userId, isOwnProfile) {
         if (isOwnProfile || userId == null) {
             viewModel.loadCurrentUserProfile()
@@ -60,10 +59,7 @@ fun ProfileScreen(
         }
     }
 
-    // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
-
-    // Estado para el dialog de calificación
     var showRatingDialog by remember { mutableStateOf(false) }
     var currentRating by remember { mutableStateOf(0) }
 
@@ -73,14 +69,12 @@ fun ProfileScreen(
             .statusBarsPadding()
     ) {
         when {
-            // Estado de carga
             uiState.isLoading -> {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
 
-            // Estado de error
             uiState.error != null -> {
                 Column(
                     modifier = Modifier
@@ -98,12 +92,10 @@ fun ProfileScreen(
                 }
             }
 
-            // Estado con datos
             uiState.seller != null -> {
                 val seller = uiState.seller!!
                 val productos = uiState.productos
 
-                // Actualizar rating actual
                 LaunchedEffect(seller.calificacion) {
                     currentRating = seller.calificacion.toInt()
                 }
@@ -127,11 +119,28 @@ fun ProfileScreen(
                             }
                         }
 
-                        // Separador verde
+                        // Avatar con offset negativo para superponerlo
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .offset(y = (-70).dp)
+                                    .padding(start = 16.dp)
+                            ) {
+                                ProfileAvatarImage(
+                                    imageName = seller.imagenPerfil,
+                                    contentDescription = seller.nombre,
+                                    modifier = Modifier.align(Alignment.CenterStart)
+                                )
+                            }
+                        }
+
+                        // Separador verde (sin espacio extra)
                         item {
                             CustomDivider(
                                 thickness = 18.dp,
-                                color = MaterialTheme.colorScheme.tertiary
+                                color = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.offset(y = (-70).dp)
                             )
                         }
 
@@ -148,7 +157,8 @@ fun ProfileScreen(
                                     if (!isOwnProfile) {
                                         showRatingDialog = true
                                     }
-                                }
+                                },
+                                modifier = Modifier.offset(y = (-70).dp)
                             )
                         }
 
@@ -156,7 +166,8 @@ fun ProfileScreen(
                         item {
                             CustomDivider(
                                 thickness = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.offset(y = (-70).dp)
                             )
                         }
 
@@ -166,37 +177,27 @@ fun ProfileScreen(
                                 producto = producto,
                                 onClick = { onProductoClick(producto.id) },
                                 showDeleteButton = isOwnProfile,
-                                onDeleteClick = { viewModel.deleteProduct(producto.id) }
+                                onDeleteClick = { viewModel.deleteProduct(producto.id) },
+                                modifier = Modifier.offset(y = (-70).dp)
                             )
                         }
 
-                        // Espacio para el botón flotante
+                        // Spacer final reducido
                         item {
                             Spacer(modifier = Modifier.height(80.dp))
                         }
                     }
 
-                    // Foto de perfil superpuesta
-                    ProfileAvatarImage(
-                        imageName = seller.imagenPerfil,
-                        contentDescription = seller.nombre,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .offset(x = 16.dp, y = 130.dp)
-                            .zIndex(1f)
-                    )
-
-                    // Botón flotante circular solo si es perfil propio
                     if (isOwnProfile) {
                         CustomFloatingActionButton(
                             onClick = onFloatingActionClick,
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .padding(16.dp)
+                                .navigationBarsPadding()
                         )
                     }
 
-                    // Dialog de calificación
                     if (showRatingDialog) {
                         RatingDialog(
                             userName = seller.nombre,
@@ -204,7 +205,6 @@ fun ProfileScreen(
                             onDismiss = { showRatingDialog = false },
                             onRatingSubmit = { newRating ->
                                 currentRating = newRating
-                                // TODO: Guardar en Firebase
                             }
                         )
                     }
@@ -213,7 +213,6 @@ fun ProfileScreen(
         }
     }
 }
-
 @Composable
 private fun ProfileCoverImage(
     imageName: String,

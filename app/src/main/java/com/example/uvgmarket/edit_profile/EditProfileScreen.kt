@@ -35,12 +35,10 @@ fun EditProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Cargar datos del usuario al iniciar
     LaunchedEffect(Unit) {
         viewModel.loadUserData()
     }
 
-    // Manejar el éxito del guardado
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onSaveSuccess()
@@ -80,19 +78,30 @@ fun EditProfileScreen(
                 }
             }
 
-            // Spacer para el avatar
+            // NUEVO: Avatar dentro del LazyColumn con offset negativo
             item {
-                Spacer(modifier = Modifier.height(70.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-70).dp)
+                        .padding(start = 16.dp)
+                ) {
+                    EditProfileAvatar(
+                        imageRes = imagenPerfil,
+                        onCameraClick = { viewModel.onProfileImageChange() },
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+                }
             }
 
-            // Formulario de edición
+            // Formulario de edición (con offset negativo para compensar)
             item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .offset(y = (-70).dp)
                         .padding(horizontal = UiConstants.PADDING_LARGE.dp)
                 ) {
-                    // Mostrar campos con los valores del ViewModel
                     EditTextField(
                         label = stringResource(R.string.Nombre_editar_perfil),
                         value = uiState.nombre,
@@ -133,7 +142,6 @@ fun EditProfileScreen(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 
-                    // Mostrar error si existe
                     if (uiState.error != null) {
                         Spacer(modifier = Modifier.height(UiConstants.PADDING_LARGE.dp))
 
@@ -152,16 +160,6 @@ fun EditProfileScreen(
             }
         }
 
-        // Avatar superpuesto
-        EditProfileAvatar(
-            imageRes = imagenPerfil,
-            onCameraClick = { viewModel.onProfileImageChange() },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = 16.dp, y = 170.dp)
-        )
-
-        // Indicador de carga
         if (uiState.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
