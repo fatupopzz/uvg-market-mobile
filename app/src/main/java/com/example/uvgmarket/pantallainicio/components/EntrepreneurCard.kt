@@ -1,4 +1,3 @@
-
 package com.example.uvgmarket.pantallainicio.components
 
 import androidx.compose.foundation.Image
@@ -40,7 +39,7 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
  *
  * @param onClick Callback cuando se hace click en la card, menos estrellas y productos
  * @param onStarClick Callback cuando se hace click en las estrellas
- * @param onProductImageClick Callback cuando se hace click en una imagen de producto
+ * @param onProductImageClick Callback cuando se hace click en una imagen de producto (recibe productId)
  */
 @Composable
 fun EntrepreneurCard(
@@ -70,17 +69,20 @@ fun EntrepreneurCard(
                 .clickable { onClick() }
                 .padding(16.dp)
         ) {
+            // Fila superior: Avatar + Rating
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Avatar del emprendedor con imagen real
                 Box(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
+                    // Obtener el resource ID dinámicamente
                     val profileImageResId = context.resources.getIdentifier(
                         entrepreneur.profileImage,
                         "drawable",
@@ -97,6 +99,7 @@ fun EntrepreneurCard(
                             contentScale = ContentScale.Crop
                         )
                     } else {
+                        // Fallback al ícono por defecto
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = "Avatar de ${entrepreneur.name}",
@@ -108,6 +111,7 @@ fun EntrepreneurCard(
                     }
                 }
 
+                // Rating con estrellas
                 Box(
                     modifier = Modifier
                         .clickable { onStarClick() }
@@ -119,6 +123,7 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Nombre del emprendedor
             Text(
                 text = entrepreneur.name,
                 fontSize = 18.sp,
@@ -128,6 +133,7 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // Descripción del emprendedor
             Text(
                 text = entrepreneur.description,
                 fontSize = 14.sp,
@@ -136,13 +142,16 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Productos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // NOTA: entrepreneur.productImages ahora solo contiene nombres de imagen
-                // Necesitamos pasar los IDs de productos reales
-                entrepreneur.productImages.take(2).forEachIndexed { index, imageName ->
+                // MODIFICADO: Usar índice para acceder tanto a imagen como a ID
+                entrepreneur.productImages.forEachIndexed { index, imageName ->
+                    // Obtener el productId correspondiente
+                    val productId = entrepreneur.productIds.getOrNull(index) ?: imageName
+
                     val productImageResId = context.resources.getIdentifier(
                         imageName,
                         "drawable",
@@ -155,9 +164,8 @@ fun EntrepreneurCard(
                             .height(80.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
-                                // TEMPORAL: Pasar el nombre de imagen
-                                // TODO: Mejorar para pasar el ID del producto
-                                onProductImageClick(imageName)
+                                // MODIFICADO: Pasar el productId en lugar del imageName
+                                onProductImageClick(productId)
                             }
                     ) {
                         if (productImageResId != 0) {
@@ -171,6 +179,7 @@ fun EntrepreneurCard(
                                 contentScale = ContentScale.Crop
                             )
                         } else {
+                            // Fallback a caja gris si no se encuentra la imagen
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -181,6 +190,7 @@ fun EntrepreneurCard(
                     }
                 }
 
+                // Espacios vacíos si hay menos de 2 productos
                 repeat(2 - entrepreneur.productImages.size.coerceAtMost(2)) {
                     Box(
                         modifier = Modifier
@@ -194,6 +204,7 @@ fun EntrepreneurCard(
         }
     }
 }
+
 /**
  * Preview del componente EntrepreneurCard
  */
@@ -202,11 +213,13 @@ fun EntrepreneurCard(
 fun EntrepreneurCardPreview() {
     UvgMarketTheme {
         val sampleEntrepreneur = Entrepreneur(
+            id = "1",
             name = "Hamburguesas kawaii",
             description = "Tu lugar fav para comer",
             rating = 3,
             profileImage = "hamburger1",
-            productImages = listOf("hamburger1", "hamburger1")
+            productImages = listOf("hamburger1", "hamburger2"),
+            productIds = listOf("prod1", "prod2")
         )
 
         EntrepreneurCard(entrepreneur = sampleEntrepreneur)

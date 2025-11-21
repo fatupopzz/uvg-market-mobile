@@ -9,5 +9,6 @@ data class Entrepreneur(
     val description: String,
     val rating: Int,
     val profileImage: String,
-    val productImages: List<String>
+    val productImages: List<String>,
+    val productIds: List<String> = emptyList()
 )

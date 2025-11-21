@@ -211,10 +211,9 @@ private fun EntrepreneursList(
     entrepreneurs: List<Entrepreneur>,
     onEntrepreneurClick: (Entrepreneur) -> Unit,
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
-    onProductImageClick: (String) -> Unit
+    onProductImageClick: (String) -> Unit // productId
 ) {
     if (entrepreneurs.isEmpty()) {
-        // Mostrar mensaje cuando no hay resultados
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -249,13 +248,15 @@ private fun EntrepreneursList(
                     entrepreneur = entrepreneur,
                     onClick = { onEntrepreneurClick(entrepreneur) },
                     onStarClick = { onEntrepreneurStarClick(entrepreneur) },
-                    onProductImageClick = onProductImageClick
+                    onProductImageClick = { productId ->
+                        // Pasar el productId directamente
+                        onProductImageClick(productId)
+                    }
                 )
             }
         }
     }
 }
-
 @Preview(
     showBackground = true,
     showSystemUi = true,
