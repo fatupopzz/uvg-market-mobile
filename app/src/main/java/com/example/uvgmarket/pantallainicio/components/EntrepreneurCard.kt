@@ -1,7 +1,9 @@
 package com.example.uvgmarket.pantallainicio.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,9 +51,19 @@ fun EntrepreneurCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onStarClick: () -> Unit = {},
-    onProductImageClick: (String) -> Unit = {} // Ahora recibe productId
+    onProductImageClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val TAG = "EntrepreneurCard"
+
+    // NUEVO: Log para depurar
+    LaunchedEffect(entrepreneur.rating) {
+        Log.d(TAG, "========================================")
+        Log.d(TAG, "Card renderizada para: ${entrepreneur.name}")
+        Log.d(TAG, "Rating recibido: ${entrepreneur.rating}")
+        Log.d(TAG, "ID del emprendedor: ${entrepreneur.id}")
+        Log.d(TAG, "========================================")
+    }
 
     Card(
         modifier = modifier
@@ -117,6 +131,8 @@ fun EntrepreneurCard(
                         .clickable { onStarClick() }
                         .padding(top = 4.dp)
                 ) {
+                    // NUEVO: Log antes de mostrar las estrellas
+                    Log.d(TAG, "Mostrando ${entrepreneur.rating} estrellas para ${entrepreneur.name}")
                     StarRating(rating = entrepreneur.rating)
                 }
             }
@@ -147,9 +163,7 @@ fun EntrepreneurCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // MODIFICADO: Usar índice para acceder tanto a imagen como a ID
                 entrepreneur.productImages.forEachIndexed { index, imageName ->
-                    // Obtener el productId correspondiente
                     val productId = entrepreneur.productIds.getOrNull(index) ?: imageName
 
                     val productImageResId = context.resources.getIdentifier(
@@ -164,7 +178,6 @@ fun EntrepreneurCard(
                             .height(80.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
-                                // MODIFICADO: Pasar el productId en lugar del imageName
                                 onProductImageClick(productId)
                             }
                     ) {
@@ -179,7 +192,6 @@ fun EntrepreneurCard(
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            // Fallback a caja gris si no se encuentra la imagen
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()

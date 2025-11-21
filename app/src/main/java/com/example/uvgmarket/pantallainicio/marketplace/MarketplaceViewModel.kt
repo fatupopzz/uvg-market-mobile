@@ -2,8 +2,8 @@ package com.example.uvgmarket.pantallainicio.marketplace
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uvgmarket.data.model.Product
 import com.example.uvgmarket.data.repository.ProductRepository
+import com.example.uvgmarket.data.repository.UserRepository
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +23,7 @@ data class MarketplaceUiState(
 class MarketplaceViewModel : ViewModel() {
 
     private val productRepository = ProductRepository()
+    private val userRepository = UserRepository()
     private val TAG = "MarketplaceViewModel"
 
     private val _uiState = MutableStateFlow(MarketplaceUiState())
@@ -34,13 +35,14 @@ class MarketplaceViewModel : ViewModel() {
 
     /**
      * Carga emprendedores agrupando productos por vendedor desde Firebase
+     * CON RATINGS REALES
      */
-    private fun loadEntrepreneurs() {
+    fun loadEntrepreneurs(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                Log.d(TAG, "Cargando productos desde Firebase...")
+                Log.d(TAG, "Cargando productos desde Firebase... (forceRefresh: $forceRefresh)")
 
                 // Obtener todos los productos
                 val allProducts = productRepository.getAllProducts()
@@ -49,9 +51,16 @@ class MarketplaceViewModel : ViewModel() {
                 // Agrupar productos por vendedor
                 val productsByVendor = allProducts.groupBy { it.vendedorId }
 
-                // Crear un Entrepreneur por cada vendedor
+                // Crear un Entrepreneur por cada vendedor con rating real
                 val entrepreneurs = productsByVendor.map { (vendedorId, products) ->
                     val firstProduct = products.first()
+
+                    // CAMBIADO: Usar forceRefresh para obtener datos actualizados
+                    val user = userRepository.getUserById(vendedorId, forceRefresh = forceRefresh)
+                    val rating = user?.rating ?: 0
+                    val profileImage = user?.imagenPerfil?.ifEmpty { "fotodeperfilindu" } ?: "fotodeperfilindu"
+
+                    Log.d(TAG, "Vendedor: ${firstProduct.vendedorNombre}, Rating: $rating")
 
                     // Tomar los primeros 2 productos para mostrar
                     val displayProducts = products.take(2)
@@ -60,14 +69,14 @@ class MarketplaceViewModel : ViewModel() {
                         id = vendedorId,
                         name = firstProduct.vendedorNombre,
                         description = "Vendedor con ${products.size} producto(s)",
-                        rating = 3,
-                        profileImage = "fotodeperfilindu",
+                        rating = rating,
+                        profileImage = profileImage,
                         productImages = displayProducts.map { it.imagen },
-                        productIds = displayProducts.map { it.id } // NUEVO: Incluir IDs
+                        productIds = displayProducts.map { it.id }
                     )
                 }
 
-                Log.d(TAG, "Emprendedores creados: ${entrepreneurs.size}")
+                Log.d(TAG, "✓ Emprendedores creados: ${entrepreneurs.size}")
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -75,7 +84,7 @@ class MarketplaceViewModel : ViewModel() {
                     allEntrepreneurs = entrepreneurs
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "Error al cargar emprendedores", e)
+                Log.e(TAG, "✗ Error al cargar emprendedores", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Error al cargar emprendedores: ${e.message}"
@@ -125,8 +134,10 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     fun refresh() {
+        Log.d(TAG, "Refrescando marketplace con forceRefresh=true")
         productRepository.clearCache()
-        loadEntrepreneurs()
+        userRepository.clearCache()
+        loadEntrepreneurs(forceRefresh = true)
     }
 
     fun clearError() {

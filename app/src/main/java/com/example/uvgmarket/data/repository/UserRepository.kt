@@ -43,11 +43,16 @@ class UserRepository {
      * Obtiene un usuario por su UID
      * Usa caché local primero, luego Firestore
      */
-    suspend fun getUserById(uid: String): User? {
+    suspend fun getUserById(uid: String, forceRefresh: Boolean = false): User? {
         return try {
-            // 1. Verificar caché en memoria
+            // 1. Si se requiere refresh, limpiar caché
+            if (forceRefresh) {
+                userCache.remove(uid)
+            }
+
+            // 2. Verificar caché en memoria
             val cached = userCache[uid]
-            if (cached != null) {
+            if (cached != null && !forceRefresh) {
                 val (user, timestamp) = cached
                 if (System.currentTimeMillis() - timestamp < CACHE_DURATION) {
                     Log.d(TAG, "✓ Usuario obtenido de caché: $uid")
@@ -59,16 +64,22 @@ class UserRepository {
 
             Log.d(TAG, "Obteniendo usuario de Firestore: $uid")
 
-            // 2. Intentar obtener de caché de Firestore primero
-            var document = usersCollection.document(uid)
-                .get(Source.CACHE)
-                .await()
-
-            // 3. Si no está en caché, obtener del servidor
-            if (!document.exists()) {
-                document = usersCollection.document(uid)
+            // 3. Si forceRefresh, leer del servidor directamente
+            val document = if (forceRefresh) {
+                usersCollection.document(uid)
                     .get(Source.SERVER)
                     .await()
+            } else {
+                // Intentar caché de Firestore primero
+                try {
+                    usersCollection.document(uid)
+                        .get(Source.CACHE)
+                        .await()
+                } catch (e: Exception) {
+                    usersCollection.document(uid)
+                        .get(Source.SERVER)
+                        .await()
+                }
             }
 
             if (document.exists()) {
@@ -77,7 +88,7 @@ class UserRepository {
                     val user = User.fromMap(data)
                     // Guardar en caché
                     userCache[uid] = Pair(user, System.currentTimeMillis())
-                    Log.d(TAG, "✓ Usuario obtenido: ${user.nombre}")
+                    Log.d(TAG, "✓ Usuario obtenido: ${user.nombre}, rating: ${user.rating}")
                     return user
                 }
             }

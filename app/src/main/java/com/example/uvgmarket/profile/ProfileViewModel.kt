@@ -1,3 +1,5 @@
+// Reemplaza el archivo app/src/main/java/com/example/uvgmarket/profile/ProfileViewModel.kt
+
 package com.example.uvgmarket.profile
 
 import androidx.lifecycle.ViewModel
@@ -7,6 +9,7 @@ import com.example.uvgmarket.data.model.Seller
 import com.example.uvgmarket.data.model.User
 import com.example.uvgmarket.data.repository.ProductRepository
 import com.example.uvgmarket.data.repository.UserRepository
+import com.example.uvgmarket.data.repository.RatingRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,13 +24,16 @@ data class ProfileUiState(
     val error: String? = null,
     val showDeleteDialog: Boolean = false,
     val productToDelete: Product? = null,
-    val deleteSuccess: String? = null
+    val deleteSuccess: String? = null,
+    val currentUserRating: Int = 0,  // NUEVO: Rating que el usuario actual le dio
+    val showRatingDialog: Boolean = false  // NUEVO: Controlar el diálogo
 )
 
 class ProfileViewModel : ViewModel() {
 
     private val productRepository = ProductRepository()
     private val userRepository = UserRepository()
+    private val ratingRepository = RatingRepository()  // NUEVO
     private val auth = FirebaseAuth.getInstance()
     private val TAG = "ProfileViewModel"
 
@@ -62,7 +68,8 @@ class ProfileViewModel : ViewModel() {
 
                         _uiState.value = ProfileUiState(
                             seller = seller,
-                            productos = productos
+                            productos = productos,
+                            currentUserRating = 0  // No aplica para perfil propio
                         )
                     } else {
                         Log.w(TAG, "Usuario no encontrado en Firestore, creando perfil básico")
@@ -112,6 +119,7 @@ class ProfileViewModel : ViewModel() {
             try {
                 Log.d(TAG, "Cargando perfil del usuario: $userId")
 
+                val currentUser = auth.currentUser
                 val user = userRepository.getUserById(userId)
 
                 if (user != null) {
@@ -128,9 +136,19 @@ class ProfileViewModel : ViewModel() {
                     val productos = productRepository.getProductsByVendor(userId)
                     Log.d(TAG, "Productos cargados: ${productos.size}")
 
+                    // NUEVO: Obtener la calificación que el usuario actual le dio a este usuario
+                    val currentUserRating = if (currentUser != null) {
+                        ratingRepository.getUserRating(currentUser.uid, userId)
+                    } else {
+                        0
+                    }
+
+                    Log.d(TAG, "Rating actual del usuario: $currentUserRating")
+
                     _uiState.value = ProfileUiState(
                         seller = seller,
-                        productos = productos
+                        productos = productos,
+                        currentUserRating = currentUserRating
                     )
                 } else {
                     _uiState.value = ProfileUiState(
@@ -146,7 +164,63 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // Mostrar diálogo de confirmación
+    // NUEVO: Mostrar diálogo de calificación
+    fun showRatingDialog() {
+        _uiState.value = _uiState.value.copy(showRatingDialog = true)
+    }
+
+    // NUEVO: Ocultar diálogo de calificación
+    fun hideRatingDialog() {
+        _uiState.value = _uiState.value.copy(showRatingDialog = false)
+    }
+
+    // NUEVO: Calificar usuario
+    fun rateUser(toUserId: String, rating: Int) {
+        viewModelScope.launch {
+            try {
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    Log.d(TAG, "Calificando usuario $toUserId con $rating estrellas")
+
+                    _uiState.value = _uiState.value.copy(isLoading = true)
+
+                    val success = ratingRepository.rateUser(
+                        fromUserId = currentUser.uid,
+                        toUserId = toUserId,
+                        rating = rating
+                    )
+
+                    if (success) {
+                        Log.d(TAG, "✓ Calificación guardada exitosamente")
+
+                        // Actualizar el UI con la nueva calificación
+                        _uiState.value = _uiState.value.copy(
+                            currentUserRating = rating,
+                            isLoading = false,
+                            showRatingDialog = false
+                        )
+
+                        // Recargar el perfil para obtener el promedio actualizado
+                        loadUserProfile(toUserId)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = "Error al guardar la calificación"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error al calificar usuario", e)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
+
+    // Resto de funciones existentes...
+
     fun showDeleteDialog(product: Product) {
         _uiState.value = _uiState.value.copy(
             showDeleteDialog = true,
@@ -154,7 +228,6 @@ class ProfileViewModel : ViewModel() {
         )
     }
 
-    // Ocultar diálogo de confirmación
     fun hideDeleteDialog() {
         _uiState.value = _uiState.value.copy(
             showDeleteDialog = false,
@@ -162,7 +235,6 @@ class ProfileViewModel : ViewModel() {
         )
     }
 
-    // Confirmar eliminación
     fun confirmDeleteProduct() {
         val product = _uiState.value.productToDelete ?: return
 
@@ -170,7 +242,6 @@ class ProfileViewModel : ViewModel() {
             try {
                 Log.d(TAG, "Eliminando producto: ${product.id}")
 
-                // Mostrar loading
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
                 val success = productRepository.deleteProduct(product.id)
@@ -190,7 +261,6 @@ class ProfileViewModel : ViewModel() {
 
                     Log.d(TAG, "Producto eliminado exitosamente")
 
-                    // Limpiar mensaje de éxito después de 3 segundos
                     kotlinx.coroutines.delay(3000)
                     _uiState.value = _uiState.value.copy(deleteSuccess = null)
                 } else {

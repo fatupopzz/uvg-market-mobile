@@ -53,8 +53,6 @@ fun ProfileScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    var showRatingDialog by remember { mutableStateOf(false) }
-    var currentRating by remember { mutableStateOf(0) }
 
     Box(
         modifier = modifier
@@ -88,10 +86,6 @@ fun ProfileScreen(
             uiState.seller != null -> {
                 val seller = uiState.seller!!
                 val productos = uiState.productos
-
-                LaunchedEffect(seller.calificacion) {
-                    currentRating = seller.calificacion.toInt()
-                }
 
                 Box(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
@@ -137,14 +131,14 @@ fun ProfileScreen(
                         item {
                             ProfileInfoCard(
                                 seller = seller,
-                                currentRating = currentRating,
+                                currentRating = uiState.currentUserRating,
                                 onChatClick = onChatClick,
                                 showChatButton = !isOwnProfile,
                                 showEditButton = isOwnProfile,
                                 onEditClick = onEditClick,
                                 onStarClick = {
                                     if (!isOwnProfile) {
-                                        showRatingDialog = true
+                                        viewModel.showRatingDialog()
                                     }
                                 },
                                 modifier = Modifier.offset(y = (-70).dp)
@@ -165,7 +159,6 @@ fun ProfileScreen(
                                 onClick = { onProductoClick(producto.id) },
                                 showDeleteButton = isOwnProfile,
                                 onDeleteClick = {
-                                    // Mostrar diálogo de confirmación
                                     viewModel.showDeleteDialog(producto)
                                 },
                                 modifier = Modifier.offset(y = (-70).dp)
@@ -188,13 +181,13 @@ fun ProfileScreen(
                     }
 
                     // Diálogo de calificación
-                    if (showRatingDialog) {
+                    if (uiState.showRatingDialog) {
                         RatingDialog(
                             userName = seller.nombre,
-                            currentRating = currentRating,
-                            onDismiss = { showRatingDialog = false },
+                            currentRating = uiState.currentUserRating,
+                            onDismiss = { viewModel.hideRatingDialog() },
                             onRatingSubmit = { newRating ->
-                                currentRating = newRating
+                                viewModel.rateUser(seller.id, newRating)
                             }
                         )
                     }

@@ -26,22 +26,8 @@ import com.example.uvgmarket.pantallainicio.components.ProfileAvatar
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import com.example.uvgmarket.pantallainicio.components.EntrepreneurCard
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
+import com.example.uvgmarket.profile.ProfileViewModel
 
-// Función helper para mapear nombres a IDs
-private fun getUserRatingForEntrepreneur(name: String, ratings: Map<String, Int>): Int {
-    val userId = when (name) {
-        "Hamburguesas kawaii" -> "1"
-        "Accesorios Luna" -> "2"
-        "TechRepair GT" -> "3"
-        else -> "1"
-    }
-    return ratings[userId] ?: 3
-}
-
-/**
- * Pantalla principal del Marketplace.
- * Muestra una lista de emprendedores con barra de búsqueda funcional y FAB.
- */
 @Composable
 fun MarketplaceScreen(
     modifier: Modifier = Modifier,
@@ -56,7 +42,20 @@ fun MarketplaceScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showRatingDialog by remember { mutableStateOf(false) }
     var selectedEntrepreneur by remember { mutableStateOf<Entrepreneur?>(null) }
-    val userRatings by com.example.uvgmarket.profile.repository.RatingRepository.userRatings.collectAsState()
+
+    // ViewModel para manejar las calificaciones
+    val profileViewModel: ProfileViewModel = viewModel()
+    val profileUiState by profileViewModel.uiState.collectAsState()
+
+    // NUEVO: Refrescar cuando se cierra el diálogo de calificación y fue exitoso
+    LaunchedEffect(showRatingDialog) {
+        if (!showRatingDialog && selectedEntrepreneur != null) {
+            // Pequeño delay para que Firebase se actualice
+            kotlinx.coroutines.delay(1000)
+            viewModel.refresh()
+            selectedEntrepreneur = null
+        }
+    }
 
     Box(
         modifier = modifier
@@ -147,24 +146,28 @@ fun MarketplaceScreen(
             }
         }
 
+        // Diálogo de calificación
         if (showRatingDialog && selectedEntrepreneur != null) {
+            // Cargar el rating actual cuando se abre el diálogo
+            LaunchedEffect(selectedEntrepreneur) {
+                profileViewModel.loadUserProfile(selectedEntrepreneur!!.id)
+            }
+
             com.example.uvgmarket.core.ui.components.rating.RatingDialog(
                 userName = selectedEntrepreneur!!.name,
-                currentRating = getUserRatingForEntrepreneur(selectedEntrepreneur!!.name, userRatings),
+                currentRating = profileUiState.currentUserRating,
                 onDismiss = {
                     showRatingDialog = false
-                    selectedEntrepreneur = null
                 },
                 onRatingSubmit = { newRating ->
-                    val userId = selectedEntrepreneur!!.id // Usar el ID real
-                    com.example.uvgmarket.profile.repository.RatingRepository.updateRating(userId, newRating)
+                    profileViewModel.rateUser(selectedEntrepreneur!!.id, newRating)
+                    showRatingDialog = false
                 }
             )
         }
     }
 }
 
-// Resto del código igual...
 @Composable
 private fun MarketplaceHeader(
     searchText: String,
@@ -211,7 +214,7 @@ private fun EntrepreneursList(
     entrepreneurs: List<Entrepreneur>,
     onEntrepreneurClick: (Entrepreneur) -> Unit,
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
-    onProductImageClick: (String) -> Unit // productId
+    onProductImageClick: (String) -> Unit
 ) {
     if (entrepreneurs.isEmpty()) {
         Box(
@@ -249,7 +252,6 @@ private fun EntrepreneursList(
                     onClick = { onEntrepreneurClick(entrepreneur) },
                     onStarClick = { onEntrepreneurStarClick(entrepreneur) },
                     onProductImageClick = { productId ->
-                        // Pasar el productId directamente
                         onProductImageClick(productId)
                     }
                 )
@@ -257,6 +259,7 @@ private fun EntrepreneursList(
         }
     }
 }
+
 @Preview(
     showBackground = true,
     showSystemUi = true,
