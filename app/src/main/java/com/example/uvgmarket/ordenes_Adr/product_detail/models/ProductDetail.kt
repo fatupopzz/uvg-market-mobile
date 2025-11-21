@@ -1,4 +1,4 @@
-package com.example.uvgmarket.Ordenes_Adr.product_detail.models
+package com.example.uvgmarket.ordenes_Adr.product_detail.models
 
 data class ProductDetail(
     val id: String,

@@ -1,6 +1,7 @@
 package com.example.uvgmarket.profile
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,15 +16,20 @@ fun MyProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = viewModel()
 ) {
+    // Refrescar cuando regresa a la pantalla
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
     ProfileScreen(
-        userId = null, // null indica que es el perfil propio
+        userId = null,
         isOwnProfile = true,
         onBackClick = onBackClick,
         onProductoClick = onProductoClick,
         onFloatingActionClick = onAddProductClick,
         onEditClick = onEditClick,
-        onChatClick = {}, // No hay chat en perfil propio
-        onStarClick = {}, // Las estrellas no son clickeables en perfil propio
+        onChatClick = {},
+        onStarClick = {},
         modifier = modifier,
         viewModel = viewModel
     )

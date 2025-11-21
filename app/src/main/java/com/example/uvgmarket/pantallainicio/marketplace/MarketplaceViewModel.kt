@@ -2,29 +2,28 @@ package com.example.uvgmarket.pantallainicio.marketplace
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uvgmarket.data.model.Product
+import com.example.uvgmarket.data.repository.ProductRepository
 import com.example.uvgmarket.pantallainicio.components.Entrepreneur
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.util.Log
 
-/**
- * Estado de la UI para MarketplaceScreen
- */
 data class MarketplaceUiState(
     val isLoading: Boolean = false,
     val entrepreneurs: List<Entrepreneur> = emptyList(),
-    val allEntrepreneurs: List<Entrepreneur> = emptyList(), // Lista completa sin filtrar
+    val allEntrepreneurs: List<Entrepreneur> = emptyList(),
     val searchText: String = "",
     val error: String? = null,
-    val isSearching: Boolean = false // Indica si hay una búsqueda activa
+    val isSearching: Boolean = false
 )
 
-/**
- * ViewModel para la pantalla de Marketplace
- * Ahora con búsqueda funcional en tiempo real
- */
 class MarketplaceViewModel : ViewModel() {
+
+    private val productRepository = ProductRepository()
+    private val TAG = "MarketplaceViewModel"
 
     private val _uiState = MutableStateFlow(MarketplaceUiState())
     val uiState: StateFlow<MarketplaceUiState> = _uiState.asStateFlow()
@@ -34,22 +33,44 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     /**
-     * Carga la lista de emprendedores
+     * Carga emprendedores agrupando productos por vendedor desde Firebase
      */
     private fun loadEntrepreneurs() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                // TODO: Reemplazar con llamada a repositorio/Firebase
-                val entrepreneurs = getHardcodedEntrepreneurs()
+                Log.d(TAG, "Cargando productos desde Firebase...")
+
+                // Obtener todos los productos
+                val allProducts = productRepository.getAllProducts()
+                Log.d(TAG, "Productos obtenidos: ${allProducts.size}")
+
+                // Agrupar productos por vendedor
+                val productsByVendor = allProducts.groupBy { it.vendedorId }
+
+                // Crear un Entrepreneur por cada vendedor
+                val entrepreneurs = productsByVendor.map { (vendedorId, products) ->
+                    val firstProduct = products.first()
+
+                    Entrepreneur(
+                        name = firstProduct.vendedorNombre,
+                        description = "Vendedor con ${products.size} producto(s)",
+                        rating = 3, // Rating por defecto
+                        profileImage = "fotodeperfilindu", // Imagen por defecto
+                        productImages = products.take(2).map { it.imagen }
+                    )
+                }
+
+                Log.d(TAG, "Emprendedores creados: ${entrepreneurs.size}")
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     entrepreneurs = entrepreneurs,
-                    allEntrepreneurs = entrepreneurs // Guardar lista completa para búsquedas
+                    allEntrepreneurs = entrepreneurs
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error al cargar emprendedores", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Error al cargar emprendedores: ${e.message}"
@@ -58,38 +79,25 @@ class MarketplaceViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Actualiza el texto de búsqueda y filtra en tiempo real
-     */
     fun onSearchTextChange(newText: String) {
         _uiState.value = _uiState.value.copy(searchText = newText)
-
-        // Filtrar en tiempo real mientras el usuario escribe
         performSearch(newText)
     }
 
-    /**
-     * Realiza la búsqueda cuando se presiona el botón de búsqueda
-     */
     fun onSearchClick() {
         performSearch(_uiState.value.searchText)
     }
 
-    /**
-     * Lógica de búsqueda reutilizable
-     */
     private fun performSearch(query: String) {
         viewModelScope.launch {
             val trimmedQuery = query.trim()
 
             if (trimmedQuery.isBlank()) {
-                // Si la búsqueda está vacía, mostrar todos los emprendedores
                 _uiState.value = _uiState.value.copy(
                     entrepreneurs = _uiState.value.allEntrepreneurs,
                     isSearching = false
                 )
             } else {
-                // Filtrar emprendedores por nombre o descripción
                 val filtered = _uiState.value.allEntrepreneurs.filter { entrepreneur ->
                     entrepreneur.name.contains(trimmedQuery, ignoreCase = true) ||
                             entrepreneur.description.contains(trimmedQuery, ignoreCase = true)
@@ -103,9 +111,6 @@ class MarketplaceViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Limpia la búsqueda y restaura la lista completa
-     */
     fun clearSearch() {
         _uiState.value = _uiState.value.copy(
             searchText = "",
@@ -114,40 +119,12 @@ class MarketplaceViewModel : ViewModel() {
         )
     }
 
-    /**
-     * Limpia el error
-     */
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+    fun refresh() {
+        productRepository.clearCache()
+        loadEntrepreneurs()
     }
 
-    /**
-     * Datos hardcodeados (temporal)
-     * TODO: Mover a repositorio
-     */
-    private fun getHardcodedEntrepreneurs(): List<Entrepreneur> {
-        return listOf(
-            Entrepreneur(
-                name = "Hamburguesas kawaii",
-                description = "Tu lugar fav para comer",
-                rating = 3,
-                profileImage = "fotodeperfilhamburger",
-                productImages = listOf("hamburger1", "hamburger2")
-            ),
-            Entrepreneur(
-                name = "Accesorios Luna",
-                description = "Joyería artesanal hecha a mano",
-                rating = 5,
-                profileImage = "fotodeperfiljoyeria",
-                productImages = listOf("joyeria1", "joyeria2")
-            ),
-            Entrepreneur(
-                name = "TechRepair GT",
-                description = "Reparación de celulares y laptops",
-                rating = 4,
-                profileImage = "imagendeperfilcomputadora",
-                productImages = listOf("limpinado1", "limpiando2")
-            )
-        )
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 }

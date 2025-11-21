@@ -124,6 +124,11 @@ class AuthRepository {
 
     fun logout() {
         firebaseService.logout()
+        // Limpiar cachés al cerrar sesión
+        val userRepo = UserRepository()
+        val productRepo = ProductRepository()
+        userRepo.clearCache()
+        productRepo.clearCache()
     }
 
     fun isUserLoggedIn(): Boolean {

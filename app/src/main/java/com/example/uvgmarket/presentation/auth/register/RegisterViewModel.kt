@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uvgmarket.core.constants.ValidationConstants
 import com.example.uvgmarket.data.model.User
+import com.example.uvgmarket.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,10 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-/**
- * Estado de la UI para la pantalla de registro
- */
 data class RegisterUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
@@ -22,20 +22,15 @@ data class RegisterUiState(
     val user: User? = null
 )
 
-/**
- * ViewModel para la pantalla de registro
- */
 class RegisterViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val userRepository = UserRepository()
     private val TAG = "RegisterViewModel"
 
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
 
-    /**
-     * Registra un nuevo usuario
-     */
     fun register(
         nombre: String,
         usuario: String,
@@ -43,7 +38,6 @@ class RegisterViewModel : ViewModel() {
         contrasena: String,
         confirmarContrasena: String
     ) {
-        // Validar campos
         val validationError = validateFields(nombre, usuario, correo, contrasena, confirmarContrasena)
         if (validationError != null) {
             _uiState.value = RegisterUiState(error = validationError)
@@ -53,35 +47,52 @@ class RegisterViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _uiState.value = RegisterUiState(isLoading = true)
-                Log.d(TAG, "Iniciando registro...")
+                Log.d(TAG, "=== INICIANDO REGISTRO ===")
 
-                // Crear usuario en Firebase Auth
-                val result = auth.createUserWithEmailAndPassword(correo, contrasena).await()
+                // 1. Crear usuario en Firebase Auth
+                Log.d(TAG, "Paso 1: Creando usuario en Auth...")
+                val result = withContext(Dispatchers.IO) {
+                    auth.createUserWithEmailAndPassword(correo, contrasena).await()
+                }
                 val uid = result.user?.uid
 
                 if (uid != null) {
-                    Log.d(TAG, "Usuario creado exitosamente: $uid")
+                    Log.d(TAG, "✓ Usuario creado en Auth: $uid")
 
-                    // Crear objeto User
+                    // 2. Crear objeto User
                     val newUser = User(
                         uid = uid,
                         nombre = nombre,
                         usuario = usuario,
-                        correo = correo
+                        correo = correo,
+                        imagenPerfil = "fotodeperfilindu",
+                        imagenPortada = "encabezado_usuario",
+                        fechaCreacion = System.currentTimeMillis()
                     )
 
-                    // Emitir éxito inmediatamente
+                    // 3. Guardar en Firestore (sin esperar - fire and forget)
+                    Log.d(TAG, "Paso 2: Guardando en Firestore (background)...")
+                    launch(Dispatchers.IO) {
+                        try {
+                            userRepository.createUser(newUser)
+                            Log.d(TAG, "✓ Usuario guardado en Firestore")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "⚠ Error guardando en Firestore (no crítico): ${e.message}")
+                        }
+                    }
+
+                    // 4. Emitir éxito INMEDIATAMENTE
+                    Log.d(TAG, "=== REGISTRO EXITOSO ===")
                     _uiState.value = RegisterUiState(
                         isSuccess = true,
                         user = newUser
                     )
-                    Log.d(TAG, "Registro completado")
                 } else {
                     _uiState.value = RegisterUiState(error = "Error al crear usuario")
                 }
 
             } catch (e: Exception) {
-                Log.e(TAG, "Error en registro: ${e.message}", e)
+                Log.e(TAG, "=== ERROR EN REGISTRO ===", e)
                 val errorMessage = when {
                     e.message?.contains("email address is already in use") == true ->
                         "El correo electrónico ya está registrado"

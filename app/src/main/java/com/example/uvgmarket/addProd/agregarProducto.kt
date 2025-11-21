@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uvgmarket.addProd.components.*
 import com.example.uvgmarket.ui.theme.*
@@ -31,42 +32,67 @@ fun AgregarProductoScreen(
             AddProductTopBar(
                 onCancelar = onCancelar,
                 onPublicar = {
-                    onPublicar(
-                        uiState.nombre,
-                        uiState.descripcion,
-                        uiState.precio,
-                        uiState.imagenSeleccionada
-                    )
+                    if (viewModel.puedePublicar()) {
+                        viewModel.publicarProducto(
+                            onSuccess = {
+                                // Llamar al callback de navegación
+                                onPublicar(
+                                    uiState.nombre,
+                                    uiState.descripcion,
+                                    uiState.precio,
+                                    uiState.imagenSeleccionada
+                                )
+                            }
+                        )
+                    }
                 }
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ImageSection(
-                imagenSeleccionada = uiState.imagenSeleccionada,
-                onImagenClick = { viewModel.onImagenClick() }
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ImageSection(
+                    imagenSeleccionada = uiState.imagenSeleccionada,
+                    onImagenClick = { viewModel.onImagenClick() }
+                )
 
-            CustomDivider()
+                CustomDivider()
 
-            FormSection(
-                nombre = uiState.nombre,
-                onNombreChange = { viewModel.onNombreChange(it) },
-                descripcion = uiState.descripcion,
-                onDescripcionChange = { viewModel.onDescripcionChange(it) },
-                precio = uiState.precio,
-                onPrecioChange = { viewModel.onPrecioChange(it) }
-            )
+                FormSection(
+                    nombre = uiState.nombre,
+                    onNombreChange = { viewModel.onNombreChange(it) },
+                    descripcion = uiState.descripcion,
+                    onDescripcionChange = { viewModel.onDescripcionChange(it) },
+                    precio = uiState.precio,
+                    onPrecioChange = { viewModel.onPrecioChange(it) }
+                )
+
+                // Mostrar error si existe
+                if (uiState.error != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = uiState.error ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
+            }
+
+            // Indicador de carga
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
     }
 }
-
 // ============================================
 // PREVIEWS
 // ============================================

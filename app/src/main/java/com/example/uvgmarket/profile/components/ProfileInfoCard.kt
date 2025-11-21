@@ -14,19 +14,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uvgmarket.profile.models.Usuario
-import com.example.uvgmarket.profile.repository.DummyRepository
+import com.example.uvgmarket.data.model.Seller
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
 
 @Composable
-fun CustomInfoCard(
-    usuario: Usuario,
+fun ProfileInfoCard(
+    seller: Seller,
+    currentRating: Int,
     onChatClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     showChatButton: Boolean = true,
@@ -50,7 +49,7 @@ fun CustomInfoCard(
             ) {
                 // Las estrellas son clickeables solo cuando showChatButton es true
                 CustomStarRating(
-                    rating = usuario.calificacion,
+                    rating = currentRating.toFloat(),
                     modifier = Modifier.padding(start = 160.dp),
                     isClickable = showChatButton,
                     onClick = onStarClick
@@ -68,7 +67,7 @@ fun CustomInfoCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = usuario.nombre,
+                        text = seller.nombre,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -78,7 +77,7 @@ fun CustomInfoCard(
                     // Mostrar botón de chat solo si showChatButton es true
                     if (showChatButton) {
                         CustomChatButton(
-                            onClick = { onChatClick(usuario.id) }
+                            onClick = { onChatClick(seller.id) }
                         )
                     }
 
@@ -91,7 +90,7 @@ fun CustomInfoCard(
                 }
 
                 Text(
-                    text = usuario.descripcion,
+                    text = seller.descripcion,
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(top = 4.dp)
@@ -103,29 +102,43 @@ fun CustomInfoCard(
 
 @Preview
 @Composable
-fun CustomInfoCardPreview() {
+fun ProfileInfoCardPreview() {
     UvgMarketTheme {
-        val repository = DummyRepository()
-        val usuario = repository.getUsuario()
-        CustomInfoCard(
-            usuario = usuario,
-            onChatClick = { /* Preview action */ }
+        val seller = Seller(
+            id = "1",
+            nombre = "Hamburguesas Kawaii",
+            descripcion = "Tu lugar favorito para comer",
+            imagenPerfil = "profile_picture",
+            imagenPortada = "portada_perfil",
+            calificacion = 3f
+        )
+        ProfileInfoCard(
+            seller = seller,
+            currentRating = 3,
+            onChatClick = {}
         )
     }
 }
 
 @Preview
 @Composable
-fun CustomInfoCardWithEditPreview() {
+fun ProfileInfoCardWithEditPreview() {
     UvgMarketTheme {
-        val repository = DummyRepository()
-        val usuario = repository.getUsuario()
-        CustomInfoCard(
-            usuario = usuario,
-            onChatClick = { /* Preview action */ },
+        val seller = Seller(
+            id = "1",
+            nombre = "Hamburguesas Kawaii",
+            descripcion = "Tu lugar favorito para comer",
+            imagenPerfil = "profile_picture",
+            imagenPortada = "portada_perfil",
+            calificacion = 3f
+        )
+        ProfileInfoCard(
+            seller = seller,
+            currentRating = 3,
+            onChatClick = {},
             showChatButton = false,
             showEditButton = true,
-            onEditClick = { /* Preview action */ }
+            onEditClick = {}
         )
     }
 }

@@ -10,7 +10,7 @@ import com.example.uvgmarket.profile.ProfileScreen
 import com.example.uvgmarket.profile.MyProfileScreen
 import com.example.uvgmarket.profile.repository.UserRepository
 import com.example.uvgmarket.chat.ChatScreen
-import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
+import com.example.uvgmarket.ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
 import com.example.uvgmarket.data.repository.AuthRepository
 import com.example.uvgmarket.core.navigation.NavigationActions
@@ -58,14 +58,8 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
 
     // Pantalla de editar perfil
     composable(NavigationDestination.EditProfile.route) {
-        val usuario = UserRepository.getCurrentUser()
-
         EditProfileScreen(
-            nombre = usuario.nombre,
-            usuario = "hamburguesaskawaii",
-            correo = "hamburguesas@uvg.edu.gt",
-            imagenPerfil = usuario.imagenPerfil,
-            imagenPortada = usuario.imagenPortada,
+            // YA NO pasamos datos hardcodeados, el ViewModel los carga
             onCancelClick = { navigationActions.navigateBack() },
             onSaveSuccess = {
                 navigationActions.navigateBack()

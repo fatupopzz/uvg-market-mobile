@@ -4,35 +4,28 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.uvgmarket.Ordenes_Adr.product_detail.ProductDetailScreen
+import com.example.uvgmarket.ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.addProd.AgregarProductoScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
 import com.example.uvgmarket.pantallainicio.marketplace.MarketplaceScreen
 import com.example.uvgmarket.core.navigation.NavigationActions
 import com.example.uvgmarket.core.navigation.NavigationDestination
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
-    // Pantalla principal del Marketplace
     composable(NavigationDestination.Marketplace.route) {
+        val viewModel: com.example.uvgmarket.pantallainicio.marketplace.MarketplaceViewModel = viewModel()
+
         MarketplaceScreen(
+            viewModel = viewModel,
             onSearchClick = { /* TODO: Implementar búsqueda */ },
             onEntrepreneurClick = { entrepreneur ->
-                val userId = when (entrepreneur.name) {
-                    "Hamburguesas kawaii" -> "1"
-                    "Accesorios Luna" -> "2"
-                    "TechRepair GT" -> "3"
-                    else -> "1"
-                }
-                navigationActions.navigateToOtherUserProfile(userId)
+                // Navegar al perfil del vendedor
+                // Por ahora usamos un ID genérico
+                navigationActions.navigateToOtherUserProfile("1")
             },
             onEntrepreneurStarClick = { entrepreneur ->
-                val userId = when (entrepreneur.name) {
-                    "Hamburguesas kawaii" -> "1"
-                    "Accesorios Luna" -> "2"
-                    "TechRepair GT" -> "3"
-                    else -> "1"
-                }
-                navigationActions.navigateToOtherUserProfile(userId)
+                // Manejar click en estrellas
             },
             onFabClick = { navigationActions.navigateToChatGeneral() },
             onProductImageClick = { productImageName ->
@@ -42,7 +35,6 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla de detalle de producto
     composable(
         route = NavigationDestination.ProductDetail.route,
         arguments = listOf(
@@ -64,17 +56,16 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         )
     }
 
-    // Pantalla de agregar producto
     composable(NavigationDestination.AddProduct.route) {
         AgregarProductoScreen(
             onCancelar = { navigationActions.navigateBack() },
             onPublicar = { nombre, descripcion, precio, tieneImagen ->
+                // Después de publicar, regresar al marketplace
                 navigationActions.navigateBack()
             }
         )
     }
 
-    // Pantalla de chat general
     composable(NavigationDestination.ChatGeneral.route) {
         PantallaChatGeneral(
             onBackClick = { navigationActions.navigateBack() },
