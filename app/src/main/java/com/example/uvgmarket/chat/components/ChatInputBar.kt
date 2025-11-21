@@ -29,7 +29,8 @@ fun ChatInputBar(
     messageText: String,
     onMessageTextChange: (String) -> Unit,
     onSendClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = modifier
@@ -43,14 +44,22 @@ fun ChatInputBar(
             modifier = Modifier
                 .weight(1f)
                 .background(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = if (enabled) {
+                        MaterialTheme.colorScheme.surface
+                    } else {
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                    },
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
             BasicTextField(
                 value = messageText,
-                onValueChange = onMessageTextChange,
+                onValueChange = { newValue ->
+                    if (enabled) {
+                        onMessageTextChange(newValue)
+                    }
+                },
                 textStyle = TextStyle(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 15.sp
@@ -75,16 +84,21 @@ fun ChatInputBar(
         // Botón de envío
         IconButton(
             onClick = {
-                if (messageText.isNotBlank()) {
+                if (messageText.isNotBlank() && enabled) {
                     onSendClick()
                 }
             },
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(40.dp),
+            enabled = enabled && messageText.isNotBlank()
         ) {
             Icon(
                 imageVector = Icons.Filled.Send,
                 contentDescription = "Enviar mensaje",
-                tint = MaterialTheme.colorScheme.primary
+                tint = if (enabled && messageText.isNotBlank()) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                }
             )
         }
     }
@@ -100,6 +114,21 @@ fun ChatInputBarPreview() {
             messageText = messageText,
             onMessageTextChange = { messageText = it },
             onSendClick = { messageText = "" }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatInputBarDisabledPreview() {
+    UvgMarketTheme {
+        var messageText by remember { mutableStateOf("") }
+
+        ChatInputBar(
+            messageText = messageText,
+            onMessageTextChange = { messageText = it },
+            onSendClick = { messageText = "" },
+            enabled = false
         )
     }
 }

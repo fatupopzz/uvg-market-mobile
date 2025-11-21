@@ -8,7 +8,6 @@ import com.example.uvgmarket.change_password.ChangePasswordScreen
 import com.example.uvgmarket.edit_profile.EditProfileScreen
 import com.example.uvgmarket.profile.ProfileScreen
 import com.example.uvgmarket.profile.MyProfileScreen
-import com.example.uvgmarket.profile.repository.UserRepository
 import com.example.uvgmarket.chat.ChatScreen
 import com.example.uvgmarket.ordenes_Adr.product_detail.ProductDetailScreen
 import com.example.uvgmarket.chat_general.PantallaChatGeneral
@@ -46,7 +45,7 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
             isOwnProfile = false,
             onBackClick = { navigationActions.navigateBack() },
             onChatClick = { clickedUserId ->
-                navigationActions.navigateToChat()
+                navigationActions.navigateToChat(clickedUserId)
             },
             onProductoClick = { productId ->
                 navigationActions.navigateToProductDetail(productId, showContactButton = true)
@@ -59,7 +58,6 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
     // Pantalla de editar perfil
     composable(NavigationDestination.EditProfile.route) {
         EditProfileScreen(
-            // YA NO pasamos datos hardcodeados, el ViewModel los carga
             onCancelClick = { navigationActions.navigateBack() },
             onSaveSuccess = {
                 navigationActions.navigateBack()
@@ -98,8 +96,8 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
             productId = productId,
             showContactButton = showContactButton,
             onBackClick = { navigationActions.navigateBack() },
-            onContactSellerClick = {
-                navigationActions.navigateToChat()
+            onContactSellerClick = { vendorId ->
+                navigationActions.navigateToChat(vendorId)
             }
         )
     }
@@ -107,8 +105,10 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
     composable(route = NavigationDestination.ChatGeneral.route) {
         PantallaChatGeneral(
             onBackClick = { navigationActions.navigateBack() },
-            onChatClick = {
-                navigationActions.navigateToChat()
+            onChatClick = { chatId ->
+                // TODO: Necesitarás extraer el userId del chat
+                // Por ahora, navega al chat con un userId de ejemplo
+                navigationActions.navigateToChat(chatId)
             },
             onProfileAvatarClick = {
                 navigationActions.navigateToProfile()
@@ -116,8 +116,19 @@ fun NavGraphBuilder.profileGraph(navigationActions: NavigationActions) {
         )
     }
 
-    composable(route = NavigationDestination.Chat.route) {
+    // RUTA DEL CHAT - CORREGIDA
+    composable(
+        route = NavigationDestination.Chat.route,
+        arguments = listOf(
+            navArgument("userId") {
+                type = NavType.StringType
+            }
+        )
+    ) { backStackEntry ->
+        val userId = backStackEntry.arguments?.getString("userId") ?: ""
+
         ChatScreen(
+            otherUserId = userId,
             onBackClick = { navigationActions.navigateBack() }
         )
     }

@@ -6,6 +6,7 @@ package com.example.uvgmarket.chat.components
  */
 data class Message(
     val id: String = "", // ID único del mensaje (Firebase document ID)
+    val chatId: String = "", // ID del chat al que pertenece
     val senderId: String = "", // ID del usuario que envía
     val receiverId: String = "", // ID del usuario que recibe
     val text: String = "",
@@ -19,6 +20,7 @@ data class Message(
      */
     fun toMap(): Map<String, Any> {
         return mapOf(
+            "chatId" to chatId,
             "senderId" to senderId,
             "receiverId" to receiverId,
             "text" to text,
@@ -36,6 +38,7 @@ data class Message(
         fun fromMap(id: String, map: Map<String, Any>): Message {
             return Message(
                 id = id,
+                chatId = map["chatId"] as? String ?: "",
                 senderId = map["senderId"] as? String ?: "",
                 receiverId = map["receiverId"] as? String ?: "",
                 text = map["text"] as? String ?: "",

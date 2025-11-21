@@ -54,8 +54,8 @@ class NavigationActions(private val navController: NavHostController) {
         navController.navigate(NavigationDestination.ChatGeneral.route)
     }
 
-    fun navigateToChat() {
-        navController.navigate(NavigationDestination.Chat.route)
+    fun navigateToChat(userId: String) {
+        navController.navigate(NavigationDestination.Chat.createRoute(userId))
     }
 
     fun navigateBack() {

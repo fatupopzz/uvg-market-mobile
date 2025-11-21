@@ -20,6 +20,9 @@ sealed class NavigationDestination(val route: String) {
     data object ChangePassword : NavigationDestination("change_password")
     data object AddProduct : NavigationDestination("add_product")
     data object ChatGeneral : NavigationDestination("chat_general")
-
-    data object Chat : NavigationDestination("chat")
+    data object Chat : NavigationDestination("chat/{userId}") {
+        fun createRoute(userId: String): String {
+            return "chat/$userId"
+        }
+    }
 }

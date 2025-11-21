@@ -52,8 +52,8 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         ProductDetailScreen(
             productId = productId,
             onBackClick = { navigationActions.navigateBack() },
-            onContactSellerClick = {
-                // TODO: Implementar navegación al chat con el vendedor
+            onContactSellerClick = { vendorId ->
+                navigationActions.navigateToChat(vendorId)
             },
             showContactButton = showContactButton
         )

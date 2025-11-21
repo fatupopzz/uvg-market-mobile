@@ -29,12 +29,13 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
  *
  * @param productId ID del producto a mostrar
  * @param showContactButton Si es true, muestra el botón de contactar vendedor
+ * @param onContactSellerClick Callback que recibe el vendorId cuando se presiona contactar
  */
 @Composable
 fun ProductDetailScreen(
     productId: String,
     onBackClick: () -> Unit = {},
-    onContactSellerClick: () -> Unit = {},
+    onContactSellerClick: (String) -> Unit = {}, // Ahora recibe el vendorId
     showContactButton: Boolean = true,
     viewModel: ProductDetailViewModel = viewModel()
 ) {
@@ -110,6 +111,7 @@ fun ProductDetailScreen(
                             subtitle = product.subtitulo,
                             description = product.descripcion,
                             price = product.precio,
+                            vendorId = product.vendedorId, // Pasar el vendorId
                             onContactSellerClick = onContactSellerClick,
                             showContactButton = showContactButton
                         )
@@ -164,7 +166,8 @@ private fun ProductInformation(
     subtitle: String,
     description: String,
     price: Double,
-    onContactSellerClick: () -> Unit,
+    vendorId: String,
+    onContactSellerClick: (String) -> Unit,
     showContactButton: Boolean
 ) {
     Column(
@@ -202,7 +205,10 @@ private fun ProductInformation(
         if (showContactButton) {
             SecondaryButton(
                 text = stringResource(R.string.boton_contactar_vendedor),
-                onClick = onContactSellerClick,
+                onClick = {
+                    // Pasar el ID del vendedor
+                    onContactSellerClick(vendorId)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }

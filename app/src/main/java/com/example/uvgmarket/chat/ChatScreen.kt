@@ -19,68 +19,107 @@ import com.example.uvgmarket.chat.components.ChatInputBar
 import com.example.uvgmarket.chat.components.MessageBubble
 import com.example.uvgmarket.pantallainicio.components.ProfileAvatar
 import com.example.uvgmarket.ui.theme.UvgMarketTheme
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    recipientName: String = "Hamburguesas kawaii",
-    recipientProfileImage: String? = "fotodeperfilhamburger",
-    currentUserId: String = "currentUser",
-    recipientId: String = "otherUser",
+    otherUserId: String? = null,
     onBackClick: () -> Unit = {},
     chatViewModel: ChatViewModel = viewModel()
 ) {
-    val messages by chatViewModel.messages.collectAsState()
-    val messageText by chatViewModel.messageText.collectAsState()
+    val uiState by chatViewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    // Inicializar chat cuando se pasa otherUserId
+    LaunchedEffect(otherUserId) {
+        if (otherUserId != null) {
+            chatViewModel.initializeChat(otherUserId)
+        }
+    }
 
     // Auto-scroll al último mensaje
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
+    LaunchedEffect(uiState.messages.size) {
+        if (uiState.messages.isNotEmpty()) {
             coroutineScope.launch {
-                listState.animateScrollToItem(messages.size - 1)
+                listState.animateScrollToItem(uiState.messages.size - 1)
             }
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header
+            ChatHeader(
+                recipientName = uiState.otherUserName.ifEmpty { "Usuario" },
+                recipientProfileImage = uiState.otherUserImage,
+                onBackClick = onBackClick
+            )
 
-        // Header
-        ChatHeader(
-            recipientName = recipientName,
-            recipientProfileImage = recipientProfileImage,
-            onBackClick = onBackClick
-        )
-
-        // Lista de mensajes
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(
-                items = messages,
-                key = { it.id }
-            ) { message ->
-                MessageBubble(
-                    message = message,
-                    isCurrentUser = message.senderId == currentUserId
-                )
+            // Mostrar loading o error
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                uiState.error != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = uiState.error ?: "",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                else -> {
+                    // Lista de mensajes
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        items(
+                            items = uiState.messages,
+                            key = { it.id }
+                        ) { message ->
+                            MessageBubble(
+                                message = message,
+                                isCurrentUser = message.senderId == currentUserId
+                            )
+                        }
+                    }
+                }
             }
-        }
 
-        // Barra de entrada de mensajes
-        ChatInputBar(
-            messageText = messageText,
-            onMessageTextChange = { chatViewModel.onMessageTextChange(it) },
-            onSendClick = { chatViewModel.sendMessage(currentUserId, recipientId) },
-            modifier = Modifier.navigationBarsPadding()
-        )
+            // Barra de entrada de mensajes
+            ChatInputBar(
+                messageText = uiState.messageText,
+                onMessageTextChange = { chatViewModel.onMessageTextChange(it) },
+                onSendClick = {
+                    if (otherUserId != null) {
+                        chatViewModel.sendMessage(otherUserId)
+                    }
+                },
+                modifier = Modifier.navigationBarsPadding(),
+                enabled = !uiState.isLoading && uiState.chatId != null
+            )
+        }
     }
 }
 
@@ -103,11 +142,6 @@ private fun ChatHeader(
                         text = recipientName,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onTertiary
-                    )
-                    Text(
-                        text = "Online",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.8f)
                     )
                 }
             }
