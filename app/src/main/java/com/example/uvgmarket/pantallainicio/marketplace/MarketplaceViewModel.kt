@@ -120,6 +120,7 @@ class MarketplaceViewModel : ViewModel() {
     }
 
     fun refresh() {
+        productRepository.clearCache()
         loadEntrepreneurs()
     }
 

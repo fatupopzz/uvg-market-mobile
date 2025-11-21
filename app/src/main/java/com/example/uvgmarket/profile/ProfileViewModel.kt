@@ -184,4 +184,10 @@ class ProfileViewModel : ViewModel() {
     fun resetState() {
         _uiState.value = ProfileUiState()
     }
+    fun refresh() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            loadCurrentUserProfile()
+        }
+    }
 }

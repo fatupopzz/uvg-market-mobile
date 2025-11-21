@@ -1,6 +1,7 @@
 package com.example.uvgmarket.profile
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,6 +16,11 @@ fun MyProfileScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = viewModel()
 ) {
+    // Refrescar cuando regresa a la pantalla
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
     ProfileScreen(
         userId = null,
         isOwnProfile = true,
