@@ -54,6 +54,7 @@ class MarketplaceViewModel : ViewModel() {
                     val firstProduct = products.first()
 
                     Entrepreneur(
+                        id = vendedorId, // NUEVO: Agregar ID del vendedor
                         name = firstProduct.vendedorNombre,
                         description = "Vendedor con ${products.size} producto(s)",
                         rating = 3, // Rating por defecto

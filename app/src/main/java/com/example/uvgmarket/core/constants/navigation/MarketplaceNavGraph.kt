@@ -20,15 +20,17 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
             viewModel = viewModel,
             onSearchClick = { /* TODO: Implementar búsqueda */ },
             onEntrepreneurClick = { entrepreneur ->
-                // Navegar al perfil del vendedor
-                // Por ahora usamos un ID genérico
-                navigationActions.navigateToOtherUserProfile("1")
+                // CORREGIDO: Usar el ID real del vendedor
+                navigationActions.navigateToOtherUserProfile(entrepreneur.id)
             },
             onEntrepreneurStarClick = { entrepreneur ->
                 // Manejar click en estrellas
             },
             onFabClick = { navigationActions.navigateToChatGeneral() },
             onProductImageClick = { productImageName ->
+                // NOTA: productImageName es solo el nombre de la imagen
+                // Necesitamos buscar el producto por imagen o pasar el ID
+                // Por ahora, buscaremos el primer producto que coincida
                 navigationActions.navigateToProductDetail(productImageName, showContactButton = true)
             },
             onProfileAvatarClick = { navigationActions.navigateToProfile() }
@@ -60,7 +62,6 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         AgregarProductoScreen(
             onCancelar = { navigationActions.navigateBack() },
             onPublicar = { nombre, descripcion, precio, tieneImagen ->
-                // Después de publicar, regresar al marketplace
                 navigationActions.navigateBack()
             }
         )

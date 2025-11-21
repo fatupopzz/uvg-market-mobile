@@ -109,6 +109,44 @@ class ProductRepository {
     }
 
     /**
+     * Busca un producto por nombre de imagen
+     */
+    suspend fun getProductByImageName(imageName: String): Product? {
+        return try {
+            Log.d(TAG, "Buscando producto con imagen: $imageName")
+
+            val snapshot = try {
+                productsCollection
+                    .whereEqualTo("imagen", imageName)
+                    .whereEqualTo("activo", true)
+                    .limit(1)
+                    .get(Source.CACHE)
+                    .await()
+            } catch (e: Exception) {
+                productsCollection
+                    .whereEqualTo("imagen", imageName)
+                    .whereEqualTo("activo", true)
+                    .limit(1)
+                    .get(Source.SERVER)
+                    .await()
+            }
+
+            if (!snapshot.isEmpty) {
+                val doc = snapshot.documents.first()
+                doc.data?.let {
+                    Product.fromMap(it).copy(id = doc.id)
+                }
+            } else {
+                Log.w(TAG, "No se encontró producto con imagen: $imageName")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "✗ Error buscando producto por imagen: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Obtiene productos de un vendedor específico
      */
     suspend fun getProductsByVendor(vendorId: String): List<Product> {

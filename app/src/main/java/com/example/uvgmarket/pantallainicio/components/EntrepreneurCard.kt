@@ -1,3 +1,4 @@
+
 package com.example.uvgmarket.pantallainicio.components
 
 import androidx.compose.foundation.Image
@@ -47,7 +48,7 @@ fun EntrepreneurCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onStarClick: () -> Unit = {},
-    onProductImageClick: (String) -> Unit = {}
+    onProductImageClick: (String) -> Unit = {} // Ahora recibe productId
 ) {
     val context = LocalContext.current
 
@@ -69,20 +70,17 @@ fun EntrepreneurCard(
                 .clickable { onClick() }
                 .padding(16.dp)
         ) {
-            // Fila superior: Avatar + Rating
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Avatar del emprendedor con imagen real
                 Box(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
-                    // Obtener el resource ID dinámicamente
                     val profileImageResId = context.resources.getIdentifier(
                         entrepreneur.profileImage,
                         "drawable",
@@ -99,7 +97,6 @@ fun EntrepreneurCard(
                             contentScale = ContentScale.Crop
                         )
                     } else {
-                        // Fallback al ícono por defecto
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = "Avatar de ${entrepreneur.name}",
@@ -111,7 +108,6 @@ fun EntrepreneurCard(
                     }
                 }
 
-                // Rating con estrellas
                 Box(
                     modifier = Modifier
                         .clickable { onStarClick() }
@@ -123,7 +119,6 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Nombre del emprendedor
             Text(
                 text = entrepreneur.name,
                 fontSize = 18.sp,
@@ -133,7 +128,6 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Descripción del emprendedor
             Text(
                 text = entrepreneur.description,
                 fontSize = 14.sp,
@@ -142,12 +136,12 @@ fun EntrepreneurCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Productos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Mostrar hasta 2 imágenes de productos
+                // NOTA: entrepreneur.productImages ahora solo contiene nombres de imagen
+                // Necesitamos pasar los IDs de productos reales
                 entrepreneur.productImages.take(2).forEachIndexed { index, imageName ->
                     val productImageResId = context.resources.getIdentifier(
                         imageName,
@@ -161,6 +155,8 @@ fun EntrepreneurCard(
                             .height(80.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
+                                // TEMPORAL: Pasar el nombre de imagen
+                                // TODO: Mejorar para pasar el ID del producto
                                 onProductImageClick(imageName)
                             }
                     ) {
@@ -175,7 +171,6 @@ fun EntrepreneurCard(
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            // Fallback a caja gris si no se encuentra la imagen
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -186,7 +181,6 @@ fun EntrepreneurCard(
                     }
                 }
 
-                // Espacios vacíos si hay menos de 2 productos
                 repeat(2 - entrepreneur.productImages.size.coerceAtMost(2)) {
                     Box(
                         modifier = Modifier
@@ -200,7 +194,6 @@ fun EntrepreneurCard(
         }
     }
 }
-
 /**
  * Preview del componente EntrepreneurCard
  */
