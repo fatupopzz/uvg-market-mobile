@@ -53,12 +53,17 @@ class MarketplaceViewModel : ViewModel() {
                 val entrepreneurs = productsByVendor.map { (vendedorId, products) ->
                     val firstProduct = products.first()
 
+                    // Tomar los primeros 2 productos para mostrar
+                    val displayProducts = products.take(2)
+
                     Entrepreneur(
+                        id = vendedorId,
                         name = firstProduct.vendedorNombre,
                         description = "Vendedor con ${products.size} producto(s)",
-                        rating = 3, // Rating por defecto
-                        profileImage = "fotodeperfilindu", // Imagen por defecto
-                        productImages = products.take(2).map { it.imagen }
+                        rating = 3,
+                        profileImage = "fotodeperfilindu",
+                        productImages = displayProducts.map { it.imagen },
+                        productIds = displayProducts.map { it.id } // NUEVO: Incluir IDs
                     )
                 }
 

@@ -39,7 +39,7 @@ import com.example.uvgmarket.ui.theme.UvgMarketTheme
  *
  * @param onClick Callback cuando se hace click en la card, menos estrellas y productos
  * @param onStarClick Callback cuando se hace click en las estrellas
- * @param onProductImageClick Callback cuando se hace click en una imagen de producto
+ * @param onProductImageClick Callback cuando se hace click en una imagen de producto (recibe productId)
  */
 @Composable
 fun EntrepreneurCard(
@@ -47,7 +47,7 @@ fun EntrepreneurCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onStarClick: () -> Unit = {},
-    onProductImageClick: (String) -> Unit = {}
+    onProductImageClick: (String) -> Unit = {} // Ahora recibe productId
 ) {
     val context = LocalContext.current
 
@@ -147,8 +147,11 @@ fun EntrepreneurCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Mostrar hasta 2 imágenes de productos
-                entrepreneur.productImages.take(2).forEachIndexed { index, imageName ->
+                // MODIFICADO: Usar índice para acceder tanto a imagen como a ID
+                entrepreneur.productImages.forEachIndexed { index, imageName ->
+                    // Obtener el productId correspondiente
+                    val productId = entrepreneur.productIds.getOrNull(index) ?: imageName
+
                     val productImageResId = context.resources.getIdentifier(
                         imageName,
                         "drawable",
@@ -161,7 +164,8 @@ fun EntrepreneurCard(
                             .height(80.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
-                                onProductImageClick(imageName)
+                                // MODIFICADO: Pasar el productId en lugar del imageName
+                                onProductImageClick(productId)
                             }
                     ) {
                         if (productImageResId != 0) {
@@ -209,11 +213,13 @@ fun EntrepreneurCard(
 fun EntrepreneurCardPreview() {
     UvgMarketTheme {
         val sampleEntrepreneur = Entrepreneur(
+            id = "1",
             name = "Hamburguesas kawaii",
             description = "Tu lugar fav para comer",
             rating = 3,
             profileImage = "hamburger1",
-            productImages = listOf("hamburger1", "hamburger1")
+            productImages = listOf("hamburger1", "hamburger2"),
+            productIds = listOf("prod1", "prod2")
         )
 
         EntrepreneurCard(entrepreneur = sampleEntrepreneur)

@@ -53,10 +53,7 @@ fun MarketplaceScreen(
     onProfileAvatarClick: () -> Unit = {},
     viewModel: MarketplaceViewModel = viewModel()
 ) {
-    // Observar el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
-
-    // Estados para el rating dialog
     var showRatingDialog by remember { mutableStateOf(false) }
     var selectedEntrepreneur by remember { mutableStateOf<Entrepreneur?>(null) }
     val userRatings by com.example.uvgmarket.profile.repository.RatingRepository.userRatings.collectAsState()
@@ -67,14 +64,12 @@ fun MarketplaceScreen(
             .statusBarsPadding()
     ) {
         when {
-            // Estado de carga
             uiState.isLoading -> {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
 
-            // Estado de error
             uiState.error != null -> {
                 Column(
                     modifier = Modifier
@@ -92,12 +87,10 @@ fun MarketplaceScreen(
                 }
             }
 
-            // Estado con datos
             else -> {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Header con fondo verde y barra de búsqueda
                     MarketplaceHeader(
                         searchText = uiState.searchText,
                         onSearchTextChange = { viewModel.onSearchTextChange(it) },
@@ -106,7 +99,6 @@ fun MarketplaceScreen(
                         onProfileAvatarClick = onProfileAvatarClick
                     )
 
-                    // Mensaje cuando hay búsqueda activa
                     if (uiState.isSearching) {
                         Box(
                             modifier = Modifier
@@ -126,7 +118,6 @@ fun MarketplaceScreen(
                         }
                     }
 
-                    // Lista de emprendedores
                     EntrepreneursList(
                         entrepreneurs = uiState.entrepreneurs,
                         onEntrepreneurClick = onEntrepreneurClick,
@@ -138,7 +129,6 @@ fun MarketplaceScreen(
                     )
                 }
 
-                // Floating Action Button
                 FloatingActionButton(
                     onClick = onFabClick,
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -157,7 +147,6 @@ fun MarketplaceScreen(
             }
         }
 
-        // Dialog de calificación
         if (showRatingDialog && selectedEntrepreneur != null) {
             com.example.uvgmarket.core.ui.components.rating.RatingDialog(
                 userName = selectedEntrepreneur!!.name,
@@ -167,12 +156,7 @@ fun MarketplaceScreen(
                     selectedEntrepreneur = null
                 },
                 onRatingSubmit = { newRating ->
-                    val userId = when (selectedEntrepreneur!!.name) {
-                        "Hamburguesas kawaii" -> "1"
-                        "Accesorios Luna" -> "2"
-                        "TechRepair GT" -> "3"
-                        else -> "1"
-                    }
+                    val userId = selectedEntrepreneur!!.id // Usar el ID real
                     com.example.uvgmarket.profile.repository.RatingRepository.updateRating(userId, newRating)
                 }
             )
@@ -180,6 +164,7 @@ fun MarketplaceScreen(
     }
 }
 
+// Resto del código igual...
 @Composable
 private fun MarketplaceHeader(
     searchText: String,
@@ -226,10 +211,9 @@ private fun EntrepreneursList(
     entrepreneurs: List<Entrepreneur>,
     onEntrepreneurClick: (Entrepreneur) -> Unit,
     onEntrepreneurStarClick: (Entrepreneur) -> Unit,
-    onProductImageClick: (String) -> Unit
+    onProductImageClick: (String) -> Unit // productId
 ) {
     if (entrepreneurs.isEmpty()) {
-        // Mostrar mensaje cuando no hay resultados
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -264,13 +248,15 @@ private fun EntrepreneursList(
                     entrepreneur = entrepreneur,
                     onClick = { onEntrepreneurClick(entrepreneur) },
                     onStarClick = { onEntrepreneurStarClick(entrepreneur) },
-                    onProductImageClick = onProductImageClick
+                    onProductImageClick = { productId ->
+                        // Pasar el productId directamente
+                        onProductImageClick(productId)
+                    }
                 )
             }
         }
     }
 }
-
 @Preview(
     showBackground = true,
     showSystemUi = true,

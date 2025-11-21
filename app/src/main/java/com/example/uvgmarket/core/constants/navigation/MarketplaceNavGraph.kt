@@ -20,16 +20,17 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
             viewModel = viewModel,
             onSearchClick = { /* TODO: Implementar búsqueda */ },
             onEntrepreneurClick = { entrepreneur ->
-                // Navegar al perfil del vendedor
-                // Por ahora usamos un ID genérico
-                navigationActions.navigateToOtherUserProfile("1")
+                // Navegar al perfil del vendedor usando su ID real
+                navigationActions.navigateToOtherUserProfile(entrepreneur.id)
             },
             onEntrepreneurStarClick = { entrepreneur ->
                 // Manejar click en estrellas
             },
             onFabClick = { navigationActions.navigateToChatGeneral() },
-            onProductImageClick = { productImageName ->
-                navigationActions.navigateToProductDetail(productImageName, showContactButton = true)
+            onProductImageClick = { productId ->
+                // CORREGIDO: productId ahora es el ID real del producto de Firebase
+                // Ya no es el nombre de la imagen, sino el ID del documento
+                navigationActions.navigateToProductDetail(productId, showContactButton = true)
             },
             onProfileAvatarClick = { navigationActions.navigateToProfile() }
         )
@@ -51,7 +52,9 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
         ProductDetailScreen(
             productId = productId,
             onBackClick = { navigationActions.navigateBack() },
-            onContactSellerClick = { },
+            onContactSellerClick = {
+                // TODO: Implementar navegación al chat con el vendedor
+            },
             showContactButton = showContactButton
         )
     }
@@ -69,7 +72,9 @@ fun NavGraphBuilder.marketplaceGraph(navigationActions: NavigationActions) {
     composable(NavigationDestination.ChatGeneral.route) {
         PantallaChatGeneral(
             onBackClick = { navigationActions.navigateBack() },
-            onChatClick = { chatId -> },
+            onChatClick = { chatId ->
+                // TODO: Implementar navegación al chat específico
+            },
             onProfileAvatarClick = { navigationActions.navigateToProfile() }
         )
     }

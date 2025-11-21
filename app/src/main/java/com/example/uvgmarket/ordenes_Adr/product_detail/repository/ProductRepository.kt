@@ -111,4 +111,5 @@ object ProductRepository {
     fun getProductsByVendor(vendedorId: String): List<ProductDetail> {
         return products.filter { it.vendedorId == vendedorId }
     }
+
 }
